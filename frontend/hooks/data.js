@@ -20,7 +20,7 @@ export function useUsername() {
                 return;
             }
             
-            const res = await fetch(`${API_BASE}/home_page/username`, {
+            const res = await fetch(`${API_BASE}/home_page/data/username`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${tokenn}`,
