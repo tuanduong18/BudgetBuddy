@@ -38,6 +38,39 @@ export default function createStyles(theme, colorScheme) {
         saveButtonText: {
             fontSize: 18,
             color: colorScheme === 'dark' ? 'black' : 'white',
-        }
+        },
+        row: {
+            margin: 15,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 2,
+        },
+        dateRow: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 16,
+        },
+        dateInput: {
+            width:  50,
+        },
+        dateYearInput: {
+            width:  80,
+        },
+        dateSep: {
+            marginHorizontal: 4,
+            fontSize: 18,
+        },
+        pickerWrapper: {
+            borderWidth: 1,
+            borderColor: theme.border,
+            borderRadius: 4,
+            marginBottom: 12,
+            overflow: "hidden",
+        },
+        picker: {
+            height: 50,
+            width: "100%",
+        },
     })
 }

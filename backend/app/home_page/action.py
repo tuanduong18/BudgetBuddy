@@ -2,6 +2,7 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from app.models import Transactions, TransactionTypes
+from datetime import datetime
 
 auth_bp = Blueprint('action', __name__, url_prefix='/home_page/action')
 
@@ -17,12 +18,14 @@ def add():
     category = data.get('category')
     if category not in ALLOWED_CATEGORIES:
         return jsonify({ 'message': 'Invalid transaction type' }), 400
+    
+    category = TransactionTypes(category)
 
     optional_cat = data.get('optional_cat')
-    amount = data.get('amount')
+    amount = float(data.get('amount'))
     currency = data.get('currency')
     description = data.get('description')
-    date = data.get('date')
+    date = datetime.fromisoformat(data.get('date'))
 
     if not category or not amount or not currency or not date:
         return jsonify({ 'message': 'Missing values' }), 400
