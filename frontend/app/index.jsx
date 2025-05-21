@@ -19,21 +19,21 @@ export default function WelcomeScreen() {
         />
 
         {/* Title */}
-        <Text style={[styles.title, { color: theme.text }]}>
+        <Text style={[styles.title, { color: 'black' }]}>
           Welcome to <Text style={styles.brand}>{"\n"}Budget Buddy!</Text>
         </Text>
 
         {/* Subtitle */}
-        <Text style={[styles.subtitle, { color: theme.text }]}>
+        <Text style={[styles.subtitle, { color: 'black' }]}>
           Need a good budget tracker?{"\n"}You have come to the right place!
         </Text>
 
         {/* Buttons */}
-        <TouchableOpacity style={[styles.buttonOutline, { borderColor: theme.text }]} onPress={() => router.push('/auth/sign_up')}>
-          <Text style={[styles.buttonText, { color: theme.text }]}>Sign Up</Text>
+        <TouchableOpacity style={[styles.buttonOutline, { backgroundColor: theme.button }]} onPress={() => router.push('/auth/sign_up')}>
+          <Text style={[styles.buttonText, { color: 'black' }]}>Sign Up</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.buttonOutline, { backgroundColor: theme.button }]} onPress={() => router.push('/auth/sign_in')}>
-          <Text style={[styles.buttonText, { color: theme.text }]}>Sign In</Text>
+          <Text style={[styles.buttonText, { color: 'black' }]}>Sign In</Text>
         </TouchableOpacity>
 
         {/* Legal */}
