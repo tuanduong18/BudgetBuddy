@@ -1,16 +1,20 @@
 import { Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { ThemeProvider } from "../context/ThemeContext"
+import { useFonts } from "expo-font";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { Poppins_700Bold } from "@expo-google-fonts/poppins";
+import { Inter_400Regular } from "@expo-google-fonts/inter";
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Poppins_700Bold,
+    Inter_400Regular,
+  });
+
+  if (!fontsLoaded) return null; // Prevent font flickering
+
   return (
     <ThemeProvider>
-      <SafeAreaProvider>
-        <Stack screenOptions={{headerShown: false, detachInactiveScreens: false,}}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="auth" />
-        </Stack>
-      </SafeAreaProvider>
+      <Stack screenOptions={{ headerShown: false }} />
     </ThemeProvider>
   );
 }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.3.0",
+    "@expo-google-fonts/poppins": "^0.3.1",
     "@expo/vector-icons": "^14.1.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/bottom-tabs": "^7.3.10",
