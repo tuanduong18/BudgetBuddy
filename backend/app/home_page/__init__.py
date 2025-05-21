@@ -1,3 +1,4 @@
 from .data import auth_bp as data_bp
+from .action import auth_bp as action_bp
 
-blueprints = [data_bp]
+blueprints = [data_bp, action_bp]
