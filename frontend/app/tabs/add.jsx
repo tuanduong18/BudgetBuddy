@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Button, ActivityIndicator, TextInput, View, Text } from 'react-native';
+import { Button, ActivityIndicator, TextInput, View, Text, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -7,8 +7,8 @@ import { Picker } from "@react-native-picker/picker";
 import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
-import { useAddTransactions } from "@/hooks/crud";
-import { useTransactionTypes } from "@/hooks/data";
+import { useAddExpense } from "@/hooks/crud";
+import { useExpenseTypes } from "@/hooks/data";
 
 export default function Add() {  
     const [category, setCategory] = useState("");
@@ -17,7 +17,7 @@ export default function Add() {
     const [day, setDay] = useState("");
     const [month, setMonth] = useState("");
     const [year, setYear] = useState("");
-    const {data: types, loading} = useTransactionTypes();
+    const {data: types, loading} = useExpenseTypes();
 
 
     const router = useRouter();
@@ -26,7 +26,7 @@ export default function Add() {
         Inter_500Medium,
     })
 
-    const add = useAddTransactions();
+    const add = useAddExpense();
     
     useEffect(() => {
         if (!loading && types.length > 0) {
@@ -42,11 +42,9 @@ export default function Add() {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
 
-    
-
-    const addTransaction = async () => {
+    const addExpense = async () => {
         if (!category || !amount || !currency || !day || !month || !year) {
-            alert("Please fill out all fields");
+            Alert.alert("Please fill out all fields");
             return;
         }
 
@@ -62,7 +60,7 @@ export default function Add() {
             category,
             amount: parseFloat(amount),
             currency,
-            date: isoDate,
+            time: isoDate,
         });
     }
 
@@ -137,7 +135,7 @@ export default function Add() {
 
             <Button 
                 title="Save" 
-                onPress={addTransaction} 
+                onPress={addExpense} 
                 style = {styles.saveButton}
             />
             <Button 

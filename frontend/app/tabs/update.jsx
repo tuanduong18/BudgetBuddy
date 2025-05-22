@@ -7,8 +7,8 @@ import { Picker } from "@react-native-picker/picker";
 import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
-import { useUpdateTransaction } from "@/hooks/crud";
-import { useTransactionTypes } from "@/hooks/data";
+import { useUpdateExpense } from "@/hooks/crud";
+import { useExpenseTypes } from "@/hooks/data";
 
 export default function Update() {
     const { id } = useLocalSearchParams();  
@@ -18,7 +18,7 @@ export default function Update() {
     const [day, setDay] = useState("");
     const [month, setMonth] = useState("");
     const [year, setYear] = useState("");
-    const {data: types, loading} = useTransactionTypes();
+    const {data: types, loading} = useExpenseTypes();
 
 
     const router = useRouter();
@@ -27,7 +27,7 @@ export default function Update() {
         Inter_500Medium,
     })
 
-    const update = useUpdateTransaction();
+    const update = useUpdateExpense();
     
     useEffect(() => {
         if (!loading && types.length > 0) {
@@ -43,7 +43,7 @@ export default function Update() {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
 
-    const updateTransaction = async () => {
+    const updateExpense = async () => {
         if (!category || !amount || !currency || !day || !month || !year) {
             alert("Please fill out all fields");
             return;
@@ -62,7 +62,7 @@ export default function Update() {
             category,
             amount: parseFloat(amount),
             currency,
-            date: isoDate,
+            time: isoDate,
         });
     }
 
@@ -137,7 +137,7 @@ export default function Update() {
 
             <Button 
                 title="Save" 
-                onPress={updateTransaction} 
+                onPress={updateExpense} 
                 style = {styles.saveButton}
             />
             <Button 

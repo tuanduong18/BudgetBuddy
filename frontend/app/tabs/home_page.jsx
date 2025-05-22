@@ -7,8 +7,8 @@ import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
 import { useSignOut } from "@/hooks/auth";
-import { useUsername, useTransactions } from "@/hooks/data";
-import { useDeleteTransaction } from '@/hooks/crud';
+import { useUsername, useExpenses } from "@/hooks/data";
+import { useDeleteExpense } from '@/hooks/crud';
 
 export default function NotFoundScreen() {  
     const router = useRouter();
@@ -17,9 +17,9 @@ export default function NotFoundScreen() {
         Inter_500Medium,
     })  
     const {data: username, loading: load1} = useUsername();
-    const {data: transactions, loading: load2} = useTransactions();
+    const {data: Expenses, loading: load2} = useExpenses();
     const signOut = useSignOut();
-    const deleteTransaction = useDeleteTransaction();
+    const deleteExpense = useDeleteExpense();
 
     if (!loaded && !error) {
         return null
@@ -36,7 +36,7 @@ export default function NotFoundScreen() {
     }
     
     const renderItem = ({item}) => {
-        const formattedDate = new Date(item.date).toLocaleDateString();
+        const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
         return (
             <View style={styles.row}>
                 <Text style={{fontSize:18, color: 'red'}}>
@@ -52,7 +52,7 @@ export default function NotFoundScreen() {
                 </Pressable>
                 </Text>
                 <Text style={{fontSize:18, color: 'red'}}><Pressable 
-                    onPress={() => deleteTransaction(item.id)}
+                    onPress={() => deleteExpense(item.id)}
                 >
                     Delete
                 </Pressable>
@@ -70,7 +70,7 @@ export default function NotFoundScreen() {
         <ThemedView style={styles.container}>
             <ThemedText type="title">Welcome, {username} </ThemedText>
             <FlatList
-                data={transactions}
+                data={Expenses}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
             />

@@ -5,11 +5,11 @@ import { getAccessToken } from '@/constants/authStorage';
 import { useRouter } from 'expo-router';
 import { useRefreshToken } from './auth';
 
-export function useAddTransactions() {
+export function useAddExpense() {
     const router = useRouter()
     const refreshToken = useRefreshToken();
 
-    const addTransactions = useCallback(async (dict) => {
+    const addExpense = useCallback(async (dict) => {
         try {
             await refreshToken()
             const tokenn = await getAccessToken()
@@ -45,14 +45,14 @@ export function useAddTransactions() {
         }
     }, [router]);
 
-    return addTransactions;
+    return addExpense;
 }
 
-export function useUpdateTransaction() {
+export function useUpdateExpense() {
     const router = useRouter()
     const refreshToken = useRefreshToken();
 
-    const updateTransaction = useCallback(async (dict) => {
+    const updateExpense = useCallback(async (dict) => {
         try {
             await refreshToken()
             const tokenn = await getAccessToken()
@@ -88,14 +88,14 @@ export function useUpdateTransaction() {
         }
     }, [router]);
 
-    return updateTransaction;
+    return updateExpense;
 }
 
-export function useDeleteTransaction() {
+export function useDeleteExpense() {
     const router = useRouter()
     const refreshToken = useRefreshToken();
 
-    const deleteTransaction = useCallback(async (id) => {
+    const deleteExpense = useCallback(async (id) => {
         try {
             await refreshToken()
             const tokenn = await getAccessToken()
@@ -131,5 +131,5 @@ export function useDeleteTransaction() {
         }
     }, [router]);
 
-    return deleteTransaction;
+    return deleteExpense;
 }

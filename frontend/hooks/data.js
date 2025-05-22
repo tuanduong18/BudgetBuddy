@@ -50,7 +50,7 @@ export function useUsername() {
     return {data, loading}
 }
 
-export function useTransactionTypes() {
+export function useExpenseTypes() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const refreshToken = useRefreshToken();
@@ -96,7 +96,7 @@ export function useTransactionTypes() {
     return {data, loading}
 }
 
-export function useTransactions() {
+export function useExpenses() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const refreshToken = useRefreshToken();
@@ -112,7 +112,7 @@ export function useTransactions() {
                 return;
             }
             
-            const res = await fetch(`${API_BASE}/home_page/data/transactions`, {
+            const res = await fetch(`${API_BASE}/home_page/data/expenses`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${tokenn}`,
