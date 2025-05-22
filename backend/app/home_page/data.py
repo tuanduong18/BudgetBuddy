@@ -2,7 +2,7 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from sqlalchemy import select
-from app.models import Expenses, ExpenseTypes
+from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
 auth_bp = Blueprint('home_page', __name__, url_prefix='/home_page/data')
@@ -15,13 +15,17 @@ def username():
         "username":current_user.username,
     })
 
-
-@auth_bp.route('/types', methods=['POST'])
+@auth_bp.route('/expense_types', methods=['POST'])
 @jwt_required()
-def types():
-    categories = [e.value for e in ExpenseTypes]
+def expense_types():
+    categories = [e.value for e in ExpenseTypes] # type: ignore
     return jsonify(categories)
 
+@auth_bp.route('/currency_types', methods=['POST'])
+@jwt_required()
+def currency_types():
+    currencies = [c.value for c in CurrencyTypes] # type: ignore
+    return jsonify(currencies)
 
 @auth_bp.route('/expenses', methods=['POST'])
 @jwt_required()
@@ -34,7 +38,7 @@ def expenses():
             "category":         trn.category.value,                 # type: ignore
             "optional_cat":     trn.optional_cat,        
             "amount":           trn.amount,                    
-            "currency":         trn.currency,                
+            "currency":         trn.currency.value,                 # type: ignore
             "description":      trn.description,          
             "time":             trn.time.isoformat(),
         } 

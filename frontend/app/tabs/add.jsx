@@ -8,7 +8,7 @@ import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
 import { useAddExpense } from "@/hooks/crud";
-import { useExpenseTypes } from "@/hooks/data";
+import { useExpenseTypes, useCurrencyTypes } from "@/hooks/data";
 
 export default function Add() {  
     const [category, setCategory] = useState("");
@@ -17,7 +17,8 @@ export default function Add() {
     const [day, setDay] = useState("");
     const [month, setMonth] = useState("");
     const [year, setYear] = useState("");
-    const {data: types, loading} = useExpenseTypes();
+    const {data: expense_types, loading: load1} = useExpenseTypes();
+    const {data: currency_types, loading: load2} = useCurrencyTypes();
 
 
     const router = useRouter();
@@ -29,16 +30,22 @@ export default function Add() {
     const add = useAddExpense();
     
     useEffect(() => {
-        if (!loading && types.length > 0) {
-        setCategory(types[0]);
+        if (!load1 && expense_types.length > 0) {
+        setCategory(expense_types[0]);
         }
-    }, [loading, types]);
+    }, [load1, expense_types]);
+
+    useEffect(() => {
+        if (!load1 && currency_types.length > 0) {
+        setCurrency(currency_types[0]);
+        }
+    }, [load2, currency_types]);
     
     if (!loaded && !error) {
         return null
     }
 
-    if (loading) {
+    if (load1 || load2) {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
 
@@ -72,14 +79,14 @@ export default function Add() {
             <ThemedText type="label">Category</ThemedText>
             <View style={styles.pickerWrapper}>
                 <Picker
-                    enable={!loading}
+                    enable={!load1}
                     selectedValue={category}
                     onValueChange={setCategory}
                     style={styles.picker}
                 >
-                {loading
+                {load1
                     ? <Picker.Item label="Loading…" value="" />
-                    : types.map(t => <Picker.Item key={t} label={t} value={t} />)
+                    : expense_types.map(t => <Picker.Item key={t} label={t} value={t} />)
                 }
                 </Picker>
             </View>
@@ -92,15 +99,20 @@ export default function Add() {
                 onChangeText={setAmount}
             />
 
-
             <ThemedText type="label">Currency</ThemedText>
-            <TextInput
-                style={styles.input}
-                placeholder="USD"
-                value={currency}
-                onChangeText={setCurrency}
-                maxLength={3}
-            />
+            <View style={styles.pickerWrapper}>
+                <Picker
+                    enable={!load2}
+                    selectedValue={currency}
+                    onValueChange={setCurrency}
+                    style={styles.picker}
+                >
+                {load2
+                    ? <Picker.Item label="Loading…" value="" />
+                    : currency_types.map(t => <Picker.Item key={t} label={t} value={t} />)
+                }
+                </Picker>
+            </View>
 
             <ThemedText type="label">Date (DD / MM / YYYY)</ThemedText>
             <View style={styles.dateRow}>

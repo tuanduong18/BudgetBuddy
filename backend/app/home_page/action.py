@@ -1,13 +1,14 @@
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
-from app.models import Expenses, ExpenseTypes
+from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import datetime
 from sqlalchemy import update, delete
 
 auth_bp = Blueprint('action', __name__, url_prefix='/home_page/action')
 
-ALLOWED_CATEGORIES = {e.value for e in ExpenseTypes}
+ALLOWED_CATEGORIES = {e.value for e in ExpenseTypes}  # type: ignore
+ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 
 # route to retrieve personal data from db
 @auth_bp.route('/add', methods=['POST'])
@@ -20,11 +21,16 @@ def add_expense():
     if category not in ALLOWED_CATEGORIES:
         return jsonify({ 'message': 'Invalid expense type' }), 400
     
-    category = ExpenseTypes(category)
+    category = ExpenseTypes(category) # type: ignore
 
     optional_cat = data.get('optional_cat')
     amount = float(data.get('amount'))
+
     currency = data.get('currency')
+    if currency not in ALLOWED_CURRENCIES:
+        return jsonify({ 'message': 'Unknown currency' }), 400
+
+    currency = CurrencyTypes(currency) # type: ignore
     description = data.get('description')
     time = datetime.fromisoformat(data.get('time')).date()
 
@@ -60,11 +66,17 @@ def update_expense():
     if category not in ALLOWED_CATEGORIES:
         return jsonify({ 'message': 'Invalid Expense type' }), 400
     
-    category = ExpenseTypes(category)
+    category = ExpenseTypes(category) # type: ignore
 
     optional_cat = data.get('optional_cat')
     amount = float(data.get('amount'))
+
     currency = data.get('currency')
+    if currency not in ALLOWED_CURRENCIES:
+        return jsonify({ 'message': 'Unknown currency' }), 400
+
+    currency = CurrencyTypes(currency) # type: ignore
+    
     description = data.get('description')
     time = datetime.fromisoformat(data.get('time')).date()
 
