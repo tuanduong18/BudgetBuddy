@@ -5,22 +5,25 @@ import { getAccessToken } from '@/constants/authStorage';
 import { useRouter } from 'expo-router';
 import { useRefreshToken } from './auth';
 
-export function useAddExpense() {
+export function useAddExpense()     {return useAction(`${API_BASE}/expenses/action/add`, "Successfully added new expense")}
+export function useUpdateExpense()  {return useAction(`${API_BASE}/expenses/action/update`, "Successfully updated")}
+export function useDeleteExpense()  {return useAction(`${API_BASE}/expenses/action/delete`, "Successfully deleted")}
+    
+function useAction(api, message) {
     const router = useRouter()
     const refreshToken = useRefreshToken();
 
-    const addExpense = useCallback(async (dict) => {
+    const action = useCallback(async (dict) => {
         try {
             await refreshToken()
             const tokenn = await getAccessToken()
 
             if (!tokenn) {
                 console.log("Error", "No access token found.")
-                Alert.alert("Error", "No access token found.");
+                Alert.alert("Error", "Unauthorized");
                 return;
             }
-
-            const res = await fetch(`${API_BASE}/home_page/action/add`, {
+            const res = await fetch(api, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${tokenn}`,
@@ -33,103 +36,17 @@ export function useAddExpense() {
             const data = await res.json()
             
             if (res.ok) {
-                Alert.alert("Successfully added");
-                router.push("/tabs/home_page");
+                Alert.alert(message);
+                router.push("/personal_expenses/history");
             } else {
                 console.log(data.message)
                 Alert.alert("Failed:", data.message || "");
             }
         } catch (error) {
-            console.error("Save error:", error.message);
+            console.error("Database error:", error.message);
             Alert.alert("Network Error", error.message);
         }
     }, [router]);
 
-    return addExpense;
-}
-
-export function useUpdateExpense() {
-    const router = useRouter()
-    const refreshToken = useRefreshToken();
-
-    const updateExpense = useCallback(async (dict) => {
-        try {
-            await refreshToken()
-            const tokenn = await getAccessToken()
-
-            if (!tokenn) {
-                console.log("Error", "No access token found.")
-                Alert.alert("Error", "No access token found.");
-                return;
-            }
-
-            const res = await fetch(`${API_BASE}/home_page/action/update`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${tokenn}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dict)
-
-            });
-
-            const data = await res.json()
-            
-            if (res.ok) {
-                Alert.alert("Successfully updated");
-                router.push("/tabs/home_page");
-            } else {
-                console.log(data.message)
-                Alert.alert("Failed:", data.message || "");
-            }
-        } catch (error) {
-            console.error("Save error:", error.message);
-            Alert.alert("Network Error", error.message);
-        }
-    }, [router]);
-
-    return updateExpense;
-}
-
-export function useDeleteExpense() {
-    const router = useRouter()
-    const refreshToken = useRefreshToken();
-
-    const deleteExpense = useCallback(async (id) => {
-        try {
-            await refreshToken()
-            const tokenn = await getAccessToken()
-
-            if (!tokenn) {
-                console.log("Error", "No access token found.")
-                Alert.alert("Error", "No access token found.");
-                return;
-            }
-
-            const res = await fetch(`${API_BASE}/home_page/action/delete`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${tokenn}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id,})
-
-            });
-
-            const data = await res.json()
-            
-            if (res.ok) {
-                Alert.alert("Successfully deleted");
-                router.push("/tabs/home_page");
-            } else {
-                console.log(data.message)
-                Alert.alert("Failed:", data.message || "");
-            }
-        } catch (error) {
-            console.error("delete error:", error.message);
-            Alert.alert("Network Error", error.message);
-        }
-    }, [router]);
-
-    return deleteExpense;
+    return action;
 }

@@ -45,7 +45,7 @@ export default function AllExpenses() {
                 </Pressable>
                 </Text>
                 <Text style={{fontSize:18, color: 'red'}}><Pressable 
-                    onPress={() => deleteExpense(item.id)}
+                    onPress={() => deleteExpense({id: item.id})}
                 >
                     Delete
                 </Pressable>

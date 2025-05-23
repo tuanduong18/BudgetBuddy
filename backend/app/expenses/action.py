@@ -5,7 +5,7 @@ from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import datetime
 from sqlalchemy import update, delete
 
-auth_bp = Blueprint('action', __name__, url_prefix='/home_page/action')
+auth_bp = Blueprint('action', __name__, url_prefix='/expenses/action')
 
 ALLOWED_CATEGORIES = {e.value for e in ExpenseTypes}  # type: ignore
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore

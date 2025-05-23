@@ -76,42 +76,12 @@ export function useSignIn() {
 }
 
 export function useSignOut() {
-
-    const router = useRouter();
-    const refreshToken = useRefreshToken();
-
+    const router = useRouter()
     const signOut = useCallback(async () => {
-        await refreshToken()
-        const tokenn = await getAccessToken()
-        if (!tokenn) {
-            console.log("Error", "No access token found.")
-            Alert.alert("Error", "No access token found.");
-            return;
-        }
-        
-        try {
-            const res = await fetch(`${API_BASE}/auth/sign_out`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${tokenn}`,
-                    
-                },
-            });
-            
-            const data = await res.json()
-            if (res.ok) {
-            Alert.alert("Successfully signed out", data.message);
-            await clearTokens()
-            router.push("/");
-            } else {
-            Alert.alert("Error", data.message || "Signout failed.");
-            }
-        } catch (error) {
-            console.error("Signout error:", error.message);
-            Alert.alert("Network Error", error.message);
-        }
+        Alert.alert("Successfully signed out"); 
+        await clearTokens()
+        router.push("/");
     }, [router]);
-
   return signOut;
 }
 

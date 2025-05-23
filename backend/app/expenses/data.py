@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
-auth_bp = Blueprint('home_page', __name__, url_prefix='/home_page/data')
+auth_bp = Blueprint('data', __name__, url_prefix='/expenses/data')
 
 # route to retrieve personal data from db
 @auth_bp.route('/username', methods=['POST'])

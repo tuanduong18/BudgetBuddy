@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, ActivityIndicator, Text, FlatList} from 'react-native';
+import { Button, ActivityIndicator, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
