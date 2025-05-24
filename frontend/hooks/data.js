@@ -4,17 +4,18 @@ import { API_BASE } from '@/constants/api';
 import { getAccessToken } from '@/constants/authStorage';
 import { useRefreshToken } from './auth';
 
-export function useUsername()       {return getData(`${API_BASE}/expenses/data/username`)}
-export function useExpenseTypes()   {return getData(`${API_BASE}/expenses/data/expense_types`)}
-export function useCurrencyTypes()  {return getData(`${API_BASE}/expenses/data/currency_types`)}
-export function useExpenses()       {return getData(`${API_BASE}/expenses/data/expenses`)}
+export function useUsername()           {return getData(`${API_BASE}/expenses/data/username`)}
+export function useExpenseTypes()       {return getData(`${API_BASE}/expenses/data/expense_types`)}
+export function useCurrencyTypes()      {return getData(`${API_BASE}/expenses/data/currency_types`)}
+export function useExpenses()           {return getData(`${API_BASE}/expenses/data/expenses`)}
+export function useUpdatingExpense(dict)    {return getData(`${API_BASE}/expenses/data/updating`, dict)}
 
-function getData(api) {
+function getData(api, dict = null) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const refreshToken = useRefreshToken();
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (dict) => {
         try {
             await refreshToken()
             const tokenn = await getAccessToken()
@@ -29,8 +30,9 @@ function getData(api) {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${tokenn}`,
-                    
+                    'Content-Type': 'application/json',
                 },
+                body: JSON.stringify(dict)
             });
 
             const json = await res.json();
@@ -49,7 +51,7 @@ function getData(api) {
     }, []);
 
     useEffect(() => {
-        loadData();
+        loadData(dict);
     }, [loadData]);
     
     return {data, loading}

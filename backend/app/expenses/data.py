@@ -44,3 +44,23 @@ def expenses():
     ]
     return jsonify(trs_list), 200
 
+@auth_bp.route('/updating', methods=['POST'])
+@jwt_required()
+def updating_expense():
+    
+    data = request.get_json()
+
+    expense_id = int(data.get('id'))
+    query = select(Expenses).filter_by(id=expense_id)
+    trn = db.session.execute(query).scalars().one_or_none()
+    if trn is None:
+        return jsonify({"message":"Unauthorized"}), 400
+    
+    return jsonify({                           
+            "category":         trn.category.value,                 # type: ignore
+            "optional_cat":     trn.optional_cat,        
+            "amount":           trn.amount,                    
+            "currency":         trn.currency.value,                 # type: ignore
+            "description":      trn.description,          
+            "time":             trn.time.isoformat(),
+        }), 200 

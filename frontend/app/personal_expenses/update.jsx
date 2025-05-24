@@ -8,7 +8,7 @@ import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
 import { useUpdateExpense } from "@/hooks/crud";
-import { useExpenseTypes, useCurrencyTypes } from "@/hooks/data";
+import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense } from "@/hooks/data";
 
 export default function UpdateExpense() {
     const { id } = useLocalSearchParams();  
@@ -20,6 +20,7 @@ export default function UpdateExpense() {
     const [year, setYear] = useState("");
     const {data: expense_types, loading: load1} = useExpenseTypes();
     const {data: currency_types, loading: load2} = useCurrencyTypes();
+    const {data: expense, loading: load3} = useUpdatingExpense({id: id});
 
     const router = useRouter();
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
@@ -30,22 +31,22 @@ export default function UpdateExpense() {
     const update = useUpdateExpense();
     
     useEffect(() => {
-            if (!load1 && expense_types.length > 0) {
-            setCategory(expense_types[0]);
+            if (!load3) {
+            setCategory(expense.category);
+            setAmount(parseFloat(expense.amount));
+            setCurrency(expense.currency);
+            const time = new Date(expense.time);
+            setDay(time.getDate());
+            setMonth(time.getMonth() + 1);
+            setYear(time.getFullYear());
             }
-        }, [load1, expense_types]);
-    
-    useEffect(() => {
-        if (!load2 && currency_types.length > 0) {
-        setCurrency(currency_types[0]);
-        }
-    }, [load2, currency_types]);
+        }, [load3, expense]);
     
     if (!loaded && !error) {
         return null
     }
 
-    if (load1 || load2) {
+    if (load1 || load2 || load3) {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
 
