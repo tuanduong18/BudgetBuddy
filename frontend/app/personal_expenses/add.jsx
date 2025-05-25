@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Button, ActivityIndicator, TextInput, View, Text, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -14,8 +14,10 @@ export default function AddExpense() {
     const add = useAddExpense();
     const {
         category, setCategory,
+        optional_cat, setOptionalCat,
         amount,   setAmount,
         currency, setCurrency,
+        description, setDescription,
         day,      setDay,
         month,    setMonth,
         year,     setYear,
@@ -58,11 +60,21 @@ export default function AddExpense() {
                 </Picker>
             </View>
 
+            <ThemedText type="label">Optional category</ThemedText>
+            <TextInput
+                style={styles.input}
+                placeholder="Additional information to category"
+                value={optional_cat}
+                maxLength={100}
+                onChangeText={setOptionalCat}
+            />
+
             <ThemedText type="label">Amount</ThemedText>
             <TextInput
                 style={styles.input}
                 placeholder="0.00"
                 value={amount}
+                keyboardType="decimal-pad"
                 onChangeText={setAmount}
             />
 
@@ -80,6 +92,14 @@ export default function AddExpense() {
                 }
                 </Picker>
             </View>
+
+            <ThemedText type="label">Description</ThemedText>
+            <TextInput
+                style={styles.input}
+                placeholder="e.g: Buy ChatGPT Plus"
+                value={description}
+                onChangeText={setDescription}
+            />
 
             <ThemedText type="label">Date (DD / MM / YYYY)</ThemedText>
             <View style={styles.dateRow}>

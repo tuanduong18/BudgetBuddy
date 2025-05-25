@@ -20,7 +20,7 @@ export default function AllExpenses() {
     const {data: Expenses, loading: load1} = useExpenses({currency: cur});
     const deleteExpense = useDeleteExpense();
     const {data: currency_types, loading: load2} = useCurrencyTypes();
-    const [currency, setCurrency] = useState(null);
+    const [currency, setCurrency] = useState("");
     if (!loaded && !error) {
         return null
     }
@@ -35,23 +35,17 @@ export default function AllExpenses() {
         const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
         return (
             <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red'}}>
-                    {item.category}: {item.amount} {item.currency} at {formattedDate}
-                </Text>
-                <Text style={{fontSize:18, color: 'red'}}><Pressable 
-                    onPress={() => router.push({
+                <Text style={{fontSize:18, color: 'red'}} onPress={() => router.push({
                         pathname: '/personal_expenses/update',
                         params: { "id": item.id }
-                    })}
-                >
-                    Update
-                </Pressable>
+                    })}>
+                    {item.category}: {item.amount} {item.currency} at {formattedDate}
                 </Text>
-                <Text style={{fontSize:18, color: 'red'}}><Pressable 
+                <Text 
+                    style={{fontSize:18, color: 'red'}} 
                     onPress={() => deleteExpense({id: item.id})}
                 >
                     Delete
-                </Pressable>
                 </Text>
             </View>
 
@@ -87,7 +81,7 @@ export default function AllExpenses() {
 
                 <Button 
                     title="Change currency" 
-                    onPress={() => currency == null 
+                    onPress={() => currency == "" 
                         ? router.push('/personal_expenses/history')
                         : router.push({
                             pathname:'/personal_expenses/history',

@@ -15,8 +15,10 @@ export default function UpdateExpense() {
     const update = useUpdateExpense();  
     const {
         category, setCategory,
+        optional_cat, setOptionalCat,
         amount,   setAmount,
         currency, setCurrency,
+        description, setDescription,
         day,      setDay,
         month,    setMonth,
         year,     setYear,
@@ -59,11 +61,21 @@ export default function UpdateExpense() {
                 </Picker>
             </View>
 
+            <ThemedText type="label">Optional category</ThemedText>
+            <TextInput
+                style={styles.input}
+                placeholder="Additional information to category"
+                value={optional_cat}
+                onChangeText={setOptionalCat}
+            />
+                
+
             <ThemedText type="label">Amount</ThemedText>
             <TextInput
                 style={styles.input}
                 placeholder="0.00"
                 value={amount}
+                keyboardType="decimal-pad"
                 onChangeText={setAmount}
             />
 
@@ -82,6 +94,14 @@ export default function UpdateExpense() {
                 }
                 </Picker>
             </View>
+
+            <ThemedText type="label">Description</ThemedText>
+            <TextInput
+                style={styles.input}
+                placeholder="e.g: Buy ChatGPT Plus"
+                value={description}
+                onChangeText={setDescription}
+            />
 
             <ThemedText type="label">Date (DD / MM / YYYY)</ThemedText>
             <View style={styles.dateRow}>

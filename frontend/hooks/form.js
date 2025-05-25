@@ -4,12 +4,14 @@ import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense } from "./data";
 
 export function useExpenseForm(func, id = null) {
     // 1. form state
-    const [category, setCategory] = useState("");
-    const [amount, setAmount]     = useState("");
-    const [currency, setCurrency] = useState("");
-    const [day, setDay]           = useState("");
-    const [month, setMonth]       = useState("");
-    const [year, setYear]         = useState("");
+    const [category, setCategory]           = useState("");
+    const [optional_cat, setOptionalCat]    = useState("");
+    const [amount, setAmount]               = useState("");
+    const [currency, setCurrency]           = useState("");
+    const [description, setDescription]     = useState("");
+    const [day, setDay]                     = useState("");
+    const [month, setMonth]                 = useState("");
+    const [year, setYear]                   = useState("");
 
     // 2. load data hooks
     const { data: expense_types, loading: load1 }   = useExpenseTypes();
@@ -28,8 +30,10 @@ export function useExpenseForm(func, id = null) {
         useEffect(() => {
             if (!load3) {
                 setCategory(expense.category);
+                setOptionalCat(expense.optional_cat);
                 setAmount(parseFloat(expense.amount));
                 setCurrency(expense.currency);
+                setDescription(expense.description);
                 const time = new Date(expense.time);
                 setDay(time.getDate());
                 setMonth(time.getMonth() + 1);
@@ -39,28 +43,30 @@ export function useExpenseForm(func, id = null) {
     }
     // 4. validate + submit
     const submit = async () => {
-        // all fields filled?
+        // all required fields filled?
         if (![category, amount, currency, day, month, year].every(Boolean)) {
-        return Alert.alert("Please fill out all fields");
+        return Alert.alert("Please fill out all compulsory fields");
         }
 
         // build date
         const dt = new Date(+year, +month - 1, +day);
         if (isNaN(dt.getTime())) {
-        return Alert.alert("Invalid date");
+            return Alert.alert("Invalid date");
         }
 
         // amount parse
         const amt = parseFloat(amount);
         if (isNaN(amt)) {
-        return Alert.alert("Invalid amount");
+            return Alert.alert("Invalid amount");
         }
 
         await func({
             id,
             category,
+            optional_cat,
             amount: amt,
             currency,
+            description,
             time: dt.toISOString(),
         });
     };
@@ -68,8 +74,10 @@ export function useExpenseForm(func, id = null) {
     return {
         // state + setters
         category, setCategory,
+        optional_cat, setOptionalCat,
         amount,   setAmount,
         currency, setCurrency,
+        description, setDescription,
         day,      setDay,
         month,    setMonth,
         year,     setYear,
