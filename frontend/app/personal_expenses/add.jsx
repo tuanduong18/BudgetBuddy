@@ -65,7 +65,7 @@ export default function AddExpense() {
                 style={styles.input}
                 placeholder="Additional information to category"
                 value={optional_cat}
-                maxLength={100}
+                maxLength={30}
                 onChangeText={setOptionalCat}
             />
 

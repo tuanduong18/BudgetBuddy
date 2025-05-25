@@ -67,6 +67,7 @@ export default function UpdateExpense() {
                 placeholder="Additional information to category"
                 value={optional_cat}
                 onChangeText={setOptionalCat}
+                maxLength={30}
             />
                 
 

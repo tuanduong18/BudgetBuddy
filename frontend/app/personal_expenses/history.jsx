@@ -35,11 +35,12 @@ export default function AllExpenses() {
         const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
         return (
             <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red'}} onPress={() => router.push({
+                <Text style={{fontSize:18, color: 'red', width:250, overflow:true}} onPress={() => router.push({
                         pathname: '/personal_expenses/update',
                         params: { "id": item.id }
+                        
                     })}>
-                    {item.category}: {item.amount} {item.currency} at {formattedDate}
+                    {item.category=="Other" ? item.optional_cat : item.category}: {item.amount} {item.currency} at {formattedDate}
                 </Text>
                 <Text 
                     style={{fontSize:18, color: 'red'}} 

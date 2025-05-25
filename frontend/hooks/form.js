@@ -19,10 +19,14 @@ export function useExpenseForm(func, id = null) {
 
     // 3. set defaults when loaded
     if(id == null){
+        const today = new Date()
         useEffect(() => {
             if (!load1 && !load2) {
                 setCategory(expense_types[0]);
                 setCurrency(currency_types[124]);
+                setDay(today.getDate());
+                setMonth(today.getMonth() + 1);
+                setYear(today.getFullYear());
             }
         }, [load1, load2, expense_types, currency_types]);
     } else {
@@ -49,7 +53,7 @@ export function useExpenseForm(func, id = null) {
         }
 
         // build date
-        const dt = new Date(+year, +month - 1, +day);
+        const dt = new Date(+year, +month - 1, +day+1);
         if (isNaN(dt.getTime())) {
             return Alert.alert("Invalid date");
         }
