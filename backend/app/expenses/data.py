@@ -1,7 +1,7 @@
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db, FINANCE_DATA
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
@@ -29,7 +29,7 @@ def currency_types():
 @auth_bp.route('/expenses', methods=['POST'])
 @jwt_required()
 def expenses():
-    query = select(Expenses).filter_by(user_id=current_user.id).order_by(Expenses.time)     # type: ignore
+    query = select(Expenses).filter_by(user_id=current_user.id).order_by(desc(Expenses.time))     # type: ignore
     trs = db.session.execute(query).scalars().all()
     if trs is None:
         return jsonify({"message":"Unauthorized"}), 400
