@@ -1,12 +1,45 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, ALert } from "react-native";
 import { useRouter } from "expo-router";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRefreshToken } from "@/hooks/auth";
+import { getAccessToken } from "@/constants/authStorage";
 
 export default function WelcomeScreen() {
   const { theme, colorScheme } = useContext(ThemeContext);
   const router = useRouter();
+  const refresh = useRefreshToken();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        // 1) attempt the refresh flow
+        await refresh();
+
+        // 2) read out the access token you just saved
+        const token = await getAccessToken();
+
+        // 3) if it’s there, go to /home
+        if (token) {
+          router.replace('/tabs/home_page');
+          return; // bail out so we don’t render LoginScreen briefly
+        }
+      } catch (err) {
+        // any unexpected error
+        console.error(err);
+        Alert.alert('Error', 'Something went wrong. Please log in.');
+      } finally {
+        // 4) either no refresh, or refresh failed, or after /home redirect
+        setChecking(false);
+      }
+    })();
+  }, [refresh, router]);
+
+  if (checking) {
+    return <ActivityIndicator size="large" />;  // your splash/loading UI
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: '#ffde1a' }]}>

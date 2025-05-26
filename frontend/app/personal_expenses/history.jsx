@@ -35,7 +35,7 @@ export default function AllExpenses() {
         const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
         return (
             <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red', width:250, overflow:true}} onPress={() => router.push({
+                <Text style={{fontSize:18, color: 'red', width:"75%", overflow:true}} onPress={() => router.push({
                         pathname: '/personal_expenses/update',
                         params: { "id": item.id }
                         
@@ -97,16 +97,17 @@ export default function AllExpenses() {
                 data={Expenses}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
+                showsVerticalScrollIndicator={false}
             />
             
             <Button 
                 title="add" 
-                onPress={() => router.push('/personal_expenses/add')} 
+                onPress={() => router.replace('/personal_expenses/add')} 
                 style = {styles.saveButton}
             />
             <Button 
                 title="home" 
-                onPress={() => router.push('/tabs/home_page')} 
+                onPress={() => router.replace('/tabs/home_page')} 
                 style = {styles.saveButton}
             />
         </ThemedView>

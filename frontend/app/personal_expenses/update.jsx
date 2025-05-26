@@ -8,7 +8,7 @@ import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
 import { useUpdateExpense } from "@/hooks/crud";
-import { useExpenseForm } from "@/hooks/form";
+import { useExpenseForm } from "@/hooks/expenseForm";
 
 export default function UpdateExpense() {
     const { id } = useLocalSearchParams();
@@ -142,7 +142,7 @@ export default function UpdateExpense() {
             />
             <Button 
                 title="Back" 
-                onPress={() => router.push('/personal_expenses/history')} 
+                onPress={() => router.replace('/personal_expenses/history')} 
                 style = {styles.saveButton}
             />
         </ThemedView>

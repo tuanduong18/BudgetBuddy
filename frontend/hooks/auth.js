@@ -61,7 +61,7 @@ export function useSignIn() {
             await saveTokens(access_token, refresh_token)
 
             Alert.alert("Success", "Successfully logging in");
-            router.push("/tabs/home_page");
+            router.replace("/tabs/home_page");
             } else {
             Alert.alert("Error", data.message || "Signin failed.");
             }
@@ -80,7 +80,7 @@ export function useSignOut() {
     const signOut = useCallback(async () => {
         Alert.alert("Successfully signed out"); 
         await clearTokens()
-        router.push("/");
+        router.replace("/index");
     }, [router]);
   return signOut;
 }
@@ -115,7 +115,7 @@ export function useRefreshToken() {
             } else {
             Alert.alert("Authentication Error", "You have to sign in again");
             clearTokens()
-            router.push('/index')
+            router.replace('/index')
             }
             
         } catch (error) {
