@@ -9,6 +9,8 @@ export function useExpenseTypes()           {return getData(`${API_BASE}/expense
 export function useCurrencyTypes()          {return getData(`${API_BASE}/expenses/data/currency_types`)}
 export function useExpenses(dict = null)    {return getData(`${API_BASE}/expenses/data/expenses`, dict)}
 export function useUpdatingExpense(dict)    {return getData(`${API_BASE}/expenses/data/updating`, dict)}
+export function useSubscriptions()          {return getData(`${API_BASE}/subscriptions/data/all`)}
+export function useUpdatingSubs(dict)       {return getData(`${API_BASE}/subscriptions/data/updating`, dict)}
 
 function getData(api, dict = null) {
     const [data, setData] = useState([]);

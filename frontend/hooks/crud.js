@@ -37,7 +37,7 @@ function useAction(api, message) {
             
             if (res.ok) {
                 Alert.alert(message);
-                router.replace("/personal_expenses/history");
+                router.push("/personal_expenses/history");
             } else {
                 console.log(data.message)
                 Alert.alert("Failed:", data.message || "");

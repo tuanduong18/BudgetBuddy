@@ -1,0 +1,125 @@
+import React, { useContext } from 'react';
+import { Button, ActivityIndicator, TextInput, View, Text, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import createStyles from "./style";
+import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
+import { ThemeContext } from "@/context/ThemeContext";
+import { useUpdateSubscription } from "@/hooks/reminder";
+import { useSubscriptionForm } from "@/hooks/subsriptionForm";
+
+export default function AddExpense() {  
+    const { id } = useLocalSearchParams();
+    const update = useUpdateSubscription();
+    const {
+        name,      setName,
+        sday,      setsDay,
+        smonth,    setsMonth,
+        syear,     setsYear,
+        eday,      seteDay,
+        emonth,    seteMonth,
+        eyear,     seteYear,
+
+        // submit fn
+        submit: updateSubs
+    } = useSubscriptionForm(update, id);
+
+    const router = useRouter();
+    const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
+    const [loaded, error] = useFonts({        
+        Inter_500Medium,
+    })
+    
+    if (!loaded && !error) {
+        return null
+    }
+
+    const styles = createStyles(theme, colorScheme);
+    // Screen
+    return (
+        <>
+        <ThemedView style={styles.container}>
+            <ThemedText type="label">Name</ThemedText>
+            <TextInput
+                style={styles.input}
+                placeholder="Name..."
+                value={name}
+                maxLength={40}
+                onChangeText={setName}
+            />
+            <ThemedText type="label">Start date (DD / MM / YYYY)</ThemedText>
+            <View style={styles.dateRow}>
+                <TextInput
+                    style={[styles.input, styles.dateInput]}
+                    placeholder="DD"
+                    keyboardType="number-pad"
+                    maxLength={2}
+                    value={sday}
+                    onChangeText={setsDay}
+                />
+                <Text style={styles.dateSep}>/</Text>
+                <TextInput
+                    style={[styles.input, styles.dateInput]}
+                    placeholder="MM"
+                    keyboardType="number-pad"
+                    maxLength={2}
+                    value={smonth}
+                    onChangeText={setsMonth}
+                />
+                <Text style={styles.dateSep}>/</Text>
+                <TextInput
+                    style={[styles.input, styles.dateYearInput]}
+                    placeholder="YYYY"
+                    keyboardType="number-pad"
+                    maxLength={4}
+                    value={syear}
+                    onChangeText={setsYear}
+                />
+            </View>
+
+            <ThemedText type="label">End date (DD / MM / YYYY)</ThemedText>
+            <View style={styles.dateRow}>
+                <TextInput
+                    style={[styles.input, styles.dateInput]}
+                    placeholder="DD"
+                    keyboardType="number-pad"
+                    maxLength={2}
+                    value={eday}
+                    onChangeText={seteDay}
+                />
+                <Text style={styles.dateSep}>/</Text>
+                <TextInput
+                    style={[styles.input, styles.dateInput]}
+                    placeholder="MM"
+                    keyboardType="number-pad"
+                    maxLength={2}
+                    value={emonth}
+                    onChangeText={seteMonth}
+                />
+                <Text style={styles.dateSep}>/</Text>
+                <TextInput
+                    style={[styles.input, styles.dateYearInput]}
+                    placeholder="YYYY"
+                    keyboardType="number-pad"
+                    maxLength={4}
+                    value={eyear}
+                    onChangeText={seteYear}
+                />
+            </View>
+
+            <Button 
+                title="Update" 
+                onPress={updateSubs} 
+                style = {styles.saveButton}
+            />
+            <Button 
+                title="Back" 
+                onPress={() => router.replace('/reminders/allReminders')} 
+                style = {styles.saveButton}
+            />
+        </ThemedView>
+        </>
+    );
+}
+

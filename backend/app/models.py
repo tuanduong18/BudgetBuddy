@@ -26,3 +26,10 @@ class Expenses(db.Model):
     description:   Mapped[str]              = mapped_column(Text, nullable = True)
     time:          Mapped[date]             = mapped_column(Date, default=date.today(), nullable=False)
     
+class Subscriptions(db.Model):
+    id:            Mapped[int]              = mapped_column(primary_key = True)
+    noti_id:       Mapped[str]              = mapped_column(nullable = True)
+    user_id:       Mapped[int]              = mapped_column(ForeignKey("user.id"), nullable = False)
+    name:          Mapped[str]              = mapped_column(String(150), nullable = False)
+    start_time:    Mapped[date]             = mapped_column(Date, default=date.today(), nullable=True)
+    end_time:      Mapped[date]             = mapped_column(Date, default=date.today(), nullable=False)

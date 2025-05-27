@@ -16,9 +16,10 @@ def create_app():
     # Import blueprint groups from each module
     from app.auth import blueprints as auth_bps
     from app.expenses import blueprints as expenses_bps
+    from app.subscriptions import blueprints as subscriptions_bps
     
     # Adding all the blueprints
-    all_blueprints = auth_bps + expenses_bps
+    all_blueprints = auth_bps + expenses_bps + subscriptions_bps
 
     for bp in all_blueprints:
         app.register_blueprint(bp) 

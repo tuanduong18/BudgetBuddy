@@ -94,7 +94,7 @@ export function useRefreshToken() {
         
         if (!r_token) {
             console.log("Error", "No refresh token found.")
-            Alert.alert("Error", "No refresh token found.");
+            Alert.alert("Unauthorized", "Please sign in");
             return;
         }
         

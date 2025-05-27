@@ -22,26 +22,26 @@ export function useExpenseForm(func, id = null) {
         const today = new Date()
         useEffect(() => {
             if (!load1 && !load2) {
-                setCategory(expense_types[0]);
-                setCurrency(currency_types[124]);
-                setDay(today.getDate());
-                setMonth(today.getMonth() + 1);
-                setYear(today.getFullYear());
+                setCategory((expense_types[0]).toString());
+                setCurrency((currency_types[124]).toString());
+                setDay((today.getDate()).toString());
+                setMonth((today.getMonth() + 1).toString());
+                setYear((today.getFullYear()).toString());
             }
         }, [load1, load2, expense_types, currency_types]);
     } else {
         const {data: expense, loading: load3} = useUpdatingExpense({id: id});
         useEffect(() => {
             if (!load3) {
-                setCategory(expense.category);
-                setOptionalCat(expense.optional_cat);
-                setAmount(parseFloat(expense.amount));
-                setCurrency(expense.currency);
-                setDescription(expense.description);
+                setCategory((expense.category).toString());
+                setOptionalCat((expense.optional_cat).toString());
+                setAmount((parseFloat(expense.amount)).toString());
+                setCurrency((expense.currency).toString());
+                setDescription((expense.description).toString());
                 const time = new Date(expense.time);
-                setDay(time.getDate());
-                setMonth(time.getMonth() + 1);
-                setYear(time.getFullYear());
+                setDay((time.getDate()).toString());
+                setMonth((time.getMonth() + 1).toString());
+                setYear((time.getFullYear()).toString());
             }
         }, [load3, expense]);
     }

@@ -1,16 +1,33 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, ALert } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRefreshToken } from "@/hooks/auth";
 import { getAccessToken } from "@/constants/authStorage";
+import { requestPermissions } from "@/hooks/notificationsPermissions";
+import * as Notifications from 'expo-notifications';
 
 export default function WelcomeScreen() {
   const { theme, colorScheme } = useContext(ThemeContext);
   const router = useRouter();
   const refresh = useRefreshToken();
   const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+
+  useEffect(() => {
+  if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {

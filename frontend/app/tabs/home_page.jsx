@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Button, ActivityIndicator, Text } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { Button, ActivityIndicator, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -8,8 +8,25 @@ import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
 import { useSignOut } from "@/hooks/auth";
 import { useUsername } from "@/hooks/data";
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner:   true,
+    shouldShowList:     true,
+    shouldPlaySound:   true,
+    shouldSetBadge:    false,
+  }),
+});
 
 export default function NotFoundScreen() {  
+    useEffect(()=>{
+        if (Platform.OS === 'android') {
+            Notifications.setNotificationChannelAsync('default');
+        }
+    },[])
+
+
     const router = useRouter();
     const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const [loaded, error] = useFonts({        
@@ -40,6 +57,11 @@ export default function NotFoundScreen() {
             <Button 
                 title="Show all expenses" 
                 onPress={() => router.push('/personal_expenses/history')} 
+                style = {styles.saveButton}
+            />
+            <Button 
+                title="Show all reminders" 
+                onPress={() => router.push('/reminders/allReminders')} 
                 style = {styles.saveButton}
             />
             <Button 

@@ -35,7 +35,7 @@ export default function AllExpenses() {
         const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
         return (
             <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red', width:"75%", overflow:true}} onPress={() => router.push({
+                <Text style={{fontSize:18, color: 'red', width:"75%"}} onPress={() => router.push({
                         pathname: '/personal_expenses/update',
                         params: { "id": item.id }
                         
@@ -63,7 +63,7 @@ export default function AllExpenses() {
             <ThemedText type="title"> All expenses </ThemedText>
             <View style={styles.pickerWrapper}>
                 <Picker
-                    enable={!load2}
+                    enabled={!load2}
                     selectedValue={currency}
                     onValueChange={setCurrency}
                     style={styles.picker}
@@ -71,7 +71,6 @@ export default function AllExpenses() {
                 <Picker.Item
                     label="Original"
                     value={null}
-                    enabled={true}
                     color="#999"
                 />
                 {load2
@@ -83,8 +82,8 @@ export default function AllExpenses() {
                 <Button 
                     title="Change currency" 
                     onPress={() => currency == "" 
-                        ? router.push('/personal_expenses/history')
-                        : router.push({
+                        ? router.replace('/personal_expenses/history')
+                        : router.replace({
                             pathname:'/personal_expenses/history',
                             params: {"cur": currency}
                         })

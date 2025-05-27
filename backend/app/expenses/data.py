@@ -5,7 +5,7 @@ from sqlalchemy import select, desc
 from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
-auth_bp = Blueprint('data', __name__, url_prefix='/expenses/data')
+auth_bp = Blueprint('expense_data', __name__, url_prefix='/expenses/data')
 
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 
