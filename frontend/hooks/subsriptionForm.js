@@ -66,7 +66,7 @@ export function useSubscriptionForm(func, id = null) {
         const edt = new Date(+eyear, +emonth - 1, +eday+1);
         const target = new Date(+eyear, +emonth - 1, +eday, 9, 0, 0)
         const diffMs  = target.getTime() - Date.now();
-        const diffsec =  Math.max(Math.floor(diffMs / 1000), 0);
+        const diffsec =  Math.max(Math.floor(diffMs / 1000), 0) + 1;
         if (isNaN(sdt.getTime()) || isNaN(edt.getTime())) {
             return Alert.alert("Invalid date");
         }
@@ -77,7 +77,7 @@ export function useSubscriptionForm(func, id = null) {
                 content: { title: 'Hey!', body: `${name} is expiring in 1 day` },
                 trigger: {
                     type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: 100,
+                    seconds: diffsec,
                     repeats: false,
                 },
             });
