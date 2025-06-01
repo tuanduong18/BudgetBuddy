@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,12 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { ThemeContext } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import { useSignUp } from "@/hooks/auth";
+import { GlobalStyles as GS } from "@/constants/GlobalStyles";
 
 export default function SignUpScreen() {
-  const { theme, colorScheme } = useContext(ThemeContext);
+
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -22,7 +22,7 @@ export default function SignUpScreen() {
   const [confirm, setConfirm] = useState("");
 
   const signUp = useSignUp();
-
+  
   const rules = {
     minLength: password.length >= 8,
     hasNumber: /\d/.test(password),
@@ -60,24 +60,24 @@ export default function SignUpScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#ffde1a' }}>
       {/* Top Illustration */}
-      <View style={styles.imageContainer}>
+      <View style={local.imageContainer}>
         <Image
           source={require("@/assets/images/sign-up-image.png")}
-          style={styles.image}
+          style={local.image}
           resizeMode="contain"
         />
       </View>
 
       {/* Scrollable Card Form */}
-      <View style={styles.card}>
+      <View style={local.card}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>Create account</Text>
+          <Text style={GS.title}>Create account</Text>
 
           <TextInput
             placeholder="Username"
             value={username}
             onChangeText={setUsername}
-            style={styles.input}
+            style={GS.input}
             placeholderTextColor="#888"
             autoCapitalize="none"
           />
@@ -87,7 +87,7 @@ export default function SignUpScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            style={styles.input}
+            style={GS.input}
             placeholderTextColor="#888"
           />
 
@@ -96,7 +96,7 @@ export default function SignUpScreen() {
             value={confirm}
             onChangeText={setConfirm}
             secureTextEntry
-            style={styles.input}
+            style={GS.input}
             placeholderTextColor="#888"
           />
 
@@ -110,24 +110,21 @@ export default function SignUpScreen() {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.button }]}
+            style={GS.button}
             onPress={handleSignUp}
             disabled={Object.values(rules).some((v) => !v)}
           >
             <Text
-              style={[
-                styles.buttonText,
-                { color: 'black' },
-              ]}
+              style={GS.buttonText}
             >
               Sign Up
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.replace("/auth/sign_in")}>
-            <Text style={styles.footerText}>
+            <Text style={GS.footerText}>
               Already have an account?{" "}
-              <Text style={styles.link}>Sign In</Text>
+              <Text style={GS.link}>Sign In</Text>
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -136,7 +133,7 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   imageContainer: {
     flex: 1,
     alignItems: "center",
@@ -159,40 +156,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 6,
-  },
-  title: {
-    fontSize: 24,
-    fontFamily: "Poppins_700Bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 15,
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-  },
-  button: {
-    padding: 14,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-  },
-  footerText: {
-    fontSize: 14,
-    textAlign: "center",
-    fontFamily: "Inter_400Regular",
-  },
-  link: {
-    fontWeight: "bold",
-    textDecorationLine: "underline",
   },
 });

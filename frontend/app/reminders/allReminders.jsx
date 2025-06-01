@@ -1,8 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Button, ActivityIndicator, Text, FlatList, View, Pressable, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
@@ -65,9 +63,9 @@ export default function AllReminders() {
     // Screen
     return (
         <>
-        <ThemedView style={styles.container}>
+        <View style={styles.container}>
             
-            <ThemedText type="title"> All Subscriptions </ThemedText>
+            <Text type="title"> All Subscriptions </Text>
 
             <FlatList
                 data={Subscriptions}
@@ -86,7 +84,7 @@ export default function AllReminders() {
                 onPress={() => router.replace('/tabs/home_page')} 
                 style = {styles.saveButton}
             />
-        </ThemedView>
+        </View>
         </>
     );
 }

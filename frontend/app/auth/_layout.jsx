@@ -1,9 +1,3 @@
-// import { Stack } from "expo-router";
-
-// export default function AuthLayout() {
-//   return <Stack screenOptions={{headerShown: false}}/>
-// }
-
 import { Slot } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, StyleSheet } from "react-native";
@@ -21,7 +15,7 @@ export default function AuthLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#ffde1a", // soft green like the image
+    backgroundColor: "#ffde1a", 
   },
   container: {
     flex: 1,

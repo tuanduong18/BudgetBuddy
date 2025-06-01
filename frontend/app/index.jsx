@@ -1,15 +1,14 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { useContext, useState, useEffect } from "react";
-import { ThemeContext } from "@/context/ThemeContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRefreshToken } from "@/hooks/auth";
 import { getAccessToken } from "@/constants/authStorage";
 import { requestPermissions } from "@/hooks/notificationsPermissions";
 import * as Notifications from 'expo-notifications';
+import { GlobalStyles as GS } from "@/constants/GlobalStyles";
 
 export default function WelcomeScreen() {
-  const { theme, colorScheme } = useContext(ThemeContext);
   const router = useRouter();
   const refresh = useRefreshToken();
   const [checking, setChecking] = useState(true);
@@ -59,108 +58,97 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#ffde1a' }]}>
-      <View style={styles.container}>
+    <SafeAreaView style={[local.safeArea, { backgroundColor: '#ffde1a' }]}>
+      <View style={local.container}>
         {/* Illustration */}
         <Image
           source={require("@/assets/images/index-page-image.png")}
-          style={styles.image}
+          style={local.image}
           resizeMode="contain"
         />
 
         {/* Title */}
-        <Text style={[styles.title, { color: 'black' }]}>
-          Welcome to <Text style={styles.brand}>{"\n"}Budget Buddy!</Text>
+        <Text style={[GS.title, { textAlign: 'center' }]}>
+          Welcome to <Text style={local.brand}>{"\n"}Budget Buddy!</Text>
         </Text>
 
         {/* Subtitle */}
-        <Text style={[styles.subtitle, { color: 'black' }]}>
-          Need a good budget tracker?{"\n"}You have come to the right place!
+        <Text style={[GS.subtitle, local.subtitleSpacing, { textAlign: 'center' }]}>
+          Tired of forgetting what you spent on?{"\n"}You have come to the right place!
         </Text>
 
         {/* Buttons */}
-        <TouchableOpacity style={[styles.buttonOutline, { backgroundColor: theme.button }]} onPress={() => router.push('/auth/sign_up')}>
-          <Text style={[styles.buttonText, { color: 'black' }]}>Sign Up</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.buttonOutline, { backgroundColor: theme.button }]} onPress={() => router.push('/auth/sign_in')}>
-          <Text style={[styles.buttonText, { color: 'black' }]}>Sign In</Text>
-        </TouchableOpacity>
+        <View style={{ width: '100%', paddingHorizontal: 40 }}>
+          <TouchableOpacity 
+            style={local.button} 
+            onPress={() => router.push('/auth/sign_up')}>
+            <Text style={GS.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={local.button} 
+            onPress={() => router.push('/auth/sign_in')}>
+            <Text style={GS.buttonText}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Legal */}
-        <Text style={styles.legalText}>
+        <Text style={local.legalText}>
           By continuing you accept our{" "}
-          <Text style={styles.link}>Privacy Policy</Text> and{" "}
-          <Text style={styles.link}>Terms of Service</Text>.
+          <Text style={local.link}>Privacy Policy</Text> and{" "}
+          <Text style={local.link}>Terms of Service</Text>.
         </Text>
       </View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: "#ffde1a",
   },
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: "center",
+    justifyContent: "flex-start", // move content up
     alignItems: "center",
+    paddingTop: 120,               // adjust image top position
     backgroundColor: "transparent",
   },
   image: {
-    width: 220,
-    height: 220,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontFamily: "Poppins_700Bold",
-    textAlign: "center",
+    width: 250,
+    height: 250,
+    marginBottom: 10,            // less space below image
   },
   brand: {
-    color: "#2e7d32", // deeper green
+    color: "#2e7d32",
     fontFamily: "Poppins_700Bold",
   },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-    textAlign: "center",
-    marginBottom: 30,
-    lineHeight: 22,
-  },
-  buttonOutline: {
-    borderWidth: 2,
-    padding: 12,
-    width: "100%",
-    borderRadius: 8,
-    marginBottom: 12,
-    alignItems: "center",
-  },
-  buttonFilled: {
-    padding: 12,
-    width: "100%",
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-  },
-  continue: {
-    fontSize: 14,
-    textDecorationLine: "underline",
-    marginBottom: 12,
+  subtitleSpacing: {
+    marginBottom: 30,           // space between subtitle and buttons
   },
   legalText: {
     fontSize: 12,
-    textAlign: "center",
-    fontFamily: "Inter_400Regular",
-    color: "#777",
+    textAlign: 'center',
+    fontFamily: 'Inter_400Regular',
+    color: '#888',
+    marginTop: 20,
   },
   link: {
-    textDecorationLine: "underline",
-    fontWeight: "bold",
+    textDecorationLine: 'underline',
+    color: '#888',
+    fontWeight: 'bold'
   },
+  button: {
+    paddingVertical: 14,
+    paddingHorizontal: 100,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: '#ffde1a',
+    borderColor: '#000',
+    borderWidth: 1,
+    marginBottom: 16,
+    alignSelf: 'center',
+  }
 });

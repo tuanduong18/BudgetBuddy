@@ -1,24 +1,22 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { ThemeContext } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import { useSignIn } from "@/hooks/auth";
+import { GlobalStyles as GS } from "@/constants/GlobalStyles";
 
 
 export default function SignInScreen() {
-  const { theme, colorScheme } = useContext(ThemeContext);
-  const router = useRouter();
 
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const signIn = useSignIn();
 
   return (
-    <View style={styles.screen}>
-      <Text style={[styles.title, { color: theme.text }]}>Welcome back!</Text>
+    <View style={local.container}>
+      <Text style={GS.title}>Welcome back!</Text>
 
-      <Text style={[styles.subtitle, { color: theme.text }]}>
+      <Text style={[GS.footerText, { textAlign: 'center' }]}>
         Just made one transaction?{"\n"}Log it in to get your budget started!
       </Text>
 
@@ -26,7 +24,7 @@ export default function SignInScreen() {
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
-        style={[styles.input, { color: theme.text }]}
+        style={GS.input}
         placeholderTextColor="#888"
         autoCapitalize="none"
       />
@@ -36,28 +34,28 @@ export default function SignInScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        style={[styles.input, { color: theme.text }]}
+        style={GS.input}
         placeholderTextColor="#888"
       />
 
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: theme.button }]}
+        style={local.button}
         onPress={() => signIn(username, password)}
       >
-        <Text style={[styles.buttonText, { color: 'black' }]}>
+        <Text style={GS.buttonText}>
           Sign In
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.replace("/auth/sign_up")}>
-        <Text style={[styles.footerText, { color: theme.text }]}>
-          Don’t have an account yet? <Text style={styles.link}>Sign Up</Text>
+        <Text style={GS.footerText}>
+          Don’t have an account yet? <Text style={local.link}>Sign Up</Text>
         </Text>
       </TouchableOpacity>
 
       <Image
         source={require("@/assets/images/sign-in-image.png")}
-        style={{ width: "100%", height: 250, marginTop: 50 }}
+        style={local.image}
         resizeMode="contain"
       />
       
@@ -65,51 +63,45 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const local = StyleSheet.create({
+  container: {
     flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 26,
-    fontFamily: "Poppins_700Bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 15,
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-  },
-  button: {
-    padding: 14,
-    borderRadius: 10,
+    paddingHorizontal: 24,
+    justifyContent: "flex-start", // move content to the bottom
     alignItems: "center",
-    marginBottom: 20,
+    paddingTop: 90,               // adjust image top position
+    backgroundColor: "transparent",
   },
-  buttonText: {
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
+  image: {
+    width: 250,
+    height: 250,
+    marginTop: 40,              // space above image
+    alignSelf: 'center',        // center the image
   },
-  footerText: {
-    fontSize: 14,
-    textAlign: "center",
-    fontFamily: "Inter_400Regular",
+  subtitleSpacing: {
+    marginBottom: 30,           // space between subtitle and buttons
+  },
+  legalText: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontFamily: 'Inter_400Regular',
+    color: '#888',
+    marginTop: 20,
   },
   link: {
-    fontWeight: "bold",
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
+    color: '#88888',
+    fontWeight: 'bold'
   },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: "Inter_400Regular",
-    textAlign: "center",
-    marginBottom: 30,
-    lineHeight: 22,
-  },
+  button: {
+    paddingVertical: 13,
+    paddingHorizontal: 100,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: '#ffde1a',
+    borderColor: '#000',
+    borderWidth: 1,
+    marginBottom: 16,
+    alignSelf: 'center',
+  }
 });

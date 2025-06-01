@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import { Button, ActivityIndicator, TextInput, View, Text, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { ThemeContext } from "@/context/ThemeContext";
@@ -39,8 +37,8 @@ export default function AddExpense() {
     return (
         <>
 
-        <ThemedView style={styles.container}>
-            <ThemedText type="label">Name</ThemedText>
+        <View style={styles.container}>
+            <Text type="label">Name</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Name..."
@@ -48,7 +46,7 @@ export default function AddExpense() {
                 maxLength={40}
                 onChangeText={setName}
             />
-            <ThemedText type="label">Start date (DD / MM / YYYY)</ThemedText>
+            <Text type="label">Start date (DD / MM / YYYY)</Text>
             <View style={styles.dateRow}>
                 <TextInput
                     style={[styles.input, styles.dateInput]}
@@ -78,7 +76,7 @@ export default function AddExpense() {
                 />
             </View>
 
-            <ThemedText type="label">End date (DD / MM / YYYY)</ThemedText>
+            <Text type="label">End date (DD / MM / YYYY)</Text>
             <View style={styles.dateRow}>
                 <TextInput
                     style={[styles.input, styles.dateInput]}
@@ -118,7 +116,7 @@ export default function AddExpense() {
                 onPress={() => router.replace('/reminders/allReminders')} 
                 style = {styles.saveButton}
             />
-        </ThemedView>
+        </View>
         </>
     );
 }

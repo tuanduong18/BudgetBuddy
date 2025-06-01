@@ -1,116 +1,124 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Button, ActivityIndicator, Text, FlatList, View, Pressable } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Picker } from "@react-native-picker/picker";
-import createStyles from "./style";
-import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { ThemeContext } from "@/context/ThemeContext";
-import { useExpenses, useCurrencyTypes } from "@/hooks/data";
+import React, { useState } from 'react';
+import {
+  Text, View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useExpenses } from '@/hooks/data';
 import { useDeleteExpense } from '@/hooks/crud';
 
 export default function AllExpenses() {
-    const { cur } = useLocalSearchParams();  
-    const router = useRouter();
-    const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
-    const [loaded, error] = useFonts({        
-        Inter_500Medium,
-    })  
-    const {data: Expenses, loading: load1} = useExpenses({currency: cur});
-    const deleteExpense = useDeleteExpense();
-    const {data: currency_types, loading: load2} = useCurrencyTypes();
-    const [currency, setCurrency] = useState("");
-    if (!loaded && !error) {
-        return null
-    }
+  const router = useRouter();
+  const { data: Expenses, loading } = useExpenses();
+  const deleteExpense = useDeleteExpense();
+  const [query, setQuery] = useState('');
 
-    const styles = createStyles(theme, colorScheme);
+  if (loading) {
+    return <ActivityIndicator style={{ flex: 1 }} />;
+  }
 
-    if (load1) {
-        return <ActivityIndicator style={{ flex: 1 }} />;
-    }
-    
-    const renderItem = ({item}) => {
-        const formattedDate = new Date(item.time).toLocaleDateString('en-GB');
-        return (
-            <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red', width:"75%"}} onPress={() => router.push({
-                        pathname: '/personal_expenses/update',
-                        params: { "id": item.id }
-                        
-                    })}>
-                    {item.category=="Other" ? item.optional_cat : item.category}: {item.amount} {item.currency} at {formattedDate}
-                </Text>
-                <Text 
-                    style={{fontSize:18, color: 'red'}} 
-                    onPress={() => deleteExpense({id: item.id})}
-                >
-                    Delete
-                </Text>
-            </View>
+  const filtered = Expenses.filter(item =>
+    item.category.toLowerCase().includes(query.toLowerCase()) ||
+    item.description.toLowerCase().includes(query.toLowerCase())
+  );
 
-        );
-    }
+  const renderItem = ({ item, index }) => {
+    const date = new Date(item.time);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
+    const bgColor = colors[index % colors.length];
 
-    const keyExtractor = (item, index) => index.toString();
-
-    // Screen
     return (
-        <>
-        <ThemedView style={styles.container}>
-            
-            <ThemedText type="title"> All expenses </ThemedText>
-            <View style={styles.pickerWrapper}>
-                <Picker
-                    enabled={!load2}
-                    selectedValue={currency}
-                    onValueChange={setCurrency}
-                    style={styles.picker}
-                >
-                <Picker.Item
-                    label="Original"
-                    value={null}
-                    color="#999"
-                />
-                {load2
-                    ? <Picker.Item label="Loading…" value="" />
-                    : currency_types.map(t => <Picker.Item key={t} label={t} value={t} />)
-                }
-                </Picker>
-
-                <Button 
-                    title="Change currency" 
-                    onPress={() => currency == "" 
-                        ? router.replace('/personal_expenses/history')
-                        : router.replace({
-                            pathname:'/personal_expenses/history',
-                            params: {"cur": currency}
-                        })
-                    }
-                    style = {styles.saveButton}
-                />
-            </View>
-
-            <FlatList
-                data={Expenses}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-                showsVerticalScrollIndicator={false}
-            />
-            
-            <Button 
-                title="add" 
-                onPress={() => router.replace('/personal_expenses/add')} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="home" 
-                onPress={() => router.replace('/tabs/home_page')} 
-                style = {styles.saveButton}
-            />
-        </ThemedView>
-        </>
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: bgColor }]}
+        onPress={() =>
+          router.push({ pathname: '/personal_expenses/update', params: { id: item.id } })
+        }
+      >
+        <View>
+          <Text style={styles.category}>{item.category}</Text>
+          <Text style={styles.description}>{item.description}</Text>
+        </View>
+        <View style={styles.details}>
+          <Text style={[styles.amount, { color: item.amount > 0 ? 'green' : 'red' }]}>${item.amount}</Text>
+          <Text style={styles.date}>{`${day} ${month}`}</Text>
+        </View>
+      </TouchableOpacity>
     );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>All Transactions</Text>
+
+      <TextInput
+        style={styles.search}
+        placeholder="Search category or description"
+        value={query}
+        onChangeText={setQuery}
+      />
+
+      <FlatList
+        data={filtered}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 80 }}
+      />
+    </View>
+  );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffde1a',
+    paddingHorizontal: 20,
+    paddingTop: 40,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  search: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    fontSize: 16,
+  },
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  category: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  description: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+  },
+  details: {
+    alignItems: 'flex-end',
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  date: {
+    fontSize: 12,
+    color: '#777',
+    marginTop: 4,
+  },
+});
