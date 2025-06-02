@@ -141,9 +141,10 @@ const local = StyleSheet.create({
     fontWeight: 'bold'
   },
   button: {
+    width:200,
     paddingVertical: 14,
-    paddingHorizontal: 100,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     alignItems: 'center',
     backgroundColor: '#ffde1a',
     borderColor: '#000',

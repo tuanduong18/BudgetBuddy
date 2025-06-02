@@ -33,7 +33,7 @@ export function useAddLimit() {
         "/monthly_limit/allLimits"
     )}
 
-export function useUpdatedLimit() {
+export function useUpdateLimit() {
     return useAction(
         `${API_BASE}/limits/action/update`, 
         "Successfully updated monthly limit", 

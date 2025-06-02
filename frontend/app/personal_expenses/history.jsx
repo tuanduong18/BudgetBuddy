@@ -49,7 +49,7 @@ export default function AllExpenses() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>All Transactions</Text>
+      <Text style={styles.title}>All Expenses</Text>
 
       <TextInput
         style={styles.search}

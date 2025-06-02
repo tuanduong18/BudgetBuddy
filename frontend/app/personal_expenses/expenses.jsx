@@ -97,8 +97,8 @@ export default function ExpensesScreen() {
         <Text style={styles.summaryAmount}>${todayTotal}</Text>
       </View>
 
-      {/* ── 2) “Latest transactions” Header ─────────────────────────────────────────── */}
-      <Text style={styles.sectionHeader}>Latest transactions</Text>
+      {/* ── 2) “Latest expenses” Header ─────────────────────────────────────────── */}
+      <Text style={styles.sectionHeader}>Latest expenses</Text>
 
       {/* ── 3) FlatList of Only the 5 Most Recent Expenses ────────────────────────── */}
       <FlatList
@@ -107,7 +107,7 @@ export default function ExpensesScreen() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>No recent transactions.</Text>
+          <Text style={styles.emptyText}>No recent Expenses.</Text>
         )}
       />
 
@@ -117,7 +117,7 @@ export default function ExpensesScreen() {
         style={styles.seeHistoryContainer}
       >
         <Text style={styles.seeHistoryText}>
-          See full history or edit a transaction? Click here!
+          See full history or edit an expense? Click here!
         </Text>
       </TouchableOpacity>
 

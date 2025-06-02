@@ -1,12 +1,8 @@
 import React, { useContext, useEffect } from 'react';
-import { Button, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { Button, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
+import { useRouter, useLocalSearchParams  } from 'expo-router';
 import { Picker } from "@react-native-picker/picker";
-import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { ThemeContext } from "@/context/ThemeContext";
 import { useUpdateLimit } from "@/hooks/crud";
 import { useMonthlyLimitForm } from "@/hooks/monthlyLimitForm";
 import { MaterialIcons } from '@expo/vector-icons';
@@ -26,7 +22,6 @@ export default function AddLimit() {
     //     console.log(types) check for tick boxes
     // }, [types])
     const router = useRouter();
-    const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const [loaded, error] = useFonts({        
         Inter_500Medium,
     })
@@ -38,8 +33,6 @@ export default function AddLimit() {
     if (load1 || load2) {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
-
-    const styles = createStyles(theme, colorScheme);
 
     const toggleType = (opt) => {
         setTypes((prev) =>
@@ -59,8 +52,8 @@ export default function AddLimit() {
     // Screen
     return (
         <>
-        <ThemedView style={styles.container}>
-            <ThemedText type="label">Choose Group of types (at least 1 element)</ThemedText>
+        <View style={styles.container}>
+            <Text type="label">Choose Group of types (at least 1 element)</Text>
             <ScrollView
                 style={{ maxHeight: 200 }}
                 contentContainerStyle={styles.wrapContainer}
@@ -73,7 +66,7 @@ export default function AddLimit() {
                 ))}
             </ScrollView>
 
-            <ThemedText type="label">Amount</ThemedText>
+            <Text type="label">Amount</Text>
             <TextInput
                 style={styles.input}
                 placeholder="0.00"
@@ -82,7 +75,7 @@ export default function AddLimit() {
                 onChangeText={setAmount}
             />
 
-            <ThemedText type="label">Currency</ThemedText>
+            <Text type="label">Currency</Text>
             <View style={styles.pickerWrapper}>
                 <Picker
                     enable={!load2}
@@ -107,8 +100,107 @@ export default function AddLimit() {
                 onPress={() => router.replace('/monthly_limit/allLimits')} 
                 style = {styles.saveButton}
             />
-        </ThemedView>
+        </View>
         </>
     );
 }
 
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+    marginTop: 12,
+  },
+
+  // ── Picker Wrapper ───────────────────────────────────────────────────────────
+  pickerWrapper: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    // ...Platform.select({
+    //   web: {
+    //     borderWidth: 0,
+    //     appearance: 'none',
+    //     WebkitAppearance: 'none',
+    //     paddingHorizontal: 12,
+    //   },
+    //   ios: {},
+    //   android: {},
+    //}),
+  },
+  webArrow: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+
+  // ── Buttons ─────────────────────────────────────────────────────────────────────
+  addButton: {
+    marginTop: 16,
+    marginBottom: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter_500Medium',
+    color: '#fff',
+  },
+  backButton: {
+    marginBottom: 24,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#ccc',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter_500Medium',
+    color: '#000',
+  },
+  optionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    label: {
+        marginLeft: 8,
+        fontSize: 16,
+    },
+    wrapContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        paddingHorizontal: 8,
+    },
+    typeItem: {
+        width: '50%',          // two per row
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+    },
+});

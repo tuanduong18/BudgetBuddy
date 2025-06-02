@@ -1,19 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Button, ActivityIndicator, Text, FlatList, View, Pressable } from 'react-native';
+import { Button, ActivityIndicator, Text, FlatList, View, Pressable, StyleSheet, } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { Picker } from "@react-native-picker/picker";
-import createStyles from "./style";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { ThemeContext } from "@/context/ThemeContext";
 import { useMonthlyLimits, useCurrencyTypes } from "@/hooks/data";
 import { useDeleteLimit } from '@/hooks/crud';
 
 export default function AllLimits() {
     const { cur } = useLocalSearchParams();  
     const router = useRouter();
-    const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
     const [loaded, error] = useFonts({        
         Inter_500Medium,
     })  
@@ -24,8 +19,6 @@ export default function AllLimits() {
     if (!loaded && !error) {
         return null
     }
-
-    const styles = createStyles(theme, colorScheme);
 
     if (load1) {
         return <ActivityIndicator style={{ flex: 1 }} />;
@@ -58,9 +51,9 @@ export default function AllLimits() {
     // Screen
     return (
         <>
-        <ThemedView style={styles.container}>
+        <View style={styles.container}>
             
-            <ThemedText type="title"> All Monthly Limit </ThemedText>
+            <Text type="title"> All Monthly Limit </Text>
             <View style={styles.pickerWrapper}>
                 <Picker
                     enabled={!load2}
@@ -109,8 +102,107 @@ export default function AllLimits() {
                 onPress={() => router.replace('/tabs/home_page')} 
                 style = {styles.saveButton}
             />
-        </ThemedView>
+        </View>
         </>
     );
 }
 
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+    marginTop: 12,
+  },
+
+  // ── Picker Wrapper ───────────────────────────────────────────────────────────
+  pickerWrapper: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    // ...Platform.select({
+    //   web: {
+    //     borderWidth: 0,
+    //     appearance: 'none',
+    //     WebkitAppearance: 'none',
+    //     paddingHorizontal: 12,
+    //   },
+    //   ios: {},
+    //   android: {},
+    //}),
+  },
+  webArrow: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+
+  // ── Buttons ─────────────────────────────────────────────────────────────────────
+  addButton: {
+    marginTop: 16,
+    marginBottom: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter_500Medium',
+    color: '#fff',
+  },
+  backButton: {
+    marginBottom: 24,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#ccc',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter_500Medium',
+    color: '#000',
+  },
+  optionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    label: {
+        marginLeft: 8,
+        fontSize: 16,
+    },
+    wrapContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        paddingHorizontal: 8,
+    },
+    typeItem: {
+        width: '50%',          // two per row
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+    },
+});

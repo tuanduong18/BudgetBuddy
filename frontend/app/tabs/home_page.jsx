@@ -49,34 +49,6 @@ export default function HomeScreen() {
 
     // Home Screen
     return (
-<<<<<<< HEAD
-        <>
-        <ThemedView style={styles.container}>
-            <ThemedText type="title">Welcome, {username} </ThemedText>
-            <Button 
-                title="Show all expenses" 
-                onPress={() => router.push('/personal_expenses/history')} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="Show all reminders" 
-                onPress={() => router.push('/reminders/allReminders')} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="Show all monthly limit" 
-                onPress={() => router.push('/monthly_limit/allLimits')} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="Sign out" 
-                onPress={() => signOut()} 
-                style = {styles.saveButton}
-            />
-        </ThemedView>
-        </>
-    );
-=======
     <View style={styles.container}>
       {/* Greeting & Profile */}
       <View style={styles.header}>
@@ -119,7 +91,7 @@ export default function HomeScreen() {
 
       <TouchableOpacity
         style={[styles.navBlock, { backgroundColor: '#FF8C5A' }]}
-        onPress={() => router.push('/budget_tracker')}
+        onPress={() => router.push('/monthly_limit/allLimits')}
       >
         <Text style={styles.navText}>Budget Tracker</Text>
       </TouchableOpacity>
@@ -132,7 +104,6 @@ export default function HomeScreen() {
       </TouchableOpacity>
     </View>
   );
->>>>>>> c4d298e8c9610c67f5afbd39f8654014d856d042
 }
 
 // Styles
