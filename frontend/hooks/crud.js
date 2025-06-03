@@ -46,6 +46,13 @@ export function useDeleteLimit() {
         "Successfully deleted", 
         "/monthly_limit/allLimits"
     )}
+
+export function useUpdateProfileCurrency() {
+    return useAction(
+        `${API_BASE}/profile/action/currency`, 
+        "Successfully updated", 
+        "/user/profile"
+    )}    
     
 function useAction(api, message, route) {
     const router = useRouter()

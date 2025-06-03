@@ -13,7 +13,7 @@ export function useSubscriptions()              {return getData(`${API_BASE}/sub
 export function useUpdatingSubs(dict)           {return getData(`${API_BASE}/subscriptions/data/updating`, dict)}
 export function useMonthlyLimits(dict = null)   {return getData(`${API_BASE}/limits/data/all`, dict)}
 export function useUpdatingLimit(dict)          {return getData(`${API_BASE}/limits/data/updating`, dict)}
-
+export function useCurrencyPreference()         {return getData(`${API_BASE}/profile/data/currency`)}
 
 function getData(api, dict = null) {
     const [data, setData] = useState([]);
