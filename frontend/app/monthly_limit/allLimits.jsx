@@ -26,17 +26,25 @@ export default function AllLimits() {
     
     const renderItem = ({item}) => {
         return (
-            <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red', width:"75%"}}
+            <View style={{
+                flexDirection: 'row', 
+                flexWrap: 'wrap',
+                alignItems: 'center',
+            }}
+                >
+                <Text style={{fontSize:18, color: 'red', width:"50%"}}
                     onPress={()=>router.push({
                         pathname:'/monthly_limit/update',
                         params: {"id": item.id}
                     })}
                 >
-                    {item.types.length == 12 ? "All": item.types.map(x=> x + " ")} {item.percentage}% : {item.total} / {item.amount} {item.currency}
+                    {item.types.length == 12 ? "All": item.types.map(x=> x + ", ")}
+                </Text>
+                <Text style={{fontSize:18, color: 'red', width:"30%"}}>
+                    {item.percentage}% : {item.total} / {item.amount} {item.currency}
                 </Text>
                 <Text 
-                    style={{fontSize:18, color: 'red'}} 
+                    style={{fontSize:18, color: 'red', textAlign: 'middle'}} 
                     onPress={() => deleteLimit({id: item.id})}
                 >
                     Delete
