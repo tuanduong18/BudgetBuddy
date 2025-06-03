@@ -9,6 +9,7 @@ export function useExpenseTypes()               {return getData(`${API_BASE}/exp
 export function useCurrencyTypes()              {return getData(`${API_BASE}/expenses/data/currency_types`)}
 export function useExpenses(dict = null)        {return getData(`${API_BASE}/expenses/data/expenses`, dict)}
 export function useUpdatingExpense(dict)        {return getData(`${API_BASE}/expenses/data/updating`, dict)}
+export function useNewestExpenses()              {return getData(`${API_BASE}/expenses/data/dashboard`)}
 export function useSubscriptions()              {return getData(`${API_BASE}/subscriptions/data/all`)}
 export function useUpdatingSubs(dict)           {return getData(`${API_BASE}/subscriptions/data/updating`, dict)}
 export function useMonthlyLimits(dict = null)   {return getData(`${API_BASE}/limits/data/all`, dict)}
