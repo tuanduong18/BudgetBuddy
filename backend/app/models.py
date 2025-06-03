@@ -14,6 +14,7 @@ class User(db.Model):
     id:       Mapped[int] = mapped_column(primary_key = True)
     username: Mapped[str] = mapped_column(String(255), unique = True, nullable = False)
     password: Mapped[str] = mapped_column(String(255), nullable = False)
+    currency: Mapped[str] = mapped_column(SQLEnum(CurrencyTypes), nullable = True) # type: ignore
 
 # table to manage user's expenses
 class Expenses(db.Model):
