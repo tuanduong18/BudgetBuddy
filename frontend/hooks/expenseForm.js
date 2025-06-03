@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense } from "./data";
+import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense, useCurrencyPreference } from "./data";
 
 export function useExpenseForm(func, id = null) {
     // 1. form state
@@ -14,25 +14,26 @@ export function useExpenseForm(func, id = null) {
     const [year, setYear]                   = useState("");
 
     // 2. load data hooks
-    const { data: expense_types, loading: load1 }   = useExpenseTypes();
-    const { data: currency_types, loading: load2 }   = useCurrencyTypes();
+    const { data: expense_types, loading: load1 }           = useExpenseTypes();
+    const { data: currency_types, loading: load2 }          = useCurrencyTypes();
+    const { data: currency_preference, loading: load3 }     = useCurrencyPreference();
 
     // 3. set defaults when loaded
     if(id == null){
         const today = new Date()
         useEffect(() => {
-            if (!load1 && !load2) {
+            if (!load1 && !load2 && !load3) {
                 setCategory((expense_types[0]).toString());
-                setCurrency((currency_types[124]).toString());
+                setCurrency((currency_preference == null ? "SGD" : currency_preference).toString());
                 setDay((today.getDate()).toString());
                 setMonth((today.getMonth() + 1).toString());
                 setYear((today.getFullYear()).toString());
             }
-        }, [load1, load2, expense_types, currency_types]);
+        }, [load1, load2, load3, expense_types, currency_types, currency_preference]);
     } else {
-        const {data: expense, loading: load3} = useUpdatingExpense({id: id});
+        const {data: expense, loading: load4} = useUpdatingExpense({id: id});
         useEffect(() => {
-            if (!load3) {
+            if (!load4) {
                 setCategory((expense.category).toString());
                 setOptionalCat((expense.optional_cat).toString());
                 setAmount((parseFloat(expense.amount)).toString());
@@ -43,7 +44,7 @@ export function useExpenseForm(func, id = null) {
                 setMonth((time.getMonth() + 1).toString());
                 setYear((time.getFullYear()).toString());
             }
-        }, [load3, expense]);
+        }, [load4, expense]);
     }
     // 4. validate + submit
     const submit = async () => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import { useExpenseTypes, useCurrencyTypes, useUpdatingLimit } from "./data";
+import { useExpenseTypes, useCurrencyTypes, useUpdatingLimit, useCurrencyPreference } from "./data";
 
 export function useMonthlyLimitForm(func, id = null) {
     // 1. form state
@@ -11,23 +11,24 @@ export function useMonthlyLimitForm(func, id = null) {
     // 2. load data hooks
     const { data: expense_types,  loading: load1 }   = useExpenseTypes();
     const { data: currency_types, loading: load2 }   = useCurrencyTypes();
+    const { data: currency_preference, loading: load3 }   = useuseCurrencyPreference();
 
     // 3. set defaults when loaded
     if(id == null){
         useEffect(() => {
-            if (!load1 && !load2) {
-                setCurrency((currency_types[124]).toString());
+            if (!load1 && !load2 && !load3) {
+                setCurrency((currency_preference == null ? "SGD" : currency_preference).toString());
             }
-        }, [load1, load2, expense_types, currency_types]);
+        }, [load1, load2, load3, expense_types, currency_types, currency_preference]);
     } else {
-        const {data: lim, loading: load3} = useUpdatingLimit({id: id});
+        const {data: lim, loading: load4} = useUpdatingLimit({id: id});
         useEffect(() => {
-            if (!load3) {
+            if (!load4) {
                 setAmount((parseFloat(lim.amount)).toString());
                 setCurrency((lim.currency).toString());
                 setTypes(lim.types)
             }
-        }, [load3, lim]);
+        }, [load4, lim]);
     }
     // 4. validate + submit
     const submit = async () => {
