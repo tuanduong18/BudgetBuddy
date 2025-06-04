@@ -97,11 +97,7 @@ export default function UpdateExpense() {
         style: 'destructive',
         onPress: async () => {
             const ok = await remove({ id });
-            if (ok) {
-              router.replace('/personal_expenses/history');
-          } else {
-              Alert.alert("Failed to delete transaction.");
-          };
+            router.replace('/personal_expenses/history');
         }
       }
     ]);

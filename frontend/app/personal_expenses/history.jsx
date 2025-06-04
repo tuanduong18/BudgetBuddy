@@ -45,7 +45,8 @@ export default function AllExpenses() {
   const renderItem = ({ item, index }) => {
     const date = new Date(item.time);
     const day = date.getDate();
-    const month = date.toLocaleString('default', { month: 'short' });
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
     const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
     const bgColor = colors[index % colors.length];
 
@@ -64,7 +65,7 @@ export default function AllExpenses() {
           <Text style={[styles.amount, { color: item.amount > 0 ? 'green' : 'red' }]}> 
             {item.amount} {item.currency}
           </Text>
-          <Text style={styles.date}>{`${day} ${month}`}</Text>
+          <Text style={styles.date}>{`${day} ${month}, ${year}`}</Text>
         </View>
       </TouchableOpacity>
     );
