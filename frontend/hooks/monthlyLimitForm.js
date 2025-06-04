@@ -11,13 +11,13 @@ export function useMonthlyLimitForm(func, id = null) {
     // 2. load data hooks
     const { data: expense_types,  loading: load1 }   = useExpenseTypes();
     const { data: currency_types, loading: load2 }   = useCurrencyTypes();
-    const { data: currency_preference, loading: load3 }   = useuseCurrencyPreference();
+    const { data: currency_preference, loading: load3 }   = useCurrencyPreference();
 
     // 3. set defaults when loaded
     if(id == null){
         useEffect(() => {
             if (!load1 && !load2 && !load3) {
-                setCurrency((currency_preference == null ? "SGD" : currency_preference).toString());
+                setCurrency((currency_preference == null ? "SGD" : currency_preference));
             }
         }, [load1, load2, load3, expense_types, currency_types, currency_preference]);
     } else {
@@ -25,7 +25,7 @@ export function useMonthlyLimitForm(func, id = null) {
         useEffect(() => {
             if (!load4) {
                 setAmount((parseFloat(lim.amount)).toString());
-                setCurrency((lim.currency).toString());
+                setCurrency((lim.currency) );
                 setTypes(lim.types)
             }
         }, [load4, lim]);
@@ -42,10 +42,7 @@ export function useMonthlyLimitForm(func, id = null) {
         if (isNaN(amt)) {
             return Alert.alert("Invalid amount");
         }
-       
-        console.log(amt)
-        console.log(currency)
-        console.log(types)
+
         await func({
             id,
             amount: amt,
