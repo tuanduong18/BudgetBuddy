@@ -1,25 +1,28 @@
-import React, { useContext } from 'react';
-import { Button, ActivityIndicator, TextInput, View, Text, Alert, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { TextInput, Text, Alert, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { useUpdateSubscription } from "@/hooks/reminder";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useUpdateSubscription, useDeleteSubscription } from "@/hooks/reminder";
 import { useSubscriptionForm } from "@/hooks/subsriptionForm";
+import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
 export default function AddExpense() {  
-    const { id } = useLocalSearchParams();
+    const { id, noti_id } = useLocalSearchParams();
     const update = useUpdateSubscription();
     const {
-        name,      setName,
-        sday,      setsDay,
-        smonth,    setsMonth,
-        syear,     setsYear,
-        eday,      seteDay,
-        emonth,    seteMonth,
-        eyear,     seteYear,
+        name,       setName,
+        start_time, setStartTime,
+        end_time,   setEndTime,
 
         // submit fn
-        submit: updateSubs
+        submit: updateSub
     } = useSubscriptionForm(update, id);
+
+    const [showsDatePicker, setShowsDatePicker] = useState(false);
+    const [showeDatePicker, setShoweDatePicker] = useState(false);
+    
+    const remove = useDeleteSubscription();
 
     const router = useRouter();
     const [loaded, error] = useFonts({        
@@ -30,90 +33,93 @@ export default function AddExpense() {
         return null
     }
 
+    const onDelete = () => {
+      Alert.alert('Delete Subscription & Reminder', 'Are you sure you want to delete this item?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await remove({ id, noti_id });
+            router.replace('/reminders/allReminders');
+          }
+        }
+      ]);
+    };
+  
+  
+    const onSave = async () => {
+      await updateSub();
+      router.replace('/reminders/allReminders');
+    };
+  
+    const onCancel = () => {
+      router.back();
+    };
+
     // Screen
     return (
-        <>
-        <View style={styles.container}>
-            <Text type="label">Name</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Name..."
-                value={name}
-                maxLength={40}
-                onChangeText={setName}
-            />
-            <Text type="label">Start date (DD / MM / YYYY)</Text>
-            <View style={styles.dateRow}>
-                <TextInput
-                    style={[styles.input, styles.dateInput]}
-                    placeholder="DD"
-                    keyboardType="number-pad"
-                    maxLength={2}
-                    value={sday}
-                    onChangeText={setsDay}
-                />
-                <Text style={styles.dateSep}>/</Text>
-                <TextInput
-                    style={[styles.input, styles.dateInput]}
-                    placeholder="MM"
-                    keyboardType="number-pad"
-                    maxLength={2}
-                    value={smonth}
-                    onChangeText={setsMonth}
-                />
-                <Text style={styles.dateSep}>/</Text>
-                <TextInput
-                    style={[styles.input, styles.dateYearInput]}
-                    placeholder="YYYY"
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    value={syear}
-                    onChangeText={setsYear}
-                />
-            </View>
+      <ScrollView contentContainerStyle={[GS.card, { padding: 24, backgroundColor: '#fff' }]}>
+      <Text style={GS.title}>Update Subscription & Reminder</Text>
 
-            <Text type="label">End date (DD / MM / YYYY)</Text>
-            <View style={styles.dateRow}>
-                <TextInput
-                    style={[styles.input, styles.dateInput]}
-                    placeholder="DD"
-                    keyboardType="number-pad"
-                    maxLength={2}
-                    value={eday}
-                    onChangeText={seteDay}
-                />
-                <Text style={styles.dateSep}>/</Text>
-                <TextInput
-                    style={[styles.input, styles.dateInput]}
-                    placeholder="MM"
-                    keyboardType="number-pad"
-                    maxLength={2}
-                    value={emonth}
-                    onChangeText={seteMonth}
-                />
-                <Text style={styles.dateSep}>/</Text>
-                <TextInput
-                    style={[styles.input, styles.dateYearInput]}
-                    placeholder="YYYY"
-                    keyboardType="number-pad"
-                    maxLength={4}
-                    value={eyear}
-                    onChangeText={seteYear}
-                />
-            </View>
+      {/* ─── “Description”  ─────────────────────────────── */}
+      <Text style={GS.footerText}>Description</Text>
+      <TextInput
+        style={GS.input}
+        placeholder="e.g. Gym Membership"
+        value={name}
+        onChangeText={setName}
+      />
 
-            <Button 
-                title="Update" 
-                onPress={updateSubs} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="Back" 
-                onPress={() => router.replace('/reminders/allReminders')} 
-                style = {styles.saveButton}
-            />
-        </View>
-        </>
+      {/* Start date */}
+      <Text style={[GS.footerText, styles.label]}>Start Date</Text>
+        <TouchableOpacity
+          onPress={() => setShowsDatePicker(true)}
+          style={[GS.input, { justifyContent: 'center' }]}
+        >
+          <Text>{`${start_time.getDate()}/${(start_time.getMonth() + 1)}/${start_time.getFullYear()}`}</Text>
+        </TouchableOpacity>
+        {showsDatePicker && (
+          <DateTimePicker
+            value={start_time}
+            mode="date"
+            display="default"
+            onChange={setStartTime}
+          />
+        )}
+
+      {/* End date */}
+      <Text style={[GS.footerText, styles.label]}>End Date</Text>
+        <TouchableOpacity
+          onPress={() => setShoweDatePicker(true)}
+          style={[GS.input, { justifyContent: 'center' }]}
+        >
+          <Text>{`${end_time.getDate()}/${(end_time.getMonth() + 1)}/${end_time.getFullYear()}`}</Text>
+        </TouchableOpacity>
+        {showeDatePicker && (
+          <DateTimePicker
+            value={end_time}
+            mode="date"
+            display="default"
+            onChange={setEndTime}
+          />
+        )}
+
+      {/* ─── Save Button (navigates back after saving) ──────────────────────────────── */}
+      <TouchableOpacity onPress={onSave} style={GS.button}>
+        <Text style={GS.buttonText}>Save</Text>
+      </TouchableOpacity>
+
+      {/* ─── Delete Button ───────────────────────────────────────────────────────────── */}
+      <TouchableOpacity onPress={onDelete} style={[GS.button, { backgroundColor: '#f88' }]}>
+        <Text style={[GS.buttonText, { color: '#fff' }]}>Delete</Text>
+      </TouchableOpacity>
+
+      {/* ─── Cancel Button ───────────────────────────────────────────────────────────── */}
+      <TouchableOpacity onPress={onCancel} style={[GS.button, { backgroundColor: '#ddd' }]}>
+        <Text style={[GS.buttonText, { color: '#000' }]}>Cancel</Text>
+      </TouchableOpacity>
+    </ScrollView>
     );
 }
 

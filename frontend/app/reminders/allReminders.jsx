@@ -1,84 +1,110 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Button, ActivityIndicator, Text, FlatList, View, Pressable, Alert, Platform, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSubscriptions } from '@/hooks/data';
 import { useDeleteSubscription } from '@/hooks/reminder';
 import * as Notifications from 'expo-notifications';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AddReminder from './add';
 
 export default function AllReminders() {
+    // Use to debug in console
     useEffect(() => {
-    (async () => {
-        const all = await Notifications.getAllScheduledNotificationsAsync();
-        console.log('All scheduled notifications:', all);
-    })();
-  }, []);
+      (async () => {
+          const all = await Notifications.getAllScheduledNotificationsAsync();
+          console.log('All scheduled notifications:', all);
+          //await Notifications.cancelAllScheduledNotificationsAsync();
+      })();
+    }, []);
+
+    const [addVisible, setAddVisible] = useState(false);
 
     const router = useRouter();
     const deleteSubs = useDeleteSubscription();
-    const [loaded, error] = useFonts({        
-        Inter_500Medium,
-    })  
 
+    /*Fetch all user's subscriptions & reminders
+      Get a list of elements
+      Each element is a dict
+      @params
+        id: int
+        name: string
+        noti_id: string
+        start_time: string in isoformat
+        end_time: string in isoformat
+    */
     const {data: Subscriptions, loading} = useSubscriptions();
 
-    if (!loaded && !error) {
-        return null
-    }
-
     if (loading) {
-        return <ActivityIndicator style={{ flex: 1 }} />;
-    }
-
-    const renderItem = ({item}) => {
-        const formattedDate = new Date(item.end_time).toLocaleDateString('en-GB');
         return (
-            <View style={styles.row}>
-                <Text style={{fontSize:18, color: 'red', width:"75%"}} onPress={() => router.push({
-                        pathname: '/reminders/update',
-                        params: { "id": item.id }    
-                    })}>
-                    {item.name} expired at {formattedDate}
-                </Text>
-                <Text 
-                    style={{fontSize:18, color: 'red'}} 
-                    onPress={async () =>   deleteSubs({id: item.id, noti_id: item.noti_id})}
-                    
-                >
-                    Delete
-                </Text>
-            </View>
-            
-
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" />
+          </View>
         );
-    }
+      }
 
-    const keyExtractor = (item, index) => index.toString();
+    // Render a single row
+    const renderItem = ({ item, index }) => {
+        const now = new Date();
+        const date = new Date(item.end_time);
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear();
+        const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
+        const bgColor = colors[index % colors.length];
+    
+        return (
+          <TouchableOpacity
+            style={[styles.card, { backgroundColor: bgColor }]}
+            onPress={() =>
+              router.push({ pathname: '/reminders/update', params: { id: item.id, noti_id: item.noti_id } })
+            }
+          >
+            <View>
+              <Text style={styles.category}>{item.name}</Text>
+    
+            </View>
+            <View style={styles.details}>
+              <Text style={{ 
+                color: date > now ? 'green' : 'red' , 
+                fontSize: date > now ? 16 : 20, 
+                fontWeight: date > now ? 'normal': 'bold',
+              }}> 
+                expired at {`${day} ${month}, ${year}`}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      };
 
     // Screen
     return (
         <>
         <View style={styles.container}>
-            
-            <Text type="title"> All Subscriptions </Text>
+          <View style={{
+            flexDirection: 'row', 
+            flexWrap: 'wrap',
+          }}>
+            <Ionicons name="arrow-back" size={24} color="black" style={{paddingRight: '24%',}}
+              onPress = {() => router.replace('/tabs/home_page')}
+            />
+            <Text style={styles.title}>All Subscription & Reminders</Text>
+          </View>
 
             <FlatList
                 data={Subscriptions}
                 renderItem={renderItem}
-                keyExtractor={keyExtractor}
+                keyExtractor = {(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 80 }}
             />
-            
-            <Button 
-                title="add" 
-                onPress={() => router.replace('/reminders/add')} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="home" 
-                onPress={() => router.replace('/tabs/home_page')} 
-                style = {styles.saveButton}
-            />
+
+            <TouchableOpacity
+              style={styles.floatingButton}
+              onPress={() => setAddVisible(true)}
+            >
+              <Ionicons name="add-outline" size={32} color="#fff" />
+            </TouchableOpacity>
+            <AddReminder visible={addVisible} onClose={() => setAddVisible(false)} />
         </View>
         </>
     );
@@ -90,6 +116,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffde1a',
     paddingHorizontal: 20,
     paddingTop: 40,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 22,
@@ -136,15 +167,15 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
-  pickerWrapper: {
-        borderWidth: 1,
-
-        borderRadius: 4,
-        marginBottom: 12,
-        overflow: "hidden",
-  },
-  picker: {
-      height: 50,
-      width: "100%",
+  floatingButton: {
+    position: 'absolute',
+    bottom: 50,
+    right: 24,
+    backgroundColor: '#4CAF50',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
