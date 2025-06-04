@@ -39,6 +39,12 @@ export default function AddLimit() {
             prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]
         );
     }
+
+    const toggleAll = () => {
+        const allSelected = types.length === expense_types.length;
+        setTypes(allSelected ? [] : [...expense_types]);
+    };
+
     function CustomCheckbox({ checked, onChange }) {
         return (
             <TouchableOpacity onPress={() => onChange(!checked)} style={{padding: 4,}}>
@@ -58,6 +64,18 @@ export default function AddLimit() {
                 style={{ maxHeight: 200 }}
                 contentContainerStyle={styles.wrapContainer}
             >
+                {/* Select All checkbox */}
+                <TouchableOpacity
+                key="__select_all__"
+                style={styles.typeItem}
+                onPress={toggleAll}
+                >
+                <CustomCheckbox
+                    checked={types.length === expense_types.length}
+                    onChange={toggleAll}
+                />
+                <Text style={styles.label}>Select All</Text>
+                </TouchableOpacity>
                 {expense_types.map(type => (
                     <TouchableOpacity key={type} style={styles.typeItem} onPress={() => toggleType(type)}>
                     <CustomCheckbox checked={types.includes(type)} onChange={() => toggleType(type)} />
