@@ -1,61 +1,52 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { API_BASE } from '@/constants/api';
 import { getAccessToken } from '@/constants/authStorage';
-import { useRouter } from 'expo-router';
 import { useRefreshToken } from './auth';
 
 export function useAddExpense() {
     return useAction(
         `${API_BASE}/expenses/action/add`, 
         "Successfully added new expense",
-        "/personal_expenses/history"
     )}
 
 export function useUpdateExpense() {
     return useAction(
         `${API_BASE}/expenses/action/update`, 
         "Successfully updated",
-        "/personal_expenses/history"
     )}
 
 export function useDeleteExpense() {
     return useAction(
         `${API_BASE}/expenses/action/delete`, 
         "Successfully deleted", 
-        "/personal_expenses/history"
     )}
 
 export function useAddLimit() {
     return useAction(
         `${API_BASE}/limits/action/add`, 
         "Successfully added new monthly limit", 
-        "/monthly_limit/allLimits"
     )}
 
 export function useUpdateLimit() {
     return useAction(
         `${API_BASE}/limits/action/update`, 
         "Successfully updated monthly limit", 
-        "/monthly_limit/allLimits"
     )}
 
 export function useDeleteLimit() {
     return useAction(
         `${API_BASE}/limits/action/delete`, 
         "Successfully deleted", 
-        "/monthly_limit/allLimits"
     )}
 
 export function useUpdateProfileCurrency() {
     return useAction(
         `${API_BASE}/profile/action/currency`, 
         "Successfully updated", 
-        "/user/profile"
     )}    
     
-function useAction(api, message, route) {
-    const router = useRouter()
+function useAction(api, message) {
     const refreshToken = useRefreshToken();
 
     const action = useCallback(async (dict) => {
@@ -81,7 +72,6 @@ function useAction(api, message, route) {
             
             if (res.ok) {
                 Alert.alert(message);
-                router.replace(route);
             } else {
                 console.log(data.message)
                 Alert.alert("Failed:", data.message || "");
@@ -93,7 +83,7 @@ function useAction(api, message, route) {
             Alert.alert("Network Error", error.message);
             return false;
         }
-    }, [router]);
+    }, []);
 
     return action;
 }
