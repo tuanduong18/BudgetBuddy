@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
 
         // 3) if it’s there, go to /home
         if (token) {
-          router.replace('/tabs/home_page');
+          router.replace('/(tabs)/personal_expenses/expenses');
           return; // bail out so we don’t render LoginScreen briefly
         }
       } catch (err) {
@@ -81,13 +81,13 @@ export default function WelcomeScreen() {
         <View style={{ width: '100%', paddingHorizontal: 40 }}>
           <TouchableOpacity 
             style={local.button} 
-            onPress={() => router.push('/auth/sign_up')}>
+            onPress={() => router.replace('/auth/sign_up')}>
             <Text style={GS.buttonText}>Sign Up</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={local.button} 
-            onPress={() => router.push('/auth/sign_in')}>
+            onPress={() => router.replace('/auth/sign_in')}>
             <Text style={GS.buttonText}>Sign In</Text>
           </TouchableOpacity>
         </View>

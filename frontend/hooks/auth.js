@@ -61,7 +61,7 @@ export function useSignIn() {
             await saveTokens(access_token, refresh_token)
 
             Alert.alert("Success", "Successfully logging in");
-            router.replace("/tabs/home_page");
+            router.replace("/(tabs)/personal_expenses/expenses");
             } else {
             Alert.alert("Error", data.message || "Signin failed.");
             }
