@@ -6,10 +6,13 @@ This is a project created with React Native frontend and Flask backend running o
 
 1. Configure backend  
 
+   Open a terminal window for backend
+
    Create a .env file in .\backend with the same elements as .env.example  
 
-   Then initialize database and run flask  
+   Then in .\backend run  
    ```bash
+   pip install -r requirements.txt
    python init_db.py
    python run.py
    ```
@@ -28,3 +31,4 @@ This is a project created with React Native frontend and Flask backend running o
    ```bash
    npx expo start
    ```
+    

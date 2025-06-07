@@ -3,18 +3,22 @@ from werkzeug.security import generate_password_hash
 from app.extension import db
 from app.models import User
 
+# Create a blueprint
 auth_bp = Blueprint('sign_up', __name__, url_prefix='/auth')
 
-# route for sign up
+# Route for sign up
+# Return status only (201, 400, 409, 500)
 @auth_bp.route('/sign_up', methods=['POST'])
 def sign_up():
-    
+    # @params
+    #     username: string
+    #     password: string
     data = request.get_json()
-    
+
     cur_username = data.get('username')
     cur_password = data.get('password')
     
-    # check for missing fields
+    # Check for missing fields
     if not cur_username or not cur_password:
         return jsonify({ 'message': 'Missing username and/or password' }), 400
         
@@ -27,7 +31,7 @@ def sign_up():
 
         # Create new user
         hashed_password = generate_password_hash(cur_password)
-        new_user = User(username = cur_username, password = hashed_password)
+        new_user = User(username = cur_username, password = hashed_password) # type: ignore
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'Successfully signed up a new account'}), 201

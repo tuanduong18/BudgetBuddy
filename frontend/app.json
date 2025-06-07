@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.trenghe18.frontend"
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +40,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b3b0de3f-e614-4645-81bb-e08d25931765"
+      }
+    },
+    "owner": "trenghe18"
   }
 }

@@ -1,27 +1,32 @@
 from flask import jsonify, request, Blueprint
 from werkzeug.security import check_password_hash
-from app.extension import db, jwt
+from app.extension import db
 from app.models import User
 from flask_jwt_extended import create_access_token, create_refresh_token
 
+# Create a blueprint
 auth_bp = Blueprint('sign_in', __name__, url_prefix='/auth')
 
+# Route for sign in
+# Return status only (200, 400, 401, 501)
 @auth_bp.route('/sign_in', methods=['POST'])
 def sign_in():
-
+    # @params
+    #     username: string
+    #     password: string
     data = request.get_json()
     
     cur_username = data.get('username')
     cur_password = data.get('password')
 
-    # check for missing fields
+    # Check for missing fields
     if not cur_username or not cur_password:
         return jsonify({ 'message': 'Missing username and/or password' }), 400
 
     try:
-        # find use
+        # Find user with the same username if exists
         user = User.query.filter_by(username=cur_username).first()
-    
+
         if user is not None and check_password_hash(user.password, cur_password):
             access_token = create_access_token(identity=str(user.id))
             refresh_token = create_refresh_token(identity=str(user.id))

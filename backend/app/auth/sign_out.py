@@ -1,9 +1,10 @@
-from flask import jsonify, Blueprint, request
-from flask_jwt_extended import decode_token, get_jwt_identity, jwt_required, verify_jwt_in_request, current_user
+from flask import jsonify, Blueprint
+from flask_jwt_extended import jwt_required
 
+# Create a blueprint
 auth_bp = Blueprint('sign_out', __name__, url_prefix='/auth')
 
-# route for sign out
+# Route for sign out
 @auth_bp.route('/sign_out', methods=['POST'])
 @jwt_required()
 def sign_out():

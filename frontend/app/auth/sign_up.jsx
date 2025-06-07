@@ -1,116 +1,160 @@
-import React, { useState, useContext } from "react";
-import { Text, View, TextInput, Button, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from 'expo-router';
-import { API_BASE } from "@/constants/api";
-import createStyles from "./style";
-import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { ThemeContext } from "@/context/ThemeContext";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useSignUp } from "@/hooks/auth";
+import { GlobalStyles as GS } from "@/constants/GlobalStyles";
 
 export default function SignUpScreen() {
+
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter()
-  const {colorScheme, setColorScheme, theme} = useContext(ThemeContext)
-  const [loaded, error] = useFonts({
-        Inter_500Medium,
-  })
+  const [confirm, setConfirm] = useState("");
 
-  if (!loaded && !error) {
-        return null
-  }
-
-  const styles = createStyles(theme, colorScheme)
-
-  const validatePasswordRules = (password) => ({
-    minLength: password.length >= 6,
-    maxLength: password.length <= 100,
+  const signUp = useSignUp();
+  
+  const rules = {
+    minLength: password.length >= 8,
     hasNumber: /\d/.test(password),
-    hasLowercase: /[a-z]/.test(password),
     hasUppercase: /[A-Z]/.test(password),
     hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  });
-
-  const renderRule = (label, passed) => (
-    <Text style={{ color: passed ? "green" : "red" }}>{passed ? "✔" : "✖"} {label}</Text>
-  );
-
-  const handleSignUp = async () => {
-    const passwordRules = validatePasswordRules(password);
-    const allPassed = Object.values(passwordRules).every(Boolean);
-
-    if (!allPassed) {
-      Alert.alert("Password Invalid", "Please make sure all password requirements are met.");
-      return;
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/auth/sign_up`, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username,
-                password,
-            }),
-        });
-        const data = await res.json()
-        if (res.ok) {
-        Alert.alert("Success", data.message);
-        router.push("/auth/sign_in");
-        } else {
-        Alert.alert("Error", data.message || "Signup failed.");
-        }
-        
-    } catch (error) {
-        console.error("Signup error:", error.message);
-        Alert.alert("Network Error", error.message);
-    }
+    matchesConfirm: password === confirm && password.length > 0,
   };
 
+  const handleSignUp = async () => {
+    const allRulesPass = Object.values(rules).every(v => v);
+
+    if (!allRulesPass) {
+      return Alert.alert(
+        "Weak password",
+        "Make sure it’s at least 8 chars, has a number, uppercase, special char, and matches confirmation."
+      );
+    }
+    if (!password || !username) {
+      Alert.alert("Signup failed", "Missing values")
+      return
+    }
+    if (password != confirm) {
+      Alert.alert("Signup failed", "Confirm password must be the same as password")
+      return
+    }
+    signUp(username, password);
+  }
+
+  const renderRule = (label, passed) => (
+    <Text style={{ color: passed ? "green" : "red", marginBottom: 2 }}>
+      {passed ? "✔" : "✖"} {label}
+    </Text>
+  );
+
   return (
-    <SafeAreaView style ={{ flex: 1 }}>
-      <View style={{ padding: 20 }}>
-        <TextInput
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.inputContainer}
-        />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.inputContainer}
-        />
-        <View style={{ marginBottom: 10 }}>
-        {(() => {
-          const passwordRules = validatePasswordRules(password);
-          return (
-            <>
-              {renderRule("At least 6 characters", passwordRules.minLength)}
-              {renderRule("No more than 100 characters", passwordRules.maxLength)}
-              {renderRule("Contains a number", passwordRules.hasNumber)}
-              {renderRule("Contains a lowercase letter", passwordRules.hasLowercase)}
-              {renderRule("Contains an uppercase letter", passwordRules.hasUppercase)}
-              {renderRule("Contains a special character", passwordRules.hasSpecialChar)}
-            </>
-          );
-        })()}
-      </View>
-        <Button 
-          title="Sign Up" 
-          onPress={handleSignUp} 
-          style = {styles.saveButton}
-        />
-        <Button 
-          title="Sign In" 
-          onPress={()=>router.push('/auth/sign_in')} 
-          style = {styles.saveButton}
+    <View style={{ flex: 1, backgroundColor: '#ffde1a' }}>
+      {/* Top Illustration */}
+      <View style={local.imageContainer}>
+        <Image
+          source={require("@/assets/images/sign-up-image.png")}
+          style={local.image}
+          resizeMode="contain"
         />
       </View>
-    </SafeAreaView>
+
+      {/* Scrollable Card Form */}
+      <View style={local.card}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text style={GS.title}>Create account</Text>
+
+          <TextInput
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            style={GS.input}
+            placeholderTextColor="#888"
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={GS.input}
+            placeholderTextColor="#888"
+          />
+
+          <TextInput
+            placeholder="Confirm Password"
+            value={confirm}
+            onChangeText={setConfirm}
+            secureTextEntry
+            style={GS.input}
+            placeholderTextColor="#888"
+          />
+
+          {/* Password Rules */}
+          <View style={{ marginBottom: 10 }}>
+            {renderRule("At least 8 characters", rules.minLength)}
+            {renderRule("Contains a number", rules.hasNumber)}
+            {renderRule("Contains a capital letter", rules.hasUppercase)}
+            {renderRule("Contains a special character", rules.hasSpecialChar)}
+            {renderRule("Passwords match", rules.matchesConfirm)}
+          </View>
+
+          <TouchableOpacity
+            style={GS.button}
+            onPress={handleSignUp}
+            disabled={Object.values(rules).some((v) => !v)}
+          >
+            <Text
+              style={GS.buttonText}
+            >
+              Sign Up
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.replace("/auth/sign_in")}>
+            <Text style={GS.footerText}>
+              Already have an account?{" "}
+              <Text style={GS.link}>Sign In</Text>
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
+
+const local = StyleSheet.create({
+  imageContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: 5,
+  },
+  image: {
+    width: 240,
+    height: 240,
+  },
+  card: {
+    flex: 2.25,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    paddingBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+});

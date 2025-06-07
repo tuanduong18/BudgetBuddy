@@ -14,6 +14,10 @@ export const getRefreshToken = async () => {
 };
 
 export const clearTokens = async () => {
-  await AsyncStorage.removeItem('accessToken');
-  await AsyncStorage.removeItem('refreshToken');
+  try {
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('refreshToken');
+  } catch (e) {
+    console.warn('clearTokens: nothing to clear or storage error', e);
+  }
 };
