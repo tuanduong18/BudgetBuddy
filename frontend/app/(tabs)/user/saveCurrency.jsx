@@ -66,6 +66,11 @@ export default function ProfileScreen() {
     return <ActivityIndicator style={{ flex: 1 }} />;
   }
 
+  const onSave = async () => {
+    await update({currency});
+    router.replace('/(tabs)/user/profile')
+  }
+
   if (!username) {
     return (
       <View style={styles.emptyContainer}>
@@ -113,7 +118,7 @@ export default function ProfileScreen() {
 
                 <Button 
                     title="Change currency" 
-                    onPress={() => update({currency,})}
+                    onPress={onSave}
                     style = {styles.optionButton}
                 />
             </View>
