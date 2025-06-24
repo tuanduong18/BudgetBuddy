@@ -67,6 +67,16 @@ export default function TabsLayout() {
           unmountOnBlur: true
         }}
       />
+      <Tabs.Screen
+        name="split"
+        options={{
+          title: 'Group',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="group" size={size} color={color} />
+          ),
+          unmountOnBlur: true
+        }}
+      />
 
       <Tabs.Screen
         name="user"
