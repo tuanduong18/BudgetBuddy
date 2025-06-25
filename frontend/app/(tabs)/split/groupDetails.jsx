@@ -14,7 +14,7 @@ import { useGroupDetails } from '@/hooks/data';
 import { useLeaveGroup } from '@/hooks/crud';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import { useFocusEffect } from "@react-navigation/native";
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -41,23 +41,85 @@ export default function GroupDetails() {
           );
         }
 
-  const renderItem = ({ item, index }) => {
+  const renderMember = ({ item, index }) => {
         const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
         const bgColor = colors[index % colors.length];
         return (
-          <TouchableOpacity
-            style={[styles.card, { backgroundColor: bgColor }]}
-            // onPress={() =>
-            //   router.replace({ pathname: '/(tabs)/reminders/update', params: { id: item.id, noti_id: item.noti_id } })
-            // }
-          >
-            <View>
+            <View style={[styles.card, { backgroundColor: bgColor }]}>
               <Text style={styles.category}>{item}</Text>
-    
             </View>
-          </TouchableOpacity>
         );
       };
+  //@params
+  //  type: "settlement" or "expense"
+  const renderHistory = ({item, index}) => {
+    const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
+    const bgColor = colors[index % colors.length];
+    if (item.type === "settlement"){
+      //@params
+      //  payer: string,
+      //  payee: string,
+      //  amount: float,
+      //  currency: string,
+      //  time: time string in isoformat,
+      const date = new Date(item.time);
+      const day = date.getDate();
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return (
+        <View
+          style={[styles.card, { backgroundColor: bgColor }]}
+        >
+          <View style={[{
+            flexDirection: 'row', 
+            flex: 1,
+            }]}>
+            <FontAwesome name="money" size={24} color="black" />
+            <Text style={styles.category}>
+              {"  "}{item.payee} paid {item.payer} {item.amount} {item.currency} at {`${day} ${month}, ${year}`}
+            </Text>
+            
+
+          </View>
+        </View>
+      );
+    }
+    //@params
+    //  id: int
+    //  payer: string,
+    //  amount: float,
+    //  currency: string,
+    //  note: string,
+    //  time: time string in isoformat,
+    //  payees: list of dictionaries
+    //    @params:
+    //      name: string
+    //      amount: float
+    //      currency: string
+    //      settled: boolean
+    return (
+      <TouchableOpacity
+        style={[styles.card, { backgroundColor: bgColor }]}
+        onPress={()=>router.replace({ 
+          pathname: '/(tabs)/split/expenseDetails', 
+          params: { expense: JSON.stringify(item) , group_id: id } 
+        })}
+      >
+        <View style={{
+          flexDirection: 'row', 
+          flexWrap: 'wrap',
+          }}>
+          <FontAwesome name="bell-o" size={24} color="black" />
+          <Text style={styles.category}>
+            {"  "}{item.note} cost {item.amount} {item.currency}
+          </Text>
+
+        </View>
+      </TouchableOpacity>
+    );
+  };
+      
+
   const onButtonPress = async () => {
     await left({id: id});
     router.replace('/(tabs)/split');
@@ -84,13 +146,19 @@ export default function GroupDetails() {
               <Text style={styles.title}>Members</Text>
               <FlatList
                 data={details.members}
-                renderItem={renderItem}
+                renderItem={renderMember}
                 keyExtractor = {(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
             </View>
-            
+            <FlatList
+                data={details.settlements.concat(details.history)}
+                renderItem={renderHistory}
+                keyExtractor = {(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
             <Button 
                 title="Leave group" 
                 onPress={onButtonPress} 
