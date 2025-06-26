@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, current_user
 from app.extension import db, FINANCE_DATA
 from app.models import CurrencyTypes, Group, User
 from sqlalchemy import select
-
+from .helpers import calulate_settlements
 # Create a blueprint
 auth_bp = Blueprint('group_data', __name__, url_prefix='/group/data')
 
@@ -110,5 +110,40 @@ def group_information():
         'settlements': settlements
     }), 201
 
+# Route for getting all settlement should be made in a group
+# Return a list of dict
+# @params
+#   name: string
+#   amount: float
+#   currency: string
+#   owe: boolean
+@auth_bp.route('/owes', methods = ['POST'])
+@jwt_required()
+def user_owes():
+    # @params
+    #   currency: string
+    #   group_id: string
+    data = request.get_json() or {}
+
+    currency ='SGD'
+    if current_user.currency is not None:
+        currency = current_user.currency.value
+    if data.get('currency') is not None and data.get('currency') in ALLOWED_CURRENCIES:
+        currency = data.get('currency')
+
+    gid = data.get('group_id')
+    if not gid:
+        return jsonify({'error': 'Group id is missing'}), 400
+
+    group = Group.query.filter_by(group_id=gid).first()
+    if not group:
+        return jsonify({'error': 'Group not found'}), 404
     
-    
+    members=[]
+    for u in group.members:
+        members.append(u.username)
+    members.sort()
+
+    data = calulate_settlements(currency, group.id, members)
+
+    return data
