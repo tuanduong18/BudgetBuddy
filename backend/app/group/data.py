@@ -58,6 +58,9 @@ def group_information():
         # skip if already settled
         if e.settled:
             continue
+        payer = User.query.filter_by(id=e.payer_id).first()
+        if not payer:
+            continue
         # create an array of all payees
         temp = []
         for owe in e.owes:
@@ -75,7 +78,7 @@ def group_information():
         history.append({
             'type': "expense",
             'id': e.id,
-            'payer': current_user.username,
+            'payer': payer.username,
             'amount':round(float(e.amount), 2),
             'currency': e.currency.value,
             'note': e.note,
@@ -101,6 +104,7 @@ def group_information():
             'currency': s.currency.value,
             'time': s.created_at.isoformat(),
         })
+    settlements=sorted(settlements, key=lambda x: x['time'], reverse=True)
 
     return  jsonify({
         'name': group.name,
