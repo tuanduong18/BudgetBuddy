@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -15,12 +15,15 @@ import { useLeaveGroup } from '@/hooks/crud';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AddGroupExpense from './addExpense';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const left = useLeaveGroup();
+  const [addVisible, setAddVisible] = useState(false);
   const {data: details, loading, refetch: refetchDetails} = useGroupDetails({group_id: id});
   // Font loading
   const [loaded, error] = useFonts({ Inter_500Medium });
@@ -159,6 +162,12 @@ export default function GroupDetails() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
+            <TouchableOpacity
+              style={styles.floatingButton}
+              onPress={() => setAddVisible(true)}
+            >
+              <Ionicons name="add-outline" size={32} color="#fff" />
+            </TouchableOpacity>
             <Button 
                 title="Leave group" 
                 onPress={onButtonPress} 
@@ -169,6 +178,7 @@ export default function GroupDetails() {
                 onPress={() => router.replace('/(tabs)/split')} 
                 style = {styles.saveButton}
             />
+            <AddGroupExpense visible={addVisible} onClose={() => setAddVisible(false)} data={JSON.stringify(details.members)} group_id={id}/>
         </View>
         </>
   );

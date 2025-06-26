@@ -21,7 +21,10 @@ export default function GroupDetails() {
   if (!loaded && !error) {
     return null; // font not ready
   }
-
+  const date = new Date(curr.time);
+  const day = date.getDate();
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const year = date.getFullYear();
   //@params 
   //  name: string,
   //  amount: float,
@@ -55,7 +58,8 @@ export default function GroupDetails() {
     <>
         <View style={styles.container}>
             <Text style={styles.title}>{curr.note} </Text>
-            <Text style={styles.title}>{curr.payer} has paid {curr.amount} {curr.currency} </Text>
+            <Text style={styles.title}>{curr.payer} paid {curr.amount} {curr.currency} </Text>
+            <Text style={styles.title}> on {`${day} ${month}, ${year}`} </Text>
             <FlatList
                 data={curr.payees}
                 renderItem={renderItem}
