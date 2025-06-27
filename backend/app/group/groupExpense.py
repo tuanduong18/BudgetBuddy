@@ -24,7 +24,7 @@ def add_group_expense():
     #   time: string in isoformat
     #   owes: list[{username(string), amount(float)}]
     data=request.get_json() or {}
-    #   payer_id: current user id
+    #   lender_id: current user id
     group_id = data.get('group_id')
     amount = data.get('amount')
     currency = data.get('currency')
@@ -52,7 +52,7 @@ def add_group_expense():
     try:
         new_group_expense = GroupExpenses(
             group_id = group.id,            # type: ignore
-            payer_id = current_user.id,     # type: ignore
+            lender_id = current_user.id,    # type: ignore
             amount = amount,                # type: ignore
             currency = currency,            # type: ignore
             note = note,                    # type: ignore
@@ -62,22 +62,22 @@ def add_group_expense():
         db.session.flush()  # ensure new_group_expense.id is generated
 
         for element in owes:
-            payee_username = element.get('username')
+            borrower_username = element.get('username')
             owe_amount = element.get('amount')
 
-            if payee_username is None or owe_amount is None:
+            if borrower_username is None or owe_amount is None:
                 db.session.rollback()
                 return jsonify({'message': 'Invalid owes entry'}), 400
             
-            payee = User.query.filter_by(username=payee_username).first()
+            borrower = User.query.filter_by(username=borrower_username).first()
 
-            if payee is None:
+            if borrower is None:
                 db.session.rollback()
                 return jsonify({'message': 'Invalid owes entry'}), 400
             
             temp = GroupExpenseOwe(
                 expense_id = new_group_expense.id,  # type: ignore
-                payee_id = payee.id,                # type: ignore
+                borrower_id = borrower.id,          # type: ignore
                 amount = owe_amount,                # type: ignore
                 currency = currency,                # type: ignore
             )
@@ -97,23 +97,23 @@ def add_group_expense():
 @jwt_required()
 def settle():
     # @params
-    # payer: string
-    # payee: current_user
+    # payer: current_user
+    # payee: string
     # group_id: string
     # amount: float
     # currency: string
     data=request.get_json() or {}
-    payer = data.get('payer')
+    payee = data.get('payee')
     group_id = data.get('group_id')
     amount = data.get('amount')
     currency = data.get('currency')
     time = date.today()
 
-    if not payer or not amount or not currency or not time:
+    if not payee or not amount or not currency or not time:
         return jsonify({ 'message': 'Missing values' }), 400
 
-    payer = User.query.filter_by(username = payer).first()
-    if not payer:
+    payee = User.query.filter_by(username = payee).first()
+    if not payee:
         return jsonify({'message': 'User not found'}), 404
     
     if currency not in ALLOWED_CURRENCIES:
@@ -130,30 +130,31 @@ def settle():
     if not group:
         return jsonify({'message': 'Group not found'}), 404
     
-    # Set all expenses where user is payee and payer is payer settled = True
-    ges = GroupExpenses.query.filter_by(group_id=group.id).filter_by(payer_id=payer.id).all()
+    # Set all expenses between user and lender: settled = True
+    # User as the borrower
+    ges = GroupExpenses.query.filter_by(group_id=group.id).filter_by(lender_id=payee.id).all()
     for ge in ges:
         for geo in ge.owes:
-            if geo.payee_id == current_user.id:
+            if geo.borrower_id == current_user.id:
                 geo.settled=True
                 break
     
-    # Set all expenses where user is payer and payer is payee settled = True
-    ges = GroupExpenses.query.filter_by(group_id=group.id).filter_by(payer_id=current_user.id).all()
+    # User as the lender
+    ges = GroupExpenses.query.filter_by(group_id=group.id).filter_by(lender_id=current_user.id).all()
     for ge in ges:
         for geo in ge.owes:
-            if geo.payee_id == payer.id:
+            if geo.borrower_id == payee.id:
                 geo.settled=True
                 break 
     
-    # Set all expenses where all the payees has settled: settled = True
+    # Set all expenses where all the owes have been settled: settled = True
     ges = (
         GroupExpenses.query
         .filter(
             GroupExpenses.group_id == group.id,
             or_(
-                GroupExpenses.payer_id == current_user.id,
-                GroupExpenses.payer_id == payer.id
+                GroupExpenses.lender_id == current_user.id,
+                GroupExpenses.lender_id == payee.id
             )
         )
         .all()
@@ -162,7 +163,7 @@ def settle():
         temp = True
         for geo in ge.owes:
             temp = temp and geo.settled
-        if temp == True :
+        if temp == True:
             ge.settled = True 
 
     try:
@@ -170,7 +171,7 @@ def settle():
         settlement = Settlement(
             group_id = group.id,            # type: ignore
             payer_id = current_user.id,     # type: ignore
-            payee_id = payer.id,            # type: ignore
+            payee_id = payee.id,            # type: ignore
             amount = amount,                # type: ignore
             currency = currency,            # type: ignore
             created_at = time               # type: ignore

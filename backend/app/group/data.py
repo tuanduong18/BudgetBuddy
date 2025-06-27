@@ -35,7 +35,28 @@ def all_joined_groups():
 #    group_id: string
 #    members: list of string
 #    history: list of group expenses
+#    @params
+#       type: "expense"
+#       id: int
+#       lender: string
+#       amount: float
+#       currency: string(3)
+#       note: string
+#       time: string
+#       borrowers: list of borrowers
+#       @params
+#           name: string
+#           amount: float
+#           currency: string(3)
+#           settled: boolean
 #    settlements: list of settlements have been made
+#    @params
+#       type: "settlement"
+#       payer: string
+#       payee: string
+#       amount: float
+#       currency: string
+#       time: string in isoformat
 @auth_bp.route('/current', methods=['POST'])
 @jwt_required()
 def group_information():
@@ -58,18 +79,18 @@ def group_information():
         # skip if already settled
         if e.settled:
             continue
-        payer = User.query.filter_by(id=e.payer_id).first()
-        if not payer:
+        lender = User.query.filter_by(id=e.lender_id).first()
+        if not lender:
             continue
         # create an array of all payees
         temp = []
         for owe in e.owes:
-            payee = User.query.filter_by(id = owe.payee_id).first()
+            borrower = User.query.filter_by(id = owe.borrower_id).first()
             # if that account no longer exist, skip
-            if not payee:
+            if not borrower:
                 continue
             temp.append({
-                'name': payee.username,
+                'name': borrower.username,
                 'amount': owe.amount,
                 'currency': owe.currency.value,
                 'settled': owe.settled
@@ -78,12 +99,12 @@ def group_information():
         history.append({
             'type': "expense",
             'id': e.id,
-            'payer': payer.username,
+            'lender': lender.username,
             'amount':round(float(e.amount), 2),
             'currency': e.currency.value,
             'note': e.note,
             'time': e.created_at.isoformat(),
-            'payees': temp
+            'borrowers': temp
         })
     history = sorted(history, key=lambda x: x['time'], reverse=True)
 

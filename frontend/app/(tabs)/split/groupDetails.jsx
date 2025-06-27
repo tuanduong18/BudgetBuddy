@@ -80,7 +80,7 @@ export default function GroupDetails() {
             }]}>
             <FontAwesome name="money" size={24} color="black" />
             <Text style={styles.category}>
-              {"  "}{item.payee} paid {item.payer} {item.amount} {item.currency} at {`${day} ${month}, ${year}`}
+              {"  "}{item.payer} paid {item.payee} {item.amount} {item.currency} at {`${day} ${month}, ${year}`}
             </Text>
             
 
@@ -90,12 +90,12 @@ export default function GroupDetails() {
     }
     //@params
     //  id: int
-    //  payer: string,
+    //  lender: string,
     //  amount: float,
     //  currency: string,
     //  note: string,
     //  time: time string in isoformat,
-    //  payees: list of dictionaries
+    //  borrowers: list of dictionaries
     //    @params:
     //      name: string
     //      amount: float

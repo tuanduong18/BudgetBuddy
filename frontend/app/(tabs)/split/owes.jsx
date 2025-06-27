@@ -69,7 +69,7 @@ export default function GroupOwes() {
                   </Text>
                   <Button title="settle"  onPress={async ()=>{
                     await settle({
-                      payer: item.name,
+                      payee: item.name,
                       group_id: id,
                       amount: item.amount,
                       currency: item.currency,

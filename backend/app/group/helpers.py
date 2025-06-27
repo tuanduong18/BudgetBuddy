@@ -24,27 +24,30 @@ def calulate_settlements(currency, gid, ls_of_members):
     
     # iterate through all group expense (ge)
     for ge in all_group_expenses:
-        # if current user is the payer
-        if (ge.payer_id == current_user.id):
-            # find all payee
+        # if current user is the lender
+        if (ge.lender_id == current_user.id):
+            # find all borrowers
             geos = GroupExpenseOwe.query.filter_by(expense_id = ge.id).filter_by(settled = False).all()
             # iterate through all group expense owe (geo)
             for geo in geos:
-                payee = User.query.filter_by(id=geo.payee_id).first()
-                if not payee:
+                borrower = User.query.filter_by(id=geo.borrower_id).first()
+                if not borrower:
                     continue
-                amt_dict[payee.username] = amt_dict[payee.username] - convert(geo.amount, geo.currency.value)
-        # if current user might be the payee
+                amt_dict[borrower.username] = amt_dict[borrower.username] - convert(geo.amount, geo.currency.value)
+        # if current user might be the borrower
         else:
-            payer = User.query.filter_by(id = ge.payer_id).first()
-            if not payer:
+            lender = User.query.filter_by(id = ge.lender_id).first()
+            if not lender:
                 continue
-            # check if user is one of the payees
-            geo = GroupExpenseOwe.query.filter_by(expense_id = ge.id).filter_by(payee_id = current_user.id).filter_by(settled = False).first()
+            # check if user is one of the borrowers
+            geo = (GroupExpenseOwe.query
+                   .filter_by(expense_id = ge.id)
+                   .filter_by(borrower_id = current_user.id)
+                   .filter_by(settled = False).first())
             if not geo:
                 continue
             else:
-                amt_dict[payer.username] = amt_dict[payer.username] + convert(geo.amount, geo.currency.value)
+                amt_dict[lender.username] = amt_dict[lender.username] + convert(geo.amount, geo.currency.value)
 
         
     data = []

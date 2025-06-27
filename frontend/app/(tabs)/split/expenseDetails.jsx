@@ -62,10 +62,10 @@ export default function GroupDetails() {
             onPress={() => router.replace({ pathname: '/(tabs)/split/groupDetails', params: { id: group_id } })}
           />
             <Text style={styles.title}>{curr.note} </Text>
-            <Text style={styles.title}>{curr.payer} paid {curr.amount} {curr.currency} </Text>
+            <Text style={styles.title}>{curr.lender} paid {curr.amount} {curr.currency} </Text>
             <Text style={styles.title}> on {`${day} ${month}, ${year}`} </Text>
             <FlatList
-                data={curr.payees}
+                data={curr.borrowers}
                 renderItem={renderItem}
                 keyExtractor = {(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}

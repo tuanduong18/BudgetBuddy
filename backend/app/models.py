@@ -86,7 +86,7 @@ class Group(db.Model):
 class GroupExpenses(db.Model):
     id:             Mapped[int]         = mapped_column(primary_key=True)
     group_id:       Mapped[int]         = mapped_column(ForeignKey("group.id"), nullable=False)
-    payer_id:       Mapped[int]         = mapped_column(ForeignKey("user.id"), nullable=False)
+    lender_id:      Mapped[int]         = mapped_column(ForeignKey("user.id"), nullable=False)
     amount:         Mapped[float]       = mapped_column(Numeric(scale=2), nullable=False)
     currency:       Mapped[str]         = mapped_column(SQLEnum(CurrencyTypes), nullable=False) # type: ignore
     note:           Mapped[str]         = mapped_column(Text, nullable=True)
@@ -104,7 +104,7 @@ class GroupExpenses(db.Model):
 class GroupExpenseOwe(db.Model):
     id:          Mapped[int]      = mapped_column(primary_key=True)
     expense_id:  Mapped[int]      = mapped_column(ForeignKey("group_expenses.id"))
-    payee_id:    Mapped[int]      = mapped_column(ForeignKey("user.id"))
+    borrower_id: Mapped[int]      = mapped_column(ForeignKey("user.id"))
     amount:      Mapped[float]    = mapped_column(Numeric(scale=2), nullable=False)
     currency:    Mapped[str]      = mapped_column(SQLEnum(CurrencyTypes), nullable=False) # type: ignore
     settled:     Mapped[bool]     = mapped_column(Boolean, default=False, nullable=False)
