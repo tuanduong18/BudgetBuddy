@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify, abort
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime, timedelta
-from app import db
-from app.models import Expenses, MonthlyLimit, Subscriptions  # adjust imports as needed
+from app.extension import FINANCE_DATA, db
+from app.models import Expenses, MonthlyLimit 
 from sqlalchemy import func
 from app.limit.calculator import calulate_percentage
+from collections import defaultdict
 
 auth_bp = Blueprint('analytics_data', __name__, url_prefix='/analytics/data')
 
@@ -59,18 +60,30 @@ def get_analytics_expenses():
     
     Response: JSON list of {date: ISO string, total: float} for each day.
     """
-    data = request.get_json() or {}  # data is a dict with 'period' and 'referenceDate'
-    print("🛠️ [DEBUG] /analytics/data/expenses called with payload:", data)
-    # get start and end dates for the period (weekly or monthly)
+    data = request.get_json() or {}
+    print("🛠️  [DEBUG] /analytics/data/expenses called with payload:", data)
+
     start_date, end_date = _parse_period(data)
-    print(f"🛠️ [DEBUG] period window → start: {start_date}, end: {end_date}")
-    print("🛠️ [DEBUG] current_user.id:", current_user and current_user.id)
+    print(f"🛠️  [DEBUG] /analytics/data/expenses period window → start: {start_date}, end: {end_date}")
 
+    # determine target currency
+    target_cur = current_user.currency.value if current_user.currency else "SGD"
+    print(f"🛠️  [DEBUG] /analytics/data/expenses target currency for conversion: {target_cur}")
 
-    # In Expenses table, group by date, then sum amounts for each date
+    # conversion helper
+    def convert(amount: float, from_cur: str) -> float:
+        rates = FINANCE_DATA['rates']
+        if from_cur not in rates:
+            abort(500, "Missing FX rate")
+        # first to USD (base), then to target
+        return float(amount) / rates[from_cur] * rates[target_cur]
+
+    # fetch every expense row in the window
     rows = (
-        db.session.query(
-            Expenses.time.label('date'),
+        db.session
+        .query(
+            Expenses.time.label('day'),  # YYYY-MM-DD
+            Expenses.currency,
             func.sum(Expenses.amount).label('total')
         )
         .filter(
@@ -78,28 +91,27 @@ def get_analytics_expenses():
             Expenses.time >= start_date,
             Expenses.time <= end_date
         )
-        .group_by(Expenses.time)
+        .group_by(Expenses.time, Expenses.currency)
         .all()
     )
 
-    # Map existing results to a dict for quick lookup (this dict will not include days with no expenses)
-    date_map = {row.date: float(row.total) for row in rows}
-    print("🛠️ [DEBUG] raw expense rows:", [(r.date.isoformat(), float(r.total)) for r in rows])
+    totals_by_day = defaultdict(float)
+    for day, currency, total in rows:
+        cur = currency.value if hasattr(currency, "value") else currency
+        totals_by_day[day] += convert(total, cur)
+
+    # 5) Build full list (one entry per calendar day)
     days_count = (end_date - start_date).days + 1
     output = []
     for i in range(days_count):
-        # to increment to the next day, add i day(s) to start_date, starting from 0
         day = start_date + timedelta(days=i)
-        # get the total for this day, default to 0.0 if not found, eg. no expense was made that day
-        # return {date: total} for all days shown in the graphs
         output.append({
-            'date': day.isoformat(),
-            'total': date_map.get(day, 0.0)
+            "date": day.isoformat(),
+            # round at the very end
+            "total": round(totals_by_day.get(day, 0.0), 2)
         })
 
     return jsonify(output)
-
-
 
 @auth_bp.route('/categories', methods=['POST'])
 @jwt_required()
@@ -117,105 +129,109 @@ def get_analytics_categories():
     print("🛠️  [DEBUG] /analytics/data/categories called with payload:", data)
 
     start_date, end_date = _parse_period(data)
-    print(f"🛠️  [DEBUG] period window → start: {start_date}, end: {end_date}")
+    print(f"🛠️  [DEBUG] /analytics/data/categories period window → start: {start_date}, end: {end_date}")
 
-    # Total sum of all transactions made for this user in this period (not split by day)
-    total_sum = (
-        db.session.query(func.sum(Expenses.amount))
+    # determine target currency
+    target_cur = current_user.currency.value if current_user.currency else "SGD"
+    print(f"🛠️  [DEBUG] /analytics/data/categories target currency for conversion: {target_cur}")
+
+    # conversion helper
+    def convert(amount: float, from_cur: str) -> float:
+        rates = FINANCE_DATA['rates']
+        if from_cur not in rates:
+            abort(500, "Missing FX rate")
+        # first to USD (base), then to target
+        return float(amount) / rates[from_cur] * rates[target_cur]
+
+    # fetch **all** raw expenses in the date window
+    raw = (
+        db.session.query(Expenses)
         .filter(
             Expenses.user_id == current_user.id,
             Expenses.time >= start_date,
             Expenses.time <= end_date
         )
-        .scalar() or 0
-    )
-    print("🛠️  [DEBUG] total_sum of all expenses in window:", total_sum)
-
-    # Find expenses in this period, group by category, and sum amounts
-    rows = (
-        db.session.query(
-            Expenses.category,
-            func.sum(Expenses.amount).label('amount')
-        )
-        .filter(
-            Expenses.user_id == current_user.id,
-            Expenses.time >= start_date,
-            Expenses.time <= end_date
-        )
-        .group_by(Expenses.category)
         .all()
     )
-    print("🛠️  [DEBUG] raw rows (category, sum):", rows)
 
-    # Calculate percentage of total for each category
+    # group into a dict: category → total_converted_amount
+    sums = defaultdict(float)
+    for trn in raw:
+        cat = trn.category.value if hasattr(trn.category, "value") else trn.category   
+        cur = trn.currency.value if hasattr(trn.currency, "value") else trn.currency
+        amt_converted = convert(trn.amount, cur)
+        sums[cat] += amt_converted
+
+    # compute grand total
+    grand = sum(sums.values())
+
+    # build result list
     result = []
-    for category, amt in rows:
-        amt_f = float(amt)
-        percent = (amt_f / total_sum * 100) if total_sum else 0
-        
+    for cat, amt in sums.items():
+        percent = (amt / grand * 100) if grand else 0
         result.append({
-            'category': category.value,
-            'amount': amt_f,
-            'percent': round(percent, 1)
+            'category': cat,
+            'amount':   round(amt,   2),
+            'percent':  round(percent, 1)
         })
-        
+
     return jsonify(result)
 
 
 
-@auth_bp.route('/budgets-savings', methods=['POST'])
-@jwt_required()
-def get_analytics_budgets_savings():
-    """
-    Returns counts of monthly limits on track and subscription-based savings.
+# @auth_bp.route('/budgets-savings', methods=['POST'])
+# @jwt_required()
+# def get_analytics_budgets_savings():
+#     """
+#     Returns counts of monthly limits on track and subscription-based savings.
 
-    Request JSON: same as above:
-      { "period": "weekly" | "monthly",
-        "referenceDate": "YYYY-MM-DD" }
+#     Request JSON: same as above:
+#       { "period": "weekly" | "monthly",
+#         "referenceDate": "YYYY-MM-DD" }
 
-    Response: {
-      budgetsOnTrack: int,
-      totalBudgets: int,
-      savingsCompleted: int,
-      totalSavings: int
-    }
-    """
-    data = request.get_json() or {}
+#     Response: {
+#       budgetsOnTrack: int,
+#       totalBudgets: int,
+#       savingsCompleted: int,
+#       totalSavings: int
+#     }
+#     """
+#     data = request.get_json() or {}
 
-    # Retrieve monthly limits for this user
-    limits = (
-        MonthlyLimit.query
-        .filter(MonthlyLimit.user_id == current_user.id)
-        .all()
-    )
+#     # Retrieve monthly limits for this user
+#     limits = (
+#         MonthlyLimit.query
+#         .filter(MonthlyLimit.user_id == current_user.id)
+#         .all()
+#     )
 
-    total_limits    = len(limits)
-    # initiate counters
-    on_track_budget = 0
-    completed_sav   = 0
+#     total_limits    = len(limits)
+#     # initiate counters
+#     on_track_budget = 0
+#     completed_sav   = 0
 
-    for lim in limits:
-        # calculate percentage of amount spent for this limit
-        # using helper function from app.limit.calculator
-        result = calulate_percentage(
-            amount   = lim.amount,
-            currency = lim.currency.value,
-            types    = lim.types
-        )
-        pct = result['percentage']
+#     for lim in limits:
+#         # calculate percentage of amount spent for this limit
+#         # using helper function from app.limit.calculator
+#         result = calulate_percentage(
+#             amount   = lim.amount,
+#             currency = lim.currency.value,
+#             types    = lim.types
+#         )
+#         pct = result['percentage']
 
-        # Budget "on track" if not yet 100% spent
-        if pct <= 100:
-            on_track_budget += 1
+#         # Budget "on track" if not yet 100% spent
+#         if pct <= 100:
+#             on_track_budget += 1
 
-        # Savings "completed" if 100% or more
-        if pct >= 100:
-            completed_sav += 1
+#         # Savings "completed" if 100% or more
+#         if pct >= 100:
+#             completed_sav += 1
 
-    return jsonify({
-        'budgetsOnTrack':   on_track_budget,
-        'totalBudgets':     total_limits,
-        'savingsCompleted': completed_sav,
-        'totalSavings':     total_limits,   
-    })
+#     return jsonify({
+#         'budgetsOnTrack':   on_track_budget,
+#         'totalBudgets':     total_limits,
+#         'savingsCompleted': completed_sav,
+#         'totalSavings':     total_limits,   
+#     })
 
