@@ -22,7 +22,7 @@ class User(db.Model):
     id:       Mapped[int] = mapped_column(primary_key = True)
     username: Mapped[str] = mapped_column(String(255), unique = True, nullable = False)
     password: Mapped[str] = mapped_column(String(255), nullable = False)
-    currency: Mapped[str] = mapped_column(SQLEnum(CurrencyTypes), nullable = True) # type: ignore
+    currency: Mapped[str] = mapped_column(SQLEnum(CurrencyTypes), nullable = True, default=CurrencyTypes.SGD) # type: ignore
 
     # relationships
     groups:   Mapped[list["Group"]]     = relationship("Group", secondary=group_members, back_populates="members")

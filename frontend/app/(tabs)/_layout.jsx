@@ -35,6 +35,21 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
+        name="analytics"
+        options={{
+          title: 'Analytics',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="pie-chart" size={size} color={color} />
+          ),
+          unmountOnBlur: true,
+          tabBarLabelStyle: {
+            flexWrap: 'nowrap',
+          
+          },
+        }}
+      />
+
+      <Tabs.Screen
         name="reminders"
         options={{
           title: 'Reminders',
