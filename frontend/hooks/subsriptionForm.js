@@ -20,6 +20,7 @@ export function useSubscriptionForm(func, id = null) {
             Alert.alert('End time must be later than start time');
             return false;
         }
+        return true;
     }
 
     useEffect(() => {

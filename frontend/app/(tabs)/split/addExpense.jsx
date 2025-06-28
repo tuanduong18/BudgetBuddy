@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import { TextInput, View, Text, StyleSheet, Platform, Modal, TouchableOpacity, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { Picker } from '@react-native-picker/picker';
@@ -6,6 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAddGroupExpense } from "@/hooks/crud";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 import { useGroupExpenseForm } from '@/hooks/groupExpenseForm';
+import { useCurrencyPreference } from '@/hooks/data';
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AddGroupExpense({ visible, onClose, data, group_id }) {  
     const addExpense = useAddGroupExpense();
@@ -32,6 +34,21 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
       // submit fn
       submit,
     } = useGroupExpenseForm(group_id, members, addExpense)    
+
+    // Reload whenever access this screen
+    const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
+    useFocusEffect(
+        React.useCallback(() => {
+          refetchCurrency();
+        }, [refetchCurrency])
+      );
+  
+    useEffect(()=>{
+      if(!preferenceCurrencyLoading) {
+        setCurrency(preferenceCurrency)
+      }
+    },[preferenceCurrencyLoading, preferenceCurrency])
+
     const onSubmit = async () => {
       await submit();         // wait for submit to complete
       onClose();              // close modal after success

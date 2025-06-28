@@ -36,6 +36,7 @@ export default function AnalyticsScreen() {
     React.useCallback(() => {
       refetchCurrency();
       reload();
+      setPeriod("weekly");
     }, [refetchCurrency])
   );
 

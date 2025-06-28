@@ -81,6 +81,8 @@ def add_group_expense():
                 amount = owe_amount,                # type: ignore
                 currency = currency,                # type: ignore
             )
+            if borrower.id == current_user.id:
+                temp.settled = True
             new_group_expense.owes.append(temp)
 
         group.history.append(new_group_expense)

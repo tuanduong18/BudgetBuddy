@@ -91,7 +91,7 @@ export default function GroupOwes() {
   return (
     <>
         <View style={styles.container}>
-          <Ionicons name="arrow-back" size={24} color="black" style={{paddingRight: '24%',}}
+          <Ionicons name="arrow-back" size={24} color="black" style={{paddingTop:10,}}
             onPress={() => router.replace({ pathname: '/(tabs)/split/groupDetails', params: { id: id } })}
           />
             <Text style={styles.title}>List of owes</Text>

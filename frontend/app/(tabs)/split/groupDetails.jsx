@@ -131,8 +131,8 @@ export default function GroupDetails() {
   return (
     <>
         <View style={styles.container}>
-            <Ionicons name="arrow-back" size={24} color="black" style={{position: 'absolute', top: 40, left: 20}}
-            onPress = {() => router.replace('/(tabs)/user/profile')}
+            <Ionicons name="arrow-back" size={24} color="black" style={{paddingTop:10,}}
+            onPress = {() => router.replace('/(tabs)/split')}
           />
             <Text style={[styles.title, {paddingTop: -20}]}>{details.name} </Text>
             <Text style={styles.title}>#{details.group_id}</Text>

@@ -63,7 +63,12 @@ export default function ExpensesScreen() {
         : item.category;
 
     return (
-      <View style={[styles.transactionCard, { backgroundColor: bgColor }]}>
+      <TouchableOpacity 
+        style={[styles.transactionCard, { backgroundColor: bgColor }]}
+        onPress={() =>
+          router.replace({ pathname: '/personal_expenses/update', params: { id: item.id } })
+        }
+      >
         <View style={styles.transactionText}>
           <Text style={styles.txnTitle}>{item.category} </Text>
           <Text style={styles.txnDescription}>{item.description}</Text>
@@ -75,11 +80,11 @@ export default function ExpensesScreen() {
               { color: Number(item.amount) >= 0 ? 'green' : 'red' },
             ]}
           >
-            {Number(item.amount) >= 0 ? '+' : '-'} {Math.abs(item.amount)} {item.currency}
+            {Number(item.amount) >= 0 ? '+' : '-'} {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
           </Text>
           <Text style={styles.txnDate}>{`${day}/${month}/${year}`}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -88,7 +93,6 @@ export default function ExpensesScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Hi, {username} 👋</Text>
-          <Text style={styles.subtext}>Check out some friendly reminders!</Text>
         </View>
 
         {/* Clicking the profile pic navigates to /profile */}
@@ -100,13 +104,13 @@ export default function ExpensesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Alerts Block */}
+      {/* Alerts Block
       <View style={styles.alertBlock}>
         <Text style={styles.alertText}>🔔 Alerts</Text>
         <Text style={styles.alertContent}>
           Spotify May subscription ends tomorrow!
         </Text>
-      </View>
+      </View> */}
 
       {/* ── 1) Summary Card ───────────────────────────────────────────────────────── */}
       <View style={styles.summaryCard}>

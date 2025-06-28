@@ -72,7 +72,7 @@ export default function AllExpenses() {
         </View>
         <View style={styles.details}>
           <Text style={[styles.amount, { color: item.amount > 0 ? 'green' : 'red' }]}> 
-            {item.amount} {item.currency}
+            {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
           </Text>
           <Text style={styles.date}>{`${day} ${month}, ${year}`}</Text>
         </View>
