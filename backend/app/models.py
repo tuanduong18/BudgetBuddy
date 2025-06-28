@@ -74,7 +74,7 @@ class MonthlyLimit(db.Model):
 # table to manage groups
 class Group(db.Model):
     id:             Mapped[int]                     = mapped_column(primary_key=True)
-    name:           Mapped[str]                     = mapped_column(db.String(150), nullable=False)
+    name:           Mapped[str]                     = mapped_column(String(100), nullable=False)
     group_id:       Mapped[str]                     = mapped_column(String(6), nullable = False, unique=True)
 
     # relationships 
@@ -89,7 +89,7 @@ class GroupExpenses(db.Model):
     lender_id:      Mapped[int]         = mapped_column(ForeignKey("user.id"), nullable=False)
     amount:         Mapped[float]       = mapped_column(Numeric(scale=2), nullable=False)
     currency:       Mapped[str]         = mapped_column(SQLEnum(CurrencyTypes), nullable=False) # type: ignore
-    note:           Mapped[str]         = mapped_column(Text, nullable=True)
+    note:           Mapped[str]         = mapped_column(String(100), nullable=True)
     settled:        Mapped[bool]        = mapped_column(Boolean, default=False, nullable=False)
     created_at:     Mapped[date]        = mapped_column(Date, default=date.today(), nullable=False)
 

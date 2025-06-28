@@ -93,11 +93,11 @@ export default function AnalyticsScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <BarChart
               data={{ labels, datasets: [{ data: totals }] }}
-              width={Math.min(labels.length * 60, screenW - 32)}
+              width={Math.max(labels.length * 60, screenW - 32)}
               height={220}
               yAxisSuffix={!currency ? ' SGD' : ' ' + currency}
               fromZero
-              showValuesOnTopOfBars
+              showValuesOnTopOfBars={false}
               chartConfig={chartCfg}
             />
           </ScrollView>
