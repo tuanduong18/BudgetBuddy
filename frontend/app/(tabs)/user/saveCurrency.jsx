@@ -89,7 +89,6 @@ export default function ProfileScreen() {
             />
             <View style={styles.headerTextContainer}>
             <Text style={styles.nameText}>{username}</Text>
-            <Text style={styles.subtitleText}>Joined on May 30th, 2025</Text>
             </View>
         </View>
         <View style={styles.cardContainer}>

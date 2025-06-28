@@ -56,7 +56,7 @@ export default function AddLimit() {
     // Screen
     return (
         <>
-        <View style={styles.container}>
+        <View style={styles.spinnerContainer}>
             <Text type="label">Choose Group of types (at least 1 element)</Text>
             <ScrollView
                 style={{ maxHeight: 200 }}
@@ -108,7 +108,10 @@ export default function AddLimit() {
 
             <Button 
                 title="Save" 
-                onPress={addLimit} 
+                onPress={async ()=>{
+                    await addLimit();
+                    router.replace('/(tabs)/monthly_limit/allLimits');
+                } }
                 style = {styles.saveButton}
             />
             <Button 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, ActivityIndicator, Text, FlatList, View, Pressable, StyleSheet, } from 'react-native';
+import { Button, ActivityIndicator, Text, FlatList, View, Pressable, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Picker } from "@react-native-picker/picker";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useMonthlyLimits, useCurrencyTypes, useCurrencyPreference } from "@/hooks/data";
 import { useFocusEffect } from "@react-navigation/native";
+import { GlobalStyles as GS } from '@/constants/GlobalStyles';
+import { ProgressChart } from "react-native-chart-kit";
 
 export default function AllLimits() {
     // search for params: currency when navigate to this screen
@@ -59,14 +61,22 @@ export default function AllLimits() {
     }
     
     const renderItem = ({item}) => {
+      const ratio = parseFloat(item.total) / parseFloat(item.amount);
+      const item_data = {
+        data: [ratio]
+      } 
         return (
-            <View style={{
+            <TouchableOpacity style={{
                 flexDirection: 'row', 
                 flexWrap: 'wrap',
                 alignItems: 'center',
             }}
+            onPress={()=>router.push({
+                        pathname:'/monthly_limit/update',
+                        params: {"id": item.id}
+                    })}
             >
-                <Text 
+                  {/* <Text 
                     style={styles.category}                
                     onPress={()=>router.push({
                         pathname:'/monthly_limit/update',
@@ -74,8 +84,38 @@ export default function AllLimits() {
                     })}
                 >
                     {item.percentage}% : {item.total} / {item.amount} {item.currency}
-                </Text>
-            </View>
+                </Text> */}
+
+              <ProgressChart
+                data={item_data}
+                width={220}
+                height={220}
+                strokeWidth={16}
+                radius={32}
+                chartConfig={{
+                  backgroundColor: "#e26a00",
+                  backgroundGradientFrom: "#fb8c00",
+                  backgroundGradientTo: "#ffa726",
+                  decimalPlaces: 2, // optional, defaults to 2dp
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: {
+                    borderRadius: 16
+                  },
+                  propsForDots: {
+                    r: "6",
+                    strokeWidth: "2",
+                    stroke: "#ffa726"
+                  }
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16
+                }}
+                hideLegend={false}
+              />
+            </TouchableOpacity>
 
         );
     }
@@ -90,34 +130,37 @@ export default function AllLimits() {
       {/* Currency setting box */}
       <View style={styles.pickerWrapper}>
         <Picker
-            enabled={!currencyLoading}
-            selectedValue={currency}
-            onValueChange={setCurrency}
-            style={styles.picker}
+          enabled={!currencyLoading}
+          selectedValue={currency}
+          onValueChange={setCurrency}
+          mode="dropdown"
+          style={styles.picker}
+          dropdownIconColor="#666"
         >
-        <Picker.Item
-            label="Original"
-            value={""}
-        />
-        {currencyLoading
-            ? <Picker.Item label="Loading…" value="" />
-            : currencyTypes.map(t => <Picker.Item key={t} label={t} value={t} />)
-        }
+          {currencyLoading
+              ? <Picker.Item label="Loading…" value="" />
+              : currencyTypes.map(t => <Picker.Item key={t} label={t} value={t} />)
+          }
         </Picker>
-
-        <Button 
-            title="Change currency" 
-            onPress={() => currency == "" 
+        {Platform.OS === 'web' && (
+          <View style={styles.webArrow}>
+            <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
+          </View>
+        )}
+      </View>
+      
+        <TouchableOpacity 
+        onPress={() => currency == "" 
             ? router.replace('/(tabs)/monthly_limit/allLimits')
             : router.replace({
                 pathname:'/(tabs)/monthly_limit/allLimits',
                 params: {"cur": currency}
             })
-            }
-            
-        />
-        
-    </View>
+          }
+        style={[GS.button, { backgroundColor: '#ddd' }]}>
+          <Text style={GS.buttonText}>Save</Text>
+        </TouchableOpacity>
+
       <Button 
           title="Add new limit" 
           onPress={() => router.replace('/(tabs)/monthly_limit/add') }
@@ -186,14 +229,28 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   pickerWrapper: {
-        borderWidth: 1,
-
-        borderRadius: 4,
-        marginBottom: 12,
-        overflow: "hidden",
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
   },
   picker: {
-      height: 50,
-      width: "100%",
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    ...Platform.select({
+      web: {
+        borderWidth: 0,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        paddingHorizontal: 12,
+      },
+      ios: {},
+      android: {},
+    }),
   },
 });

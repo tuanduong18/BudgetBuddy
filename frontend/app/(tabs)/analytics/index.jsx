@@ -156,7 +156,7 @@ const chartCfg = {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
+  container: { padding: 16, paddingTop:40, },
   screenTitle: {
     fontSize: 24,
     fontWeight: "700",
