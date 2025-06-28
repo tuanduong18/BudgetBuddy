@@ -77,10 +77,10 @@ export default function ExpensesScreen() {
           <Text
             style={[
               styles.txnAmount,
-              { color: Number(item.amount) >= 0 ? 'green' : 'red' },
+              { color: Number(item.amount) < 0 ? 'green' : 'red' },
             ]}
           >
-            {Number(item.amount) >= 0 ? '+' : '-'} {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
+            {Number(item.amount) < 0 ? '+' : '-'} {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
           </Text>
           <Text style={styles.txnDate}>{`${day}/${month}/${year}`}</Text>
         </View>
