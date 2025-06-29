@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 100,
+    paddingTop: 70,
   },
   centered: {
     flex: 1,
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 50,
+    bottom: 20,
     right: 24,
     backgroundColor: '#4CAF50',
     width: 56,

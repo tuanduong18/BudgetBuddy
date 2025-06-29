@@ -6,7 +6,8 @@ import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useMonthlyLimits, useCurrencyTypes, useCurrencyPreference } from "@/hooks/data";
 import { useFocusEffect } from "@react-navigation/native";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
-import { ProgressChart } from "react-native-chart-kit";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AddLimit from './add';
 
 export default function AllLimits() {
     // search for params: currency when navigate to this screen
@@ -15,6 +16,8 @@ export default function AllLimits() {
     // set visible currency variable
     const [currency, setCurrency] = useState("");
 
+    const [addVisible, setAddVisible] = useState(false);
+    
     /* Fetch data based on user's currency preference
     @params
         id: int
@@ -27,6 +30,14 @@ export default function AllLimits() {
 
     // load user's preference 
     const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
+
+    const PASTELS = [
+      "#FFE5EC", // pink
+      "#E5F9E0", // mint
+      "#E4ECFF", // powder blue
+      "#FFF4D6", // soft yellow
+      "#F1E4FF"  // lavender
+    ];
 
     // Reload whenever access this screen
       useFocusEffect(
@@ -60,118 +71,68 @@ export default function AllLimits() {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
     
-    const renderItem = ({item}) => {
-      const ratio = parseFloat(item.total) / parseFloat(item.amount);
-      const item_data = {
-        data: [ratio]
-      } 
-        return (
-            <TouchableOpacity style={{
-                flexDirection: 'row', 
-                flexWrap: 'wrap',
-                alignItems: 'center',
-            }}
-            onPress={()=>router.push({
-                        pathname:'/monthly_limit/update',
-                        params: {"id": item.id}
-                    })}
-            >
-                  {/* <Text 
-                    style={styles.category}                
-                    onPress={()=>router.push({
-                        pathname:'/monthly_limit/update',
-                        params: {"id": item.id}
-                    })}
-                >
-                    {item.percentage}% : {item.total} / {item.amount} {item.currency}
-                </Text> */}
+    const renderItem = ({ item, index }) => {
+    const spent      = parseFloat(item.total);      // already rounded on the API
+    const cap        = parseFloat(item.amount);
+    const remaining  = Math.max(cap - spent, 0);
+    const progress   = Math.min(spent / cap, 1);    // 0 → 1
+    const bg         = PASTELS[index % PASTELS.length];
+    const title      = item.types.join(", ");       // “Food, Transport” …
 
-              <ProgressChart
-                data={item_data}
-                width={220}
-                height={220}
-                strokeWidth={16}
-                radius={32}
-                chartConfig={{
-                  backgroundColor: "#e26a00",
-                  backgroundGradientFrom: "#fb8c00",
-                  backgroundGradientTo: "#ffa726",
-                  decimalPlaces: 2, // optional, defaults to 2dp
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: {
-                    borderRadius: 16
-                  },
-                  propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "#ffa726"
-                  }
-                }}
-                bezier
-                style={{
-                  marginVertical: 8,
-                  borderRadius: 16
-                }}
-                hideLegend={false}
-              />
-            </TouchableOpacity>
+    return (
+        <TouchableOpacity
+          style={[styles.card, { backgroundColor: bg }]}
+          onPress={() => router.push({ pathname: "/monthly_limit/update", params: { id: item.id } })}
+        >
+          {/* Title */}
+          <Text style={styles.cardTitle}>{title}</Text>
 
-        );
-    }
+          {/* Figures */}
+          <View style={styles.row}>
+            <View>
+              <Text style={styles.label}>Total Paid</Text>
+              <Text style={styles.value}>
+                {currency} {spent.toFixed(2)}
+              </Text>
+            </View>
+            <View>
+              <Text style={styles.label}>Total Remaining</Text>
+              <Text style={styles.value}>
+                {currency} {remaining.toFixed(2)}
+              </Text>
+            </View>
+          </View>
 
+          {/* Progress bar */}
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+          </View>
+        </TouchableOpacity>
+      );
+    };
     // Screen
     return (
-        <View style={styles.container}>
-      
+    <View style={styles.container}>
+        
         <Text style={styles.title}>All Monthly limits</Text>
-      
-      
-      {/* Currency setting box */}
-      <View style={styles.pickerWrapper}>
-        <Picker
-          enabled={!currencyLoading}
-          selectedValue={currency}
-          onValueChange={setCurrency}
-          mode="dropdown"
-          style={styles.picker}
-          dropdownIconColor="#666"
+  
+        <FlatList
+          data={Limits}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        />
+
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => setAddVisible(true)}
         >
-          {currencyLoading
-              ? <Picker.Item label="Loading…" value="" />
-              : currencyTypes.map(t => <Picker.Item key={t} label={t} value={t} />)
-          }
-        </Picker>
-        {Platform.OS === 'web' && (
-          <View style={styles.webArrow}>
-            <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
-          </View>
-        )}
-      </View>
-      
-        <TouchableOpacity 
-        onPress={() => currency == "" 
-            ? router.replace('/(tabs)/monthly_limit/allLimits')
-            : router.replace({
-                pathname:'/(tabs)/monthly_limit/allLimits',
-                params: {"cur": currency}
-            })
-          }
-        style={[GS.button, { backgroundColor: '#ddd' }]}>
-          <Text style={GS.buttonText}>Save</Text>
+          <Ionicons name="add-outline" size={32} color="#fff" />
         </TouchableOpacity>
 
-      <Button 
-          title="Add new limit" 
-          onPress={() => router.replace('/(tabs)/monthly_limit/add') }
-      />
-      <FlatList
-        data={Limits}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      />
+        <AddLimit visible={addVisible} onClose={() => setAddVisible(false)} />
+        
     </View>
     );
 }
@@ -179,9 +140,9 @@ export default function AllLimits() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffde1a',
+    backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 70,
   },
   title: {
     fontSize: 22,
@@ -253,4 +214,55 @@ const styles = StyleSheet.create({
       android: {},
     }),
   },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 24,
+    backgroundColor: '#4CAF50',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  card: {
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 16,
+},
+
+cardTitle: {
+  fontSize: 18,
+  fontWeight: "600",
+  marginBottom: 12,
+},
+
+row: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginBottom: 12,
+},
+
+label: {
+  fontSize: 12,
+  color: "#666",
+},
+
+value: {
+  fontSize: 20,
+  fontWeight: "700",
+},
+
+progressBar: {
+  height: 10,
+  borderRadius: 5,
+  backgroundColor: "rgba(0,0,0,0.1)",
+  overflow: "hidden",
+},
+
+progressFill: {
+  height: "100%",
+  backgroundColor: "#CE5C5E", 
+},
+
 });
