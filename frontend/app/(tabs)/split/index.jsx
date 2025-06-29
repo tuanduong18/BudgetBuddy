@@ -37,10 +37,10 @@ export default function HomeScreen() {
       }
 
     const renderItem = ({ item, index }) => {
-      const itemDate = new Date(new Date());
-      const day = itemDate.getDate().toString().padStart(2, '0');
-      const month = (itemDate.getMonth() + 1).toString().padStart(2, '0');
-      const year = itemDate.getFullYear();
+      // const itemDate = new Date(new Date());
+      // const day = itemDate.getDate().toString().padStart(2, '0');
+      // const month = (itemDate.getMonth() + 1).toString().padStart(2, '0');
+      // const year = itemDate.getFullYear();
     
       const pastelColors = ['#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5', '#FFEBEE'];
       const bgColor = pastelColors[index % pastelColors.length];
@@ -58,7 +58,7 @@ export default function HomeScreen() {
 
           <View style={styles.GroupText}>
             <Text style={styles.grpTitle}>{item.category} </Text>
-            <Text style={styles.grpCreateDate}>{`${day}/${month}/${year}`}</Text>
+            {/* <Text style={styles.grpCreateDate}>{`${day}/${month}/${year}`}</Text> */}
           </View>
 
         </TouchableOpacity>
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 70,
+    paddingTop: 40,
   },
   centered: {
     flex: 1,

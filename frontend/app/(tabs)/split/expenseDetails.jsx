@@ -10,6 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import numeral from 'numeral';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -47,7 +48,7 @@ export default function GroupDetails() {
             color: item.settled ? "green" : "red",
             textDecorationLine: item.settled ? 'line-through' : 'none',
           }]}>
-            {item.settled ? "✔" : "✖"} {item.name} owes {item.amount} {item.currency}
+            {item.settled ? "✔" : "✖"} {item.name} owes {numeral(item.amount).format('0.0 a')} {item.currency}
           </Text>
 
         </View>
@@ -62,7 +63,7 @@ export default function GroupDetails() {
             onPress={() => router.replace({ pathname: '/(tabs)/split/groupDetails', params: { id: group_id } })}
           />          
             <Text style={styles.title}>{curr.note} </Text>
-            <Text style={styles.title}>{curr.lender} paid {curr.amount} {curr.currency} </Text>
+            <Text style={styles.title}>{curr.lender} paid {numeral(curr.amount).format('0.0 a')} {curr.currency} </Text>
             <Text style={styles.title}> on {`${day} ${month}, ${year}`} </Text>
             <FlatList
                 data={curr.borrowers}

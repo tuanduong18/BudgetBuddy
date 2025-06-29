@@ -63,7 +63,7 @@ export default function AnalyticsScreen() {
   })();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
       <ScrollView contentContainerStyle={styles.container}>
 
         {/* ===== Title ===== */}
@@ -100,7 +100,7 @@ export default function AnalyticsScreen() {
               fromZero
               showValuesOnTopOfBars={false}
               chartConfig={chartCfg}
-              withInnerLines={false}                
+              withInnerLines={true}                
             />
           </ScrollView>
         )}
@@ -149,7 +149,7 @@ const chartCfg = {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingTop:20, },
+  container: { padding: 16, paddingTop:40, },
   screenTitle: {
     fontSize: 24,
     fontWeight: "700",

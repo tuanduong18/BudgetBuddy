@@ -207,7 +207,7 @@ def newest_expenses():
     # Calculate today's total spending
     total = float(0)
     for trn in trs:
-        total += float(abs(amt(trn.amount, trn.currency.value))) # type: ignore
+        total += float(amt(trn.amount, trn.currency.value)) # type: ignore
 
     return jsonify({
         'total': round(total, 2),

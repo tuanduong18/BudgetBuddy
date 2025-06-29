@@ -17,7 +17,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroupExpense from './addExpense';
-import numeral from 'numeral';
+import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -54,74 +54,6 @@ export default function GroupDetails() {
             </View>
         );
       };
-  //@params
-  //  type: "settlement" or "expense"
-  const renderHistory = ({item, index}) => {
-    const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
-    const bgColor = colors[index % colors.length];
-    if (item.type === "settlement"){
-      //@params
-      //  payer: string,
-      //  payee: string,
-      //  amount: float,
-      //  currency: string,
-      //  time: time string in isoformat,
-      const date = new Date(item.time);
-      const day = date.getDate();
-      const month = date.toLocaleString('en-US', { month: 'short' });
-      const year = date.getFullYear();
-      return (
-        <View
-          style={[styles.card, { backgroundColor: bgColor }]}
-        >
-          <View style={[{
-            flexDirection: 'row', 
-            flex: 1,
-            }]}>
-            <FontAwesome name="money" size={24} color="black" />
-            <Text style={styles.category}>
-              {"  "}{item.payer} paid {item.payee} {numeral(item.amount).format('0.0 a')} {item.currency} at {`${day} ${month}, ${year}`}
-            </Text>
-            
-
-          </View>
-        </View>
-      );
-    }
-    //@params
-    //  id: int
-    //  lender: string,
-    //  amount: float,
-    //  currency: string,
-    //  note: string,
-    //  time: time string in isoformat,
-    //  borrowers: list of dictionaries
-    //    @params:
-    //      name: string
-    //      amount: float
-    //      currency: string
-    //      settled: boolean
-    return (
-      <TouchableOpacity
-        style={[styles.card, { backgroundColor: bgColor }]}
-        onPress={()=>router.replace({ 
-          pathname: '/(tabs)/split/expenseDetails', 
-          params: { expense: JSON.stringify(item) , group_id: id } 
-        })}
-      >
-        <View style={{
-          flexDirection: 'row', 
-          flexWrap: 'wrap',
-          }}>
-          <FontAwesome name="bell-o" size={24} color="black" />
-          <Text style={styles.category}>
-            {"  "}{item.note} cost {numeral(item.amount).format('0.0 a')} {item.currency}
-          </Text>
-
-        </View>
-      </TouchableOpacity>
-    );
-  };
       
 
   const onButtonPress = async () => {
@@ -131,16 +63,12 @@ export default function GroupDetails() {
   return (
     <>
         <View style={styles.container}>
-            <Ionicons name="arrow-back" size={30} color="black"
-              onPress = {() => router.replace('/(tabs)/split')}
-            />
-            <Ionicons name="settings-outline" size={30} color="black" style ={{position: 'absolute', top: 40, right: 30}}
-              onPress= {()=> router.replace({ pathname: '/(tabs)/split/members', params: { id: id } })}
-            />
-            <Text style={[styles.title, {paddingTop: -20}]}>{details.name} </Text>
+            <Ionicons name="arrow-back" size={24} color="black"
+            onPress = {() => router.replace({ pathname: '/(tabs)/split/groupDetails', params: { id: id } })}
+          />
             <Text style={styles.grpID}>Group code: #{details.group_id}</Text>
             {/* <View style={{
-              height: 300,
+              height:'50%',
               borderRadius: 12,
               padding: 16,
               marginBottom: 12,
@@ -152,7 +80,7 @@ export default function GroupDetails() {
               shadowRadius: 3,
               // Android elevation
               elevation: 3,
-              }}>
+              }}> */}
               <Text style={styles.title}>Members</Text>
               <FlatList
                 data={details.members}
@@ -161,30 +89,12 @@ export default function GroupDetails() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
-            </View> */}
-            <FlatList
-                data={details.settlements.concat(details.history)}
-                renderItem={renderHistory}
-                keyExtractor = {(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}Add commentMore actions
-                contentContainerStyle={{ paddingBottom: 20 }}
-            />
+            {/* </View> */}
             <TouchableOpacity 
-              onPress={() => router.replace({ pathname: '/(tabs)/split/owes', params: { id: id } })}
-             style={[styles.button, { backgroundColor: '#767FA6', marginTop: 8 }]}>
-              <Text style={styles.buttonText}>See my owes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.floatingButton}
-              onPress={() => setAddVisible(true)}
-            >
-              <Ionicons name="add-outline" size={32} color="#fff" />
-            </TouchableOpacity>
-            {/* <TouchableOpacity 
                 onPress={onButtonPress} 
                 style={[styles.button, { backgroundColor: '#F28589', margineTop: 8 }]}>
                 <Text style={styles.buttonText}>Leave Group</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
             <AddGroupExpense visible={addVisible} onClose={() => setAddVisible(false)} data={JSON.stringify(details.members)} group_id={id}/>
         </View>
         </>

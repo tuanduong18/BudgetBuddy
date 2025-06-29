@@ -166,20 +166,47 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
                   flexDirection: 'row',
                   display: 'flex', 
                   alignItems:'stretch',
-                  height:40,              
+                  height:40,
+                  marginBottom:8              
                   }}>
+                  
+                  {Platform.OS === 'ios' 
+                  ?<>
                   <View key={idx} style={{width: '55%', height: '100%',}}>
-                  <ModalSelector
-                    data={members
-                          .filter(m => m === row.member || !selectedMembers.includes(m))
-                          .map(m => ({ key: m, label: m }))}
-                    initValue="Select member"
-                    onChange={(option) => handleChangeRow(idx, 'member', option.key)}
-                    style={styles.selector}
-                    initValueTextStyle={{ color: '#666' }}
-                    selectTextStyle={{ fontSize: 14 }}
-                  />
+                    <ModalSelector
+                      data={members
+                            .filter(m => m === row.member || !selectedMembers.includes(m))
+                            .map(m => ({ key: m, label: m }))}
+                      initValue="Select member"
+                      onChange={(option) => handleChangeRow(idx, 'member', option.key)}
+                      style={styles.selector}
+                      initValueTextStyle={{ color: '#666' }}
+                      selectTextStyle={{ fontSize: 14,color: '#666' }}
+                    />
+                    </View>
+                  </> 
+                  :<>
+                  <View key={idx} style={{width: '55%', height: '100%', justifyContent: 'center'}}>
+                  <Picker
+                    selectedValue={row.member}
+                    onValueChange={val => handleChangeRow(idx, 'member', val)}
+                    style={[styles.picker, {
+                      height: 70,
+                      fontSize: 12,
+                      marginTop:7
+                    }]}
+
+                  >
+                  <Picker.Item label="Select member" value="" />
+                  {members
+                    .filter(m => m === row.member || !selectedMembers.includes(m))
+                    .map(m => (
+                      <Picker.Item key={m} label={m} value={m} />))}
+                  </Picker>
                   </View>
+                  </>}
+                  
+                  
                   <View style={{width: '35%', height: '100%',}}>   
                       <TextInput
                         style={{height: '100%', textAlign: 'center'}}
@@ -199,7 +226,7 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
             </ScrollView>
             
 
-              <Text style={{color: total == amount ? 'green': 'red'}}>Total: {total} / {amount} {currency}</Text>
+              <Text style={{color: total == amount ? 'green': 'red', paddingVertical:5}}>Total: {total} / {amount} {currency}</Text>
 
               <TouchableOpacity onPress={onSubmit} style={styles.addButton}>
                 <Text style={styles.addButtonText}>Submit</Text>

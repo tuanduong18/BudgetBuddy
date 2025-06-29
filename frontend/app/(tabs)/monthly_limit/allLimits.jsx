@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, ActivityIndicator, Text, FlatList, View, Pressable, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Text, FlatList, View, Pressable, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Picker } from "@react-native-picker/picker";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useMonthlyLimits, useCurrencyTypes, useCurrencyPreference } from "@/hooks/data";
 import { useFocusEffect } from "@react-navigation/native";
-import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddLimit from './add';
+import numeral from 'numeral';
 
 export default function AllLimits() {
     // search for params: currency when navigate to this screen
@@ -74,7 +73,7 @@ export default function AllLimits() {
     const renderItem = ({ item, index }) => {
     const spent      = parseFloat(item.total);      // already rounded on the API
     const cap        = parseFloat(item.amount);
-    const remaining  = Math.max(cap - spent, 0);
+    const remaining  = cap - spent;  
     const progress   = Math.min(spent / cap, 1);    // 0 → 1
     const bg         = PASTELS[index % PASTELS.length];
     const title      = item.types.join(", ");       // “Food, Transport” …
@@ -92,20 +91,30 @@ export default function AllLimits() {
             <View>
               <Text style={styles.label}>Total Paid</Text>
               <Text style={styles.value}>
-                {currency} {spent.toFixed(2)}
+                {currency} {numeral(spent).format('0.0 a')}
               </Text>
             </View>
             <View>
-              <Text style={styles.label}>Total Remaining</Text>
+              {remaining > 0
+              ? (<><Text style={styles.label}>Total Remaining</Text><Text style={styles.value}>
+                {currency} {numeral(remaining).format('0.0 a')}
+              </Text></>)
+              : (<><Text style={styles.label}>Overshooting</Text>
               <Text style={styles.value}>
-                {currency} {remaining.toFixed(2)}
-              </Text>
+                {currency} {numeral(-remaining).format('0.0 a')}
+              </Text></>)
+              }
+              
             </View>
           </View>
 
           {/* Progress bar */}
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+            <View style={{ 
+              height:'100%', 
+              width: `${progress * 100}%`, 
+              backgroundColor:remaining > 0 ? 'green' : 'red'
+              }} />
           </View>
         </TouchableOpacity>
       );
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 70,
+    paddingTop: 40,
   },
   title: {
     fontSize: 22,

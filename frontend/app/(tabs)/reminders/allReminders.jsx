@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 80,
+    paddingTop: 50,
   },
   centered: {
     flex: 1,

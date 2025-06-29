@@ -15,6 +15,7 @@ import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import { useFocusEffect } from "@react-navigation/native";
 import { useSettleGroupExpense } from '@/hooks/crud';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import numeral from 'numeral';
 
 export default function GroupOwes() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -79,7 +80,7 @@ export default function GroupOwes() {
                 </View>
                 :
                 <Text style={styles.category}>
-                    {item.name} owes you {item.amount} {item.currency}
+                    {item.name} owes you {numeral(item.amount).format('0.00 a')} {item.currency}
                 </Text>
             }
             

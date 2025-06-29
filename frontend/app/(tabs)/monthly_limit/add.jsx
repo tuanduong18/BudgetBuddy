@@ -89,6 +89,28 @@ export default function AddLimit({ visible, onClose }) {
                 />
             </View>
 
+            {/* Currency */}
+            <Text style={[GS.footerText, styles.label]}>Currency</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={currency}
+                onValueChange={setCurrency}
+                mode="dropdown"
+                style={styles.picker}
+                dropdownIconColor="#666"
+              >
+                {currency_types.map((c) => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+              {Platform.OS === 'web' && (
+                <View style={styles.webArrow}>
+                  <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
+                </View>
+              )}
+            </View>
+            
+
             {/* Select a Category */}
             <Text style={[GS.footerText, styles.label]}>Select a Category</Text>
             <ScrollView
@@ -174,4 +196,39 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
   },
+  // ── Picker Wrapper ───────────────────────────────────────────────────────────
+  pickerWrapper: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    ...Platform.select({
+      web: {
+        borderWidth: 0,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        paddingHorizontal: 12,
+      },
+      ios: {},
+      android: {},
+    }),
+  },
+  webArrow: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+
 });

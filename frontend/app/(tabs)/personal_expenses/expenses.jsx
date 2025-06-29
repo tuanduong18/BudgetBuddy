@@ -12,7 +12,8 @@ import { Ionicons } from '@expo/vector-icons'; // for the floating "+" button
 import { useRouter } from 'expo-router';
 import { useNewestExpenses, useUsername } from '@/hooks/data';
 import { useFocusEffect } from "@react-navigation/native";
-import AddExpenseModal from './add'; 
+import AddExpenseModal from './add';
+import numeral from 'numeral'; 
 
 export default function ExpensesScreen() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function ExpensesScreen() {
               { color: Number(item.amount) < 0 ? 'green' : 'red' },
             ]}
           >
-            {Number(item.amount) < 0 ? '+' : '-'} {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
+            {Number(item.amount) < 0 ? '+' : '-'} {numeral(item.amount).format('0.0 a')} {item.currency}
           </Text>
           <Text style={styles.txnDate}>{`${day}/${month}/${year}`}</Text>
         </View>
@@ -118,7 +119,7 @@ export default function ExpensesScreen() {
       {/* ── 1) Summary Card ───────────────────────────────────────────────────────── */}
       <View style={styles.summaryCard}>
         <Text style={styles.summaryText}>Today, you have spent...</Text>
-        <Text style={styles.summaryAmount}> {expenses.total} {expenses.currency}</Text>
+        <Text style={styles.summaryAmount}> {numeral(expenses.total).format('0.0 a')} {expenses.currency}</Text>
       </View>
 
       {/* ── 3) FlatList of Only the 5 Most Recent Expenses ────────────────────────── */}
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 60,
+    paddingTop: 40,
     paddingHorizontal: 16,
   },
   header: {

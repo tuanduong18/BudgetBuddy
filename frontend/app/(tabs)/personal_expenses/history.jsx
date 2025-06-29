@@ -7,6 +7,7 @@ import { Picker } from "@react-native-picker/picker";
 import { useExpenses, useCurrencyTypes, useCurrencyPreference } from '@/hooks/data';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from "@react-navigation/native";
+import numeral from 'numeral'; 
 
 export default function AllExpenses() {
   // search for params: currency when navigate to this screen
@@ -72,7 +73,7 @@ export default function AllExpenses() {
         </View>
         <View style={styles.details}>
           <Text style={[styles.amount, { color: item.amount < 0 ? 'green' : 'red' }]}> 
-            {Number(item.amount) < 0 ? '+' : '-'} {Math.abs(item.amount).toLocaleString('en-us')} {item.currency}
+            {Number(item.amount) < 0 ? '+' : '-'} {numeral(item.amount).format('0.0 a')} {item.currency}
           </Text>
           <Text style={styles.date}>{`${day} ${month}, ${year}`}</Text>
         </View>
