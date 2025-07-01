@@ -46,6 +46,41 @@ export function useUpdateProfileCurrency() {
         "Successfully updated", 
     )}    
     
+export function useCreateGroup() {
+    return useAction(
+        `${API_BASE}/group/action/create`, 
+        "Successfully created",
+    )
+}
+
+export function useJoinGroup() {
+    return useAction(
+        `${API_BASE}/group/action/join`, 
+        "Successfully joined",
+    )
+}
+
+export function useLeaveGroup() {
+    return useAction(
+        `${API_BASE}/group/action/leave`, 
+        "Successfully left",
+    )
+}
+
+export function useAddGroupExpense() {
+    return useAction(
+        `${API_BASE}/group/groupExpense/add`, 
+        "Successfully added",
+    )
+}
+
+export function useSettleGroupExpense() {
+    return useAction(
+        `${API_BASE}/group/groupExpense/settle`, 
+        "Successfully settled",
+    )
+}
+
 function useAction(api, message) {
     const refreshToken = useRefreshToken();
 

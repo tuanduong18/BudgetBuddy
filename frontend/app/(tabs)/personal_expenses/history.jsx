@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Button
+  Platform, Text, View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Button
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Picker } from "@react-native-picker/picker";
 import { useExpenses, useCurrencyTypes, useCurrencyPreference } from '@/hooks/data';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from "@react-navigation/native";
+import numeral from 'numeral'; 
 
 export default function AllExpenses() {
   // search for params: currency when navigate to this screen
@@ -71,8 +72,8 @@ export default function AllExpenses() {
           <Text style={styles.description}>{item.description}</Text>
         </View>
         <View style={styles.details}>
-          <Text style={[styles.amount, { color: item.amount > 0 ? 'green' : 'red' }]}> 
-            {item.amount} {item.currency}
+          <Text style={[styles.amount, { color: item.amount < 0 ? 'green' : 'red' }]}> 
+            {Number(item.amount) < 0 ? '+' : '-'} {numeral(item.amount).format('0.0 a')} {item.currency}
           </Text>
           <Text style={styles.date}>{`${day} ${month}, ${year}`}</Text>
         </View>
@@ -91,42 +92,48 @@ export default function AllExpenses() {
         />
         <Text style={styles.title}>All Expenses</Text>
       </View>
-      <TextInput
-        style={styles.search}
-        placeholder="Search category or description"
-        value={query}
-        onChangeText={setQuery}
-      />
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={20} color="#888" style={styles.icon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search category or description"
+          value={query}
+          onChangeText={setQuery}
+        />
+      </View>
       {/* Currency setting box */}
-      <View style={styles.pickerWrapper}>
-              <Picker
-                  enabled={!currencyLoading}
-                  selectedValue={currency}
-                  onValueChange={setCurrency}
-                  style={styles.picker}
-              >
-              <Picker.Item
-                  label="Original"
-                  value={""}
-              />
-              {currencyLoading
-                  ? <Picker.Item label="Loading…" value="" />
-                  : currencyTypes.map(t => <Picker.Item key={t} label={t} value={t} />)
-              }
-              </Picker>
+      <View style={styles.currencyRow}>
+        {/* dropdown  */}
+        <Picker
+          selectedValue={currency}
+          onValueChange={setCurrency}
+          style={styles.currencyPicker}
+          mode="dropdown"           // iOS shows a sheet; Android a dropdown.
+          dropdownIconColor="#666"
+          
+        >
+          <Picker.Item label="Select currency…" value="" color="#888" />
+          {currencyTypes.map(c => (
+            <Picker.Item key={c} label={c} value={c} />
+          ))}
+        </Picker>
 
-              <Button 
-                  title="Change currency" 
-                  onPress={() => currency == "" 
-                    ? router.replace('/(tabs)/personal_expenses/history')
-                    : router.replace({
-                        pathname:'/(tabs)/personal_expenses/history',
-                        params: {"cur": currency}
-                    })
-                  }
-                  
-              />
-          </View>
+        {/* action button */}
+        <TouchableOpacity
+          style={styles.changeBtn}
+          onPress={() =>
+            currency === ''
+              ? router.replace('/(tabs)/personal_expenses/history')
+              : router.replace({
+                  pathname: '/(tabs)/personal_expenses/history',
+                  params: { cur: currency },
+                })
+          }
+        >
+          <Text style={styles.changeTxt}>Change</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={filtered}
         renderItem={renderItem}
@@ -141,9 +148,9 @@ export default function AllExpenses() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffde1a',
+    backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 70,
   },
   title: {
     fontSize: 22,
@@ -190,15 +197,45 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
-  pickerWrapper: {
-        borderWidth: 1,
-
-        borderRadius: 4,
-        marginBottom: 12,
-        overflow: "hidden",
+  
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f1f1',   // light grey backdrop
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 6, // tweak for platform
+    marginBottom: 16,
   },
-  picker: {
-      height: 50,
-      width: "100%",
+  icon: {
+    marginRight: 6,
+  },
+  searchInput: {
+    flex: 1,               // take the remaining width
+    fontSize: 16,
+    padding: 0,            // remove default vertical padding on iOS
+  },
+  currencyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  currencyPicker: {
+    flex: 1,                 // takes remaining width
+    backgroundColor: '#f4f4f4',
+    borderRadius: 10,
+    marginRight: 10,
+    height: 50,
+    paddingVertical: 12,
+  },
+  changeBtn: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 14,
+    paddingVertical: 15,
+    borderRadius: 10,
+  },
+  changeTxt: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });

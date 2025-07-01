@@ -3,6 +3,7 @@ import { useFonts } from "expo-font";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { Inter_400Regular } from "@expo-google-fonts/inter";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -13,8 +14,8 @@ export default function RootLayout() {
   if (!fontsLoaded) return null; // Prevent font flickering
 
   return (
-    <ThemeProvider>
+    <SafeAreaProvider>
       <Stack screenOptions={{ headerShown: false }} />
-    </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

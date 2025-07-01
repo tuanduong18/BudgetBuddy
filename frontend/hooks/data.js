@@ -4,17 +4,32 @@ import { API_BASE } from '@/constants/api';
 import { getAccessToken } from '@/constants/authStorage';
 import { useRefreshToken } from './auth';
 
+// User and Expense, Currency types
 export function useUsername()                   {return getData(`${API_BASE}/expenses/data/username`)}
 export function useExpenseTypes()               {return getData(`${API_BASE}/expenses/data/expense_types`)}
 export function useCurrencyTypes()              {return getData(`${API_BASE}/expenses/data/currency_types`)}
+
+// Expenses
 export function useExpenses(dict = null)        {return getData(`${API_BASE}/expenses/data/expenses`, dict)}
 export function useUpdatingExpense(dict)        {return getData(`${API_BASE}/expenses/data/updating`, dict)}
 export function useNewestExpenses()             {return getData(`${API_BASE}/expenses/data/dashboard`)}
+
+// Subscriptions
 export function useSubscriptions()              {return getData(`${API_BASE}/subscriptions/data/all`)}
 export function useUpdatingSubs(dict)           {return getData(`${API_BASE}/subscriptions/data/updating`, dict)}
+
+// Limits
 export function useMonthlyLimits(dict = null)   {return getData(`${API_BASE}/limits/data/all`, dict)}
 export function useUpdatingLimit(dict)          {return getData(`${API_BASE}/limits/data/updating`, dict)}
+
+// Profile
 export function useCurrencyPreference()         {return getData(`${API_BASE}/profile/data/currency`)}
+
+// Split
+export function useGroupNames()                 {return getData(`${API_BASE}/group/data/all`)}
+export function useGroupDetails(dict)           {return getData(`${API_BASE}/group/data/current`, dict)}
+export function useGroupOwes(dict)              {return getData(`${API_BASE}/group/data/owes`, dict)}
+
 
 function getData(api, dict = null) {
     const [data, setData] = useState([]);

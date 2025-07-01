@@ -77,25 +77,25 @@ export default function ProfileScreen() {
         />
         <View style={styles.headerTextContainer}>
           <Text style={styles.nameText}>{username}</Text>
-          <Text style={styles.subtitleText}>Joined on May 30th, 2025</Text>
+          
         </View>
       </View>
 
       {/* White Card for Options */}
       <View style={styles.cardContainer}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.cardContent}>
-          <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/settings/private')}>
+          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/settings/private')}>
             <Text style={styles.optionText}>Private settings</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.optionButton} onPress={() => router.replace('/(tabs)/user/saveCurrency')}>
             <Text style={styles.optionText}>Set currency preference</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/about')}>
+          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/about')}>
             <Text style={styles.optionText}>About us</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/feedback')}>
+          </TouchableOpacity> */}
+          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/feedback')}>
             <Text style={styles.optionText}>Any feedback? Let us know!</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.optionButton} onPress={handleSignOut}>
             <Text style={styles.optionText}>Sign Out</Text>
           </TouchableOpacity>
@@ -108,7 +108,8 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#27592D', 
+    backgroundColor: '#27592D',
+    paddingTop:40, 
   },
   emptyContainer: {
     flex: 1,

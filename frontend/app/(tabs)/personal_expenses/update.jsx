@@ -117,7 +117,7 @@ export default function UpdateExpense() {
   const pastelColors = ['#D0E8F2', '#FADADD', '#C1F0DC', '#FFFACD', '#EADCF2', '#FFEDCC'];
 
   return (
-    <ScrollView contentContainerStyle={[GS.card, { padding: 24, backgroundColor: '#fff' }]}>
+    <ScrollView contentContainerStyle={[GS.card, { paddingTop: 40, backgroundColor: '#fff' }]}>
       <Text style={GS.title}>Update Expense</Text>
 
       {/* ─── “Description”  ─────────────────────────────── */}

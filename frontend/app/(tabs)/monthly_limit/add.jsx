@@ -1,14 +1,26 @@
-import React from 'react';
-import { Button, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
+import React, { useEffect} from 'react';
+import { Keyboard, TouchableWithoutFeedback, Platform, Modal, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Picker } from "@react-native-picker/picker";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useAddLimit } from "@/hooks/crud";
 import { useMonthlyLimitForm } from "@/hooks/monthlyLimitForm";
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCurrencyPreference } from '@/hooks/data';
+import { useFocusEffect } from "@react-navigation/native";
+import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
-export default function AddLimit() {  
-    
+
+
+export default function AddLimit({ visible, onClose }) {  
+    const router = useRouter();
+
+    // load fonts
+    const [loaded, error] = useFonts({        
+        Inter_500Medium,
+    })
+
+    // add limit hook
     const add = useAddLimit();
     const {
         types,      setTypes,
@@ -19,106 +31,124 @@ export default function AddLimit() {
         submit: addLimit,
     } = useMonthlyLimitForm(add);
 
-    const router = useRouter();
-    const [loaded, error] = useFonts({        
-        Inter_500Medium,
-    })
+    // Reload whenever access this screen
+    const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
+      useFocusEffect(
+          React.useCallback(() => {
+            refetchCurrency();
+        }, [refetchCurrency])
+    );
     
+    useEffect(()=>{
+        if(!preferenceCurrencyLoading) {
+          setCurrency(preferenceCurrency)
+        }
+    },[preferenceCurrencyLoading, preferenceCurrency])
+    
+    // Reload whenever access this screen
     if (!loaded && !error) {
         return null
     }
 
+    // If loading, show spinner
     if (load1 || load2) {
         return <ActivityIndicator style={{ flex: 1 }} />;
     }
 
-    const toggleType = (opt) => {
-        setTypes((prev) =>
-            prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]
-        );
-    }
+    const pastelColors = ['#FFE5EC','#E5F9E0','#E4ECFF','#FFF4D6','#F1E4FF'];
 
-    const toggleAll = () => {
-        const allSelected = types.length === expense_types.length;
-        setTypes(allSelected ? [] : [...expense_types]);
+    const onAddPress = async () => {
+        await addLimit();     // wait for submit to complete
+        onClose();              // close modal after success
+        router.replace('/(tabs)/monthly_limit/allLimits')
     };
-    
-    function CustomCheckbox({ checked, onChange }) {
-        return (
-            <TouchableOpacity onPress={() => onChange(!checked)} style={{padding: 4,}}>
-            <MaterialIcons
-                name={checked ? 'check-box' : 'check-box-outline-blank'}
-                size={24}
-            />
-            </TouchableOpacity>
-        );
-    }
-    // Screen
-    return (
-        <>
-        <View style={styles.container}>
-            <Text type="label">Choose Group of types (at least 1 element)</Text>
-            <ScrollView
-                style={{ maxHeight: 200 }}
-                contentContainerStyle={styles.wrapContainer}
-            >
-                {/* Select All checkbox */}
-                <TouchableOpacity
-                key="__select_all__"
-                style={styles.typeItem}
-                onPress={toggleAll}
-                >
-                <CustomCheckbox
-                    checked={types.length === expense_types.length}
-                    onChange={toggleAll}
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.backdrop}>
+          <View style={GS.card}>
+            <Text style={[GS.title, { color: '#4CAF50', alignSelf: 'center' }]}>
+              Add Budget
+            </Text>
+
+            {/* Amount */}
+            <Text style={[GS.footerText, styles.label]}>Amount</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <TextInput
+                  style={[GS.input, { flex: 1 }]}
+                  placeholder="0.00"
+                  value={amount}
+                  keyboardType="decimal-pad"
+                  onChangeText={setAmount}
                 />
-                <Text style={styles.label}>Select All</Text>
-                </TouchableOpacity>
-                {expense_types.map(type => (
-                    <TouchableOpacity key={type} style={styles.typeItem} onPress={() => toggleType(type)}>
-                    <CustomCheckbox checked={types.includes(type)} onChange={() => toggleType(type)} />
-                    <Text style={styles.label}>{type}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-
-            <Text type="label">Amount</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="0.00"
-                value={amount}
-                keyboardType="decimal-pad"
-                onChangeText={setAmount}
-            />
-
-            <Text type="label">Currency</Text>
-            <View style={styles.pickerWrapper}>
-                <Picker
-                    enable={!load2}
-                    selectedValue={currency}
-                    onValueChange={setCurrency}
-                    style={styles.picker}
-                >
-                {load2
-                    ? <Picker.Item label="Loading…" value="" />
-                    : currency_types.map(t => <Picker.Item key={t} label={t} value={t} />)
-                }
-                </Picker>
             </View>
 
-            <Button 
-                title="Save" 
-                onPress={addLimit} 
-                style = {styles.saveButton}
-            />
-            <Button 
-                title="Back" 
-                onPress={() => router.replace('/(tabs)/monthly_limit/allLimits')} 
-                style = {styles.saveButton}
-            />
+            {/* Currency */}
+            <Text style={[GS.footerText, styles.label]}>Currency</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={currency}
+                onValueChange={setCurrency}
+                mode="dropdown"
+                style={styles.picker}
+                dropdownIconColor="#666"
+              >
+                {currency_types.map((c) => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+              {Platform.OS === 'web' && (
+                <View style={styles.webArrow}>
+                  <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
+                </View>
+              )}
+            </View>
+            
+
+            {/* Select a Category */}
+            <Text style={[GS.footerText, styles.label]}>Select a Category</Text>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginVertical: 10 }}
+            >
+                {expense_types.map((type, i) => {
+                    const active   = types[0] === type;
+                    const bgColour = active
+                        ? pastelColors[i % pastelColors.length]
+                        : '#eee';
+                    return (
+                        <TouchableOpacity
+                            key={type}
+                            onPress={() => setTypes([type])}
+                            style={[styles.pill, { backgroundColor: bgColour }]}
+                        >
+                            <Text>{type}</Text>
+                        </TouchableOpacity>
+                    );
+                })}
+            </ScrollView>
+
+            {/* Add Button */}
+            <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
+
+            {/* Back Button */}
+            <TouchableOpacity onPress={onClose} style={styles.backButton}>
+                <Text style={[styles.backButtonText]}>Back</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        </>
-    );
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -127,50 +157,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  spinnerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   label: {
     alignSelf: 'flex-start',
     marginBottom: 4,
     marginTop: 12,
-  },
-
-  // ── Picker Wrapper ───────────────────────────────────────────────────────────
-  pickerWrapper: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 15,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-    color: '#000',
-    backgroundColor: '#f5f5f5',
-    // ...Platform.select({
-    //   web: {
-    //     borderWidth: 0,
-    //     appearance: 'none',
-    //     WebkitAppearance: 'none',
-    //     paddingHorizontal: 12,
-    //   },
-    //   ios: {},
-    //   android: {},
-    //}),
-  },
-  webArrow: {
-    position: 'absolute',
-    right: 12,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    pointerEvents: 'none',
   },
 
   // ── Buttons ─────────────────────────────────────────────────────────────────────
@@ -199,24 +189,46 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
     color: '#000',
   },
-  optionRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    label: {
-        marginLeft: 8,
-        fontSize: 16,
-    },
-    wrapContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingHorizontal: 8,
-    },
-    typeItem: {
-        width: '50%',          // two per row
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 6,
-    },
+    // ── Pill  
+  pill: {
+    paddingVertical: 4,            
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  // ── Picker Wrapper ───────────────────────────────────────────────────────────
+  pickerWrapper: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    ...Platform.select({
+      web: {
+        borderWidth: 0,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        paddingHorizontal: 12,
+      },
+      ios: {},
+      android: {},
+    }),
+  },
+  webArrow: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+
 });

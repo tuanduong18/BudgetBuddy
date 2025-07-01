@@ -49,7 +49,7 @@ def currency_types():
 @jwt_required()
 def expenses():
     # Select all expenses and sort from newest to oldest
-    query = select(Expenses).filter_by(user_id=current_user.id).order_by(desc(Expenses.time))     # type: ignore
+    query = select(Expenses).filter_by(user_id=current_user.id).order_by(desc(Expenses.time), desc(Expenses.id))     # type: ignore
     trs = db.session.execute(query).scalars().all()
     
     # @params
@@ -169,7 +169,7 @@ def newest_expenses():
     # Select the newest 5 expenses 
     query = (select(Expenses)
                 .where(Expenses.user_id == current_user.id)
-                .order_by(desc(Expenses.time))
+                .order_by(desc(Expenses.time), desc(Expenses.id))
                 .limit(5))
     trs = db.session.execute(query).scalars().all()
 

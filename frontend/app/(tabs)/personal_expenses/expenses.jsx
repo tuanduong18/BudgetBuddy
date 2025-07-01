@@ -12,7 +12,8 @@ import { Ionicons } from '@expo/vector-icons'; // for the floating "+" button
 import { useRouter } from 'expo-router';
 import { useNewestExpenses, useUsername } from '@/hooks/data';
 import { useFocusEffect } from "@react-navigation/native";
-import AddExpenseModal from './add'; 
+import AddExpenseModal from './add';
+import numeral from 'numeral'; 
 
 export default function ExpensesScreen() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function ExpensesScreen() {
 
   // 5) Render a single transaction row
   const renderItem = ({ item, index }) => {
+    // Format the date to DD/MM/YYYY
     const itemDate = new Date(item.time);
     const day = itemDate.getDate().toString().padStart(2, '0');
     const month = (itemDate.getMonth() + 1).toString().padStart(2, '0');
@@ -57,13 +59,20 @@ export default function ExpensesScreen() {
     const pastelColors = ['#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5', '#FFEBEE'];
     const bgColor = pastelColors[index % pastelColors.length];
 
+    // If the category is "Other" and optional_cat is provided, use optional_cat as title
+    // Otherwise, use the category as title of the transaction card
     const title =
       item.category === 'Other' && item.optional_cat
         ? item.optional_cat
         : item.category;
 
     return (
-      <View style={[styles.transactionCard, { backgroundColor: bgColor }]}>
+      <TouchableOpacity 
+        style={[styles.transactionCard, { backgroundColor: bgColor }]}
+        onPress={() =>
+          router.replace({ pathname: '/personal_expenses/update', params: { id: item.id } })
+        }
+      >
         <View style={styles.transactionText}>
           <Text style={styles.txnTitle}>{item.category} </Text>
           <Text style={styles.txnDescription}>{item.description}</Text>
@@ -72,14 +81,14 @@ export default function ExpensesScreen() {
           <Text
             style={[
               styles.txnAmount,
-              { color: Number(item.amount) >= 0 ? 'green' : 'red' },
+              { color: Number(item.amount) < 0 ? 'green' : 'red' },
             ]}
           >
-            {Number(item.amount) >= 0 ? '+' : '-'} {Math.abs(item.amount)} {item.currency}
+            {Number(item.amount) < 0 ? '+' : '-'} {numeral(item.amount).format('0.0 a')} {item.currency}
           </Text>
           <Text style={styles.txnDate}>{`${day}/${month}/${year}`}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -88,7 +97,6 @@ export default function ExpensesScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Hi, {username} 👋</Text>
-          <Text style={styles.subtext}>Check out some friendly reminders!</Text>
         </View>
 
         {/* Clicking the profile pic navigates to /profile */}
@@ -100,18 +108,18 @@ export default function ExpensesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Alerts Block */}
+      {/* Alerts Block
       <View style={styles.alertBlock}>
         <Text style={styles.alertText}>🔔 Alerts</Text>
         <Text style={styles.alertContent}>
           Spotify May subscription ends tomorrow!
         </Text>
-      </View>
+      </View> */}
 
       {/* ── 1) Summary Card ───────────────────────────────────────────────────────── */}
       <View style={styles.summaryCard}>
         <Text style={styles.summaryText}>Today, you have spent...</Text>
-        <Text style={styles.summaryAmount}> {expenses.total} {expenses.currency}</Text>
+        <Text style={styles.summaryAmount}> {numeral(expenses.total).format('0.0 a')} {expenses.currency}</Text>
       </View>
 
       {/* ── 3) FlatList of Only the 5 Most Recent Expenses ────────────────────────── */}
@@ -125,13 +133,14 @@ export default function ExpensesScreen() {
         )}
       />
 
-      {/* ── 4) “See Full History” Link (Below the 5 Items) ─────────────────────────── */}
+      {/* ── 4) “See Full History” button (Below the 5 Items) ─────────────────────────── */}
       <TouchableOpacity
         onPress={() => router.push('/(tabs)/personal_expenses/history')}
-        style={styles.seeHistoryContainer}
+        style={styles.historyButton}
       >
-        <Text style={styles.seeHistoryText}>
-          See full history or edit an expense? Click here!
+        <Ionicons name="time-outline" size={22} color="#fff" />
+        <Text style={styles.historyText}>
+          See full history
         </Text>
       </TouchableOpacity>
 
@@ -153,7 +162,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 20,
+    paddingTop: 40,
     paddingHorizontal: 16,
   },
   header: {
@@ -182,11 +191,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-  fontSize: 24,
-  fontWeight: '700',
-  marginBottom: 12,
-  color: '#000',
-  textAlign: 'center',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#000',
+    textAlign: 'center',
   },
 
   alertBlock: {
@@ -208,7 +217,7 @@ const styles = StyleSheet.create({
 
   // ── Summary Card ─────────────────────────────────────────────────────────────
   summaryCard: {
-    backgroundColor: '#B3E5FC',
+    backgroundColor: '#9BE8F0',
     borderRadius: 16,
     padding: 10,
     alignItems: 'center',
@@ -277,28 +286,37 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 
-  // ── “See Full History” Link ───────────────────────────────────────────────────
-  seeHistoryContainer: {
-    marginTop: 8,
+  historyButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 28,          
+    flexDirection: 'row',      // icon + text side-by-side
     alignItems: 'center',
-    marginBottom: 170, // ensure the floating button does not overlap
-  },
-  seeHistoryText: {
-    fontSize: 14,
-    color: '#007AFF',
-    textDecorationLine: 'underline',
+    alignSelf: 'center',       // centers the button in its parent
+    paddingHorizontal: 24,     // room for text
+    paddingVertical: 12,
+    marginBottom: 20,
+
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    // Android elevation
+    elevation: 5,
+    marginTop: 24,             // space above if you keep it in a column
   },
 
-  emptyText: {
-    textAlign: 'center',
-    color: '#777',
-    marginVertical: 20,
+  historyText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,             // gap between icon and text
   },
 
-  // ── Floating “+” Button ───────────────────────────────────────────────────────
+  // ── Floating "+" and see full history Button ───────────────────────────────────────────────────────
   floatingButton: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 20,
     right: 24,
     backgroundColor: '#4CAF50',
     width: 56,

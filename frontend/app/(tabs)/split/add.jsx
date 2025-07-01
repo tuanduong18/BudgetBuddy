@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { TextInput, View, Text, StyleSheet, Platform, Modal, TouchableOpacity, ScrollView } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
-import { useAddSubscription } from "@/hooks/reminder";
+import { useCreateGroup, useJoinGroup } from "@/hooks/crud";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
-import { useSubscriptionForm } from "@/hooks/subsriptionForm";
 
-export default function AddReminder({ visible, onClose }) {  
-    const add = useAddSubscription();
-    const {
-        name,       setName,
-        start_time, setStartTime,
-        end_time,   setEndTime,
+export default function AddGroup({ visible, onClose }) {  
+    const create = useCreateGroup();
+    const join = useJoinGroup();
 
-        // submit fn
-        submit: addSubs
-    } = useSubscriptionForm(add);
-
-    const [showsDatePicker, setShowsDatePicker] = useState(false);
-    const [showeDatePicker, setShoweDatePicker] = useState(false);
+    const [name, setName] = useState("")
+    const [code, setCode] = useState("")
 
     const [loaded, error] = useFonts({        
         Inter_500Medium,
@@ -28,24 +19,14 @@ export default function AddReminder({ visible, onClose }) {
         return null
     }
 
-    const onAddPress = async () => {
-      console.log(1)
-      await addSubs();        // wait for submit to complete
+    const onAddPress1 = async () => {
+      await create({name: name});        // wait for submit to complete
       onClose();              // close modal after success
     };
 
-    const onEDateChange = (event, selectedDate) => {
-      setShoweDatePicker(false);
-      if (selectedDate) {
-        setEndTime(selectedDate);
-      }
-    };
-
-    const onSDateChange = (event, selectedDate) => {
-      setShowsDatePicker(false);
-      if (selectedDate) {
-        setStartTime(selectedDate);
-      }
+    const onAddPress2 = async () => {
+      await join({id: code});        // wait for submit to complete
+      onClose();              // close modal after success
     };
 
     // Screen
@@ -59,56 +40,36 @@ export default function AddReminder({ visible, onClose }) {
       <View style={styles.backdrop}>
         <View style={GS.card}>
           <Text style={[GS.title, { color: '#4CAF50', alignSelf: 'center' }]}>
-            Add Subscription & Reminder
+            Create a new group or join a current group
           </Text>
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Description */}
-            <Text style={[GS.footerText, styles.label]}>Description</Text>
+            <Text style={[GS.footerText, styles.label]}>Name</Text>
             <TextInput
               style={GS.input}
-              placeholder="e.g. Gym Membership"
+              placeholder="e.g. JB trip"
               value={name}
               onChangeText={setName}
             />
 
-            {/* Start date */}
-            <Text style={[GS.footerText, styles.label]}>Start Date</Text>
-              <TouchableOpacity
-                onPress={() => setShowsDatePicker(true)}
-                style={[GS.input, { justifyContent: 'center' }]}
-              >
-                <Text>{`${start_time.getDate()}/${(start_time.getMonth() + 1)}/${start_time.getFullYear()}`}</Text>
-              </TouchableOpacity>
-              {showsDatePicker && (
-                <DateTimePicker
-                  value={start_time}
-                  mode="date"
-                  display="default"
-                  onChange={onSDateChange}
-                />
-              )}
+            {/* Add Button */}
+            <TouchableOpacity onPress={onAddPress1} style={styles.addButton}>
+              <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
 
-            {/* End date */}
-            <Text style={[GS.footerText, styles.label]}>End Date</Text>
-              <TouchableOpacity
-                onPress={() => setShoweDatePicker(true)}
-                style={[GS.input, { justifyContent: 'center' }]}
-              >
-                <Text>{`${end_time.getDate()}/${(end_time.getMonth() + 1)}/${end_time.getFullYear()}`}</Text>
-              </TouchableOpacity>
-              {showeDatePicker && (
-                <DateTimePicker
-                  value={end_time}
-                  mode="date"
-                  display="default"
-                  onChange={onEDateChange}
-                />
-              )}
+            {/* Description */}
+            <Text style={[GS.footerText, styles.label]}>Group code</Text>
+            <TextInput
+              style={GS.input}
+              placeholder="e.g. 123456"
+              value={code}
+              onChangeText={setCode}
+            />
 
             {/* Add Button */}
-            <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
-              <Text style={styles.addButtonText}>Add</Text>
+            <TouchableOpacity onPress={onAddPress2} style={styles.addButton}>
+              <Text style={styles.addButtonText}>Join</Text>
             </TouchableOpacity>
 
             {/* Back Button */}
@@ -116,7 +77,7 @@ export default function AddReminder({ visible, onClose }) {
               <Text style={[styles.backButtonText]}>Back</Text>
             </TouchableOpacity>
           </ScrollView>
-        </View>
+        </View>  
       </View>
     </Modal>
     );

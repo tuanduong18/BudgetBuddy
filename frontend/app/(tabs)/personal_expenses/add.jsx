@@ -9,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Platform,
+  Keyboard, TouchableWithoutFeedback
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -113,130 +114,132 @@ export default function AddExpenseModal({ visible, onClose }) {
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.backdrop}>
-        <View style={GS.card}>
-          <Text style={[GS.title, { color: '#4CAF50', alignSelf: 'center' }]}>
-            Add Expense
-          </Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.backdrop}>
+          <View style={GS.card}>
+            <Text style={[GS.title, { color: '#4CAF50', alignSelf: 'center' }]}>
+              Add Expense
+            </Text>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Description */}
-            <Text style={[GS.footerText, styles.label]}>Description</Text>
-            <TextInput
-              style={GS.input}
-              placeholder="e.g. Gym Membership"
-              value={description}
-              onChangeText={setDescription}
-            />
-
-            {/* Currency */}
-            <Text style={[GS.footerText, styles.label]}>Currency</Text>
-            <View style={styles.pickerWrapper}>
-              <Picker
-                selectedValue={currency}
-                onValueChange={setCurrency}
-                mode="dropdown"
-                style={styles.picker}
-                dropdownIconColor="#666"
-              >
-                {currency_types.map((c) => (
-                  <Picker.Item key={c} label={c} value={c} />
-                ))}
-              </Picker>
-              {Platform.OS === 'web' && (
-                <View style={styles.webArrow}>
-                  <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Amount */}
-            <Text style={[GS.footerText, styles.label]}>Amount</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <TextInput
-                style={[GS.input, { flex: 1 }]}
-                placeholder="0.00"
-                value={amount}
-                keyboardType="decimal-pad"
-                onChangeText={setAmount}
-              />
-            </View>
-
-            {/* Select a Category */}
-            <Text style={[GS.footerText, styles.label]}>Select a Category</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={{ marginVertical: 10 }}
-            >
-              {expense_types.map((type, i) => {
-                const bgColor =
-                  category === type ? pastelColors[i % pastelColors.length] : '#eee';
-                return (
-                  <TouchableOpacity
-                    key={type}
-                    onPress={() => setCategory(type)}
-                    style={{
-                      backgroundColor: bgColor,
-                      paddingVertical: 6,
-                      paddingHorizontal: 14,
-                      borderRadius: 20,
-                      marginRight: 8,
-                    }}
-                  >
-                    <Text>{type}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            {/* Date */}
-            <Text style={[GS.footerText, styles.label]}>Date</Text>
-            {Platform.OS === 'web' ? (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Description */}
+              <Text style={[GS.footerText, styles.label]}>Description</Text>
               <TextInput
                 style={GS.input}
-                placeholder="DD/MM/YYYY"
-                value={`${day}/${month}/${year}`}
-                onChangeText={(text) => {
-                  const parts = text.split('/');
-                  if (parts.length === 3) {
-                    setDay(parts[0].padStart(2, '0'));
-                    setMonth(parts[1].padStart(2, '0'));
-                    setYear(parts[2]);
-                  }
-                }}
+                placeholder="e.g. Gym Membership"
+                value={description}
+                onChangeText={setDescription}
               />
-            ) : (
-              <>
-                <TouchableOpacity
-                  onPress={() => setShowDatePicker(true)}
-                  style={[GS.input, { justifyContent: 'center' }]}
+
+              {/* Currency */}
+              <Text style={[GS.footerText, styles.label]}>Currency</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={currency}
+                  onValueChange={setCurrency}
+                  mode="dropdown"
+                  style={styles.picker}
+                  dropdownIconColor="#666"
                 >
-                  <Text>{`${day}/${month}/${year}`}</Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onDateChange}
-                  />
+                  {currency_types.map((c) => (
+                    <Picker.Item key={c} label={c} value={c} />
+                  ))}
+                </Picker>
+                {Platform.OS === 'web' && (
+                  <View style={styles.webArrow}>
+                    <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
+                  </View>
                 )}
-              </>
-            )}
+              </View>
 
-            {/* Add Button */}
-            <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
+              {/* Amount */}
+              <Text style={[GS.footerText, styles.label]}>Amount</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <TextInput
+                  style={[GS.input, { flex: 1 }]}
+                  placeholder="0.00"
+                  value={amount}
+                  keyboardType="decimal-pad"
+                  onChangeText={setAmount}
+                />
+              </View>
 
-            {/* Back Button */}
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <Text style={[styles.backButtonText]}>Back</Text>
-            </TouchableOpacity>
-          </ScrollView>
+              {/* Select a Category */}
+              <Text style={[GS.footerText, styles.label]}>Select a Category</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginVertical: 10 }}
+              >
+                {expense_types.map((type, i) => {
+                  const bgColor =
+                    category === type ? pastelColors[i % pastelColors.length] : '#eee';
+                  return (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => setCategory(type)}
+                      style={{
+                        backgroundColor: bgColor,
+                        paddingVertical: 6,
+                        paddingHorizontal: 14,
+                        borderRadius: 20,
+                        marginRight: 8,
+                      }}
+                    >
+                      <Text>{type}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Date */}
+              <Text style={[GS.footerText, styles.label]}>Date</Text>
+              {Platform.OS === 'web' ? (
+                <TextInput
+                  style={GS.input}
+                  placeholder="DD/MM/YYYY"
+                  value={`${day}/${month}/${year}`}
+                  onChangeText={(text) => {
+                    const parts = text.split('/');
+                    if (parts.length === 3) {
+                      setDay(parts[0].padStart(2, '0'));
+                      setMonth(parts[1].padStart(2, '0'));
+                      setYear(parts[2]);
+                    }
+                  }}
+                />
+              ) : (
+                <>
+                  <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={[GS.input, { justifyContent: 'center' }]}
+                  >
+                    <Text>{`${day}/${month}/${year}`}</Text>
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={date}
+                      mode="date"
+                      display="default"
+                      onChange={onDateChange}
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Add Button */}
+              <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+
+              {/* Back Button */}
+              <TouchableOpacity onPress={onClose} style={styles.backButton}>
+                <Text style={[styles.backButtonText]}>Back</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }

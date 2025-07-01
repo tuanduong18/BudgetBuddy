@@ -17,6 +17,7 @@ import { useUsername, useCurrencyTypes, useCurrencyPreference } from '@/hooks/da
 import { useUpdateProfileCurrency } from '@/hooks/crud';
 import * as Notifications from 'expo-notifications';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
 // ── Notification Handler (Foreground) ─────────────────────────────────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -88,40 +89,40 @@ export default function ProfileScreen() {
             />
             <View style={styles.headerTextContainer}>
             <Text style={styles.nameText}>{username}</Text>
-            <Text style={styles.subtitleText}>Joined on May 30th, 2025</Text>
             </View>
         </View>
+        <View style={styles.cardContainer}>
         {/* navigation */}
-        <View>
+        <View style={{paddingTop:20, width:'10%'}}>
           <Ionicons name="arrow-back" size={24} color="black" style={{paddingRight: '24%',}}
           onPress = {() => router.replace('/(tabs)/user/profile')}
         />
         </View>
-        {/* Currency setting box */}
-        <View style={styles.pickerWrapper}>
-                <Picker
-                    enabled={!currencyLoading}
-                    selectedValue={currency}
-                    onValueChange={setCurrency}
-                    style={styles.picker}
-                >
-                <Picker.Item
-                    label="Original"
-                    value={null}
-                    color="#999"
-                />
+            <Text style={GS.footerText}>Currency</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                enabled={!currencyLoading}
+                selectedValue={currency}
+                onValueChange={setCurrency}
+                mode="dropdown"
+                style={styles.picker}
+                dropdownIconColor="#666"
+              >
                 {currencyLoading
                     ? <Picker.Item label="Loading…" value="" />
                     : currencyTypes.map(t => <Picker.Item key={t} label={t} value={t} />)
                 }
-                </Picker>
-
-                <Button 
-                    title="Change currency" 
-                    onPress={onSave}
-                    style = {styles.optionButton}
-                />
+              </Picker>
+              {Platform.OS === 'web' && (
+                <View style={styles.webArrow}>
+                  <Text style={{ color: '#666', fontSize: 12 }}>▼</Text>
+                </View>
+              )}
             </View>
+            <TouchableOpacity onPress={onSave} style={[GS.button, { backgroundColor: '#ddd' }]}>
+              <Text style={GS.buttonText}>Save</Text>
+            </TouchableOpacity>
+      </View>
     </View>
     )
 }
@@ -129,7 +130,8 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#27592D', 
+    backgroundColor: '#27592D',
+    paddingTop:40, 
   },
   emptyContainer: {
     flex: 1,
@@ -172,6 +174,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -10,
+    paddingHorizontal:20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
@@ -193,17 +196,32 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: '500',
   },
+  // ── Picker Wrapper ───────────────────────────────────────────────────────────
   pickerWrapper: {
-        borderWidth: 1,
-
-        borderRadius: 4,
-        marginBottom: 12,
-        overflow: "hidden",
-    },
-    picker: {
-        height: 50,
-        width: "100%",
-    },
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+    backgroundColor: '#f5f5f5',
+    ...Platform.select({
+      web: {
+        borderWidth: 0,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        paddingHorizontal: 12,
+      },
+      ios: {},
+      android: {},
+    }),
+  },
 });
 
 
