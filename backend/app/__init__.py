@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
-from .extension import db, jwt
+from .extension import db, jwt, socketio
 from .config import Config
 from .models import User
+import threading
 
 def create_app():
     app = Flask(__name__)
@@ -14,6 +15,7 @@ def create_app():
     # Initialization
     db.init_app(app)
     jwt.init_app(app)
+    socketio.init_app(app)  
 
     # Import blueprint groups from each module
     from app.auth import blueprints as auth_bps
@@ -37,4 +39,16 @@ def create_app():
         user_id      = int(identity_str)        # cast back to int
         return User.query.filter_by(id=user_id).one_or_none()
     
+    from app.socket_listener import start_listening
+
+    threading.Thread(target=start_listening, daemon=True).start()
+
+    from flask_socketio import join_room
+
+    # join room
+    @socketio.on('join_group')
+    def on_join_group(msg):
+        group_room = f"group_{ msg['group_id'] }"
+        join_room(group_room)
+
     return app
