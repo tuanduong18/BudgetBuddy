@@ -18,6 +18,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroupExpense from './addExpense';
 import numeral from 'numeral';
+import socket from '@/constants/socket';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -28,14 +29,30 @@ export default function GroupDetails() {
   const {data: details, loading, refetch: refetchDetails} = useGroupDetails({group_id: id});
   // Font loading
   const [loaded, error] = useFonts({ Inter_500Medium });
+
   useFocusEffect(
       React.useCallback(() => {
         refetchDetails({group_id: id});
       }, [refetchDetails])
     );
-  useEffect(()=>{
-    refetchDetails({group_id: id});
-  },[addVisible])
+    
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    // console.log(id)
+    socket.emit('join_group', { group_id: id })
+
+    socket.on('table_update', () => {
+      refetchDetails({group_id: id});
+    });
+    
+    // cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, [id, refetchDetails]);
+
 
   // ─── Early returns (now safe, because hooks are already called) ───────────────
   if (!loaded && !error) {
@@ -48,16 +65,6 @@ export default function GroupDetails() {
             </View>
           );
         }
-
-  const renderMember = ({ item, index }) => {
-        const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
-        const bgColor = colors[index % colors.length];
-        return (
-            <View style={[styles.card, { backgroundColor: bgColor }]}>
-              <Text style={styles.category}>{item}</Text>
-            </View>
-        );
-      };
   //@params
   //  type: "settlement" or "expense"
   const renderHistory = ({item, index}) => {
@@ -110,6 +117,10 @@ export default function GroupDetails() {
     //      amount: float
     //      currency: string
     //      settled: boolean
+    const date = new Date(item.time);
+    const day = date.toLocaleString('en-US', { day:   '2-digit' });
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
     return (
       <TouchableOpacity
         onPress={()=>router.replace({ 
@@ -131,6 +142,9 @@ export default function GroupDetails() {
               <Text style={styles.amountText}>
                 Shared amount: {numeral(item.amount).format('0,0.[00]')} {item.currency}
               </Text>
+              <Text style={styles.dateText}>
+                {`${day} ${month}, ${year}`}
+              </Text>
           </View>
         </View>
 
@@ -138,11 +152,6 @@ export default function GroupDetails() {
     );
   };
       
-
-  const onButtonPress = async () => {
-    await left({id: id});
-    router.replace('/(tabs)/split');
-  };
   return (
     <>
         <View style={styles.container}>
@@ -157,29 +166,7 @@ export default function GroupDetails() {
             />
             <Text style={[styles.title, {paddingTop: -20}]}>{details.name} </Text>
             <Text style={styles.grpID}>Group code: #{details.group_id}</Text>
-            {/* <View style={{
-              height: 300,
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 12,
-              // iOS shadow
-              backgroundColor:'white',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 3,
-              // Android elevation
-              elevation: 3,
-              }}>
-              <Text style={styles.title}>Members</Text>
-              <FlatList
-                data={details.members}
-                renderItem={renderMember}
-                keyExtractor = {(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
-            />
-            </View> */}
+            
             <FlatList
                 data={details.settlements.concat(details.history)}
                 renderItem={renderHistory}

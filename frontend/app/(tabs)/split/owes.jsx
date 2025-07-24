@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useSettleGroupExpense } from '@/hooks/crud';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import numeral from 'numeral';
+import socket from '@/constants/socket';
 
 export default function GroupOwes() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────
@@ -30,6 +31,24 @@ export default function GroupOwes() {
         refetch({group_id: id});
       }, [refetch])
     );
+
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    // console.log(id)
+    socket.emit('join_group', { group_id: id })
+
+    socket.on('table_update', () => {
+      refetch({group_id: id});
+    });
+    
+    // cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, [id, refetch]);
+
   // ─── Early returns (now safe, because hooks are already called) ───────────────
   if (!loaded && !error) {
     return null; // font not ready
@@ -63,25 +82,6 @@ export default function GroupOwes() {
               You owe {item.name}{' '}
               {numeral(item.amount).format('0,0.[00]')} {item.currency}
             </Text>
-
-            <TouchableOpacity
-              style={styles.settleBtn}
-              onPress={async () => {
-                await settle({
-                  payee: item.name,
-                  group_id: id,
-                  amount: item.amount,
-                  currency: item.currency,
-                  time: tday.toISOString(),
-                });
-                router.replace({
-                  pathname: '/(tabs)/split/groupDetails',
-                  params: { id },
-                });
-              }}
-            >
-              <Text style={styles.settleTxt}>Settle</Text>
-            </TouchableOpacity>
           </View>
         </View>
       );
@@ -94,6 +94,24 @@ export default function GroupOwes() {
           {item.name} owes you{' '}
           {numeral(item.amount).format('0,0.[00]')} {item.currency}
         </Text>
+        <TouchableOpacity
+          style={styles.settleBtn}
+          onPress={async () => {
+            await settle({
+              payer: item.name,
+              group_id: id,
+              amount: item.amount,
+              currency: item.currency,
+              time: tday.toISOString(),
+            });
+            router.replace({
+              pathname: '/(tabs)/split/groupDetails',
+              params: { id },
+            });
+          }}
+        >
+          <Text style={styles.settleTxt}>Settle</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -111,6 +129,9 @@ export default function GroupOwes() {
                 keyExtractor = {(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
+                ListEmptyComponent={() => (
+                  <Text style={styles.emptyText}>All settled</Text>
+                )}
             />
         </View>
         </>
