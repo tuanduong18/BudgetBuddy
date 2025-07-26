@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { API_BASE } from "../constants/api";
-import { getAccessToken, getRefreshToken, clearTokens, saveTokens } from "../constants/authStorage";
+import { getRefreshToken, clearTokens, saveTokens } from "../constants/authStorage";
 import { useRouter } from 'expo-router';
 
 export function useSignUp() {

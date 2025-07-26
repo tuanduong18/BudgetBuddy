@@ -2,11 +2,10 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from app.models import Subscriptions
-from datetime import datetime
 from sqlalchemy import select
 
 # Create a blueprint
-auth_bp = Blueprint('subs_data', __name__, url_prefix='/subscriptions/data')
+bp = Blueprint('subs_data', __name__, url_prefix='/subscriptions/data')
 
 # Route for retrieving all user's reminders
 # Return a list of elements
@@ -17,7 +16,7 @@ auth_bp = Blueprint('subs_data', __name__, url_prefix='/subscriptions/data')
 #   noti_id: string
 #   start_time: string in isoformat
 #   end_time: string in isoformat
-@auth_bp.route('/all', methods=['POST'])
+@bp.route('/all', methods=['POST'])
 @jwt_required()
 def subs():
     # Select all reminders of user
@@ -43,7 +42,7 @@ def subs():
 #   noti_id: string
 #   start_time: string in isoformat
 #   end_time: string in isoformat
-@auth_bp.route('/updating', methods=['POST'])
+@bp.route('/updating', methods=['POST'])
 @jwt_required()
 def updating_subs():
     # @params

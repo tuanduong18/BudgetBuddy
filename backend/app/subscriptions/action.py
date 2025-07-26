@@ -6,11 +6,11 @@ from datetime import datetime
 from sqlalchemy import update, delete
 
 # Create a blueprint
-auth_bp = Blueprint('subs_action', __name__, url_prefix='/subscriptions/action')
+bp = Blueprint('subs_action', __name__, url_prefix='/subscriptions/action')
 
 # Route for adding new reminder
 # Return only status (201, 400, 500)
-@auth_bp.route('/add', methods=['POST'])
+@bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_subs():
     # @params
@@ -48,7 +48,7 @@ def add_subs():
 
 # Route for updating reminder
 # Return only status (201, 400, 404, 500)    
-@auth_bp.route('/update', methods=['POST'])
+@bp.route('/update', methods=['POST'])
 @jwt_required()
 def update_subs():
     # @params
@@ -98,7 +98,7 @@ def update_subs():
 
 # Route for deleting reminder
 # Return only status (201, 500)    
-@auth_bp.route('/delete', methods=['POST'])
+@bp.route('/delete', methods=['POST'])
 @jwt_required()
 def delete_subs():
     # @params

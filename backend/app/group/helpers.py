@@ -1,8 +1,7 @@
 from app.models import GroupExpenses, GroupExpenseOwe, User
-from app.extension import FINANCE_DATA, db
+from app.extension import FINANCE_DATA
 from sqlalchemy import select, extract
 from flask_jwt_extended import current_user
-from datetime import date
 
 # Helper function
 # Return a list of dict

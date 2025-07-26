@@ -3,9 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button,
   ActivityIndicator,
-  ScrollView,
   StyleSheet,
   FlatList,
 } from 'react-native';
@@ -14,10 +12,8 @@ import { useGroupDetails } from '@/hooks/data';
 import { useLeaveGroup } from '@/hooks/crud';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import { useFocusEffect } from "@react-navigation/native";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroupExpense from './addExpense';
-import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
 export default function GroupDetails() {
   // ─── Hooks & State (always at top) ───────────────────────────────────────────

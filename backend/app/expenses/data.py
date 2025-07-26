@@ -6,21 +6,21 @@ from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
 # Create a blueprint
-auth_bp = Blueprint('expense_data', __name__, url_prefix='/expenses/data')
+bp = Blueprint('expense_data', __name__, url_prefix='/expenses/data')
 
 # List of allowed currencies
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 
 # Route for getting username
 # Return a single string
-@auth_bp.route('/username', methods=['POST'])
+@bp.route('/username', methods=['POST'])
 @jwt_required()
 def username():
     return jsonify(current_user.username)
 
 # Route for getting all expense types
 # Return a list
-@auth_bp.route('/expense_types', methods=['POST'])
+@bp.route('/expense_types', methods=['POST'])
 @jwt_required()
 def expense_types():
     categories = [e.value for e in ExpenseTypes] # type: ignore
@@ -28,7 +28,7 @@ def expense_types():
 
 # Route for getting all allowed currencies
 # Return a list
-@auth_bp.route('/currency_types', methods=['POST'])
+@bp.route('/currency_types', methods=['POST'])
 @jwt_required()
 def currency_types():
     currencies = [c.value for c in CurrencyTypes] # type: ignore
@@ -45,7 +45,7 @@ def currency_types():
 #   currency: string of length 3
 #   description: string
 #   time: string of date in isoformat
-@auth_bp.route('/expenses', methods=['POST'])
+@bp.route('/expenses', methods=['POST'])
 @jwt_required()
 def expenses():
     # Select all expenses and sort from newest to oldest
@@ -126,7 +126,7 @@ def expenses():
 #   currency: string of length 3
 #   description: string
 #   time: string of date in isoformat
-@auth_bp.route('/updating', methods=['POST'])
+@bp.route('/updating', methods=['POST'])
 @jwt_required()
 def updating_expense():
     
@@ -163,7 +163,7 @@ def updating_expense():
 #           currency: string of length 3
 #           description: string
 #           time: string of date in isoformat
-@auth_bp.route('/dashboard', methods = ['POST'])
+@bp.route('/dashboard', methods = ['POST'])
 @jwt_required()
 def newest_expenses(): 
     # Select the newest 5 expenses 

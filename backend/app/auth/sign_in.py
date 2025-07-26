@@ -5,11 +5,11 @@ from app.models import User
 from flask_jwt_extended import create_access_token, create_refresh_token
 
 # Create a blueprint
-auth_bp = Blueprint('sign_in', __name__, url_prefix='/auth')
+bp = Blueprint('sign_in', __name__, url_prefix='/auth')
 
 # Route for sign in
 # Return status only (200, 400, 401, 501)
-@auth_bp.route('/sign_in', methods=['POST'])
+@bp.route('/sign_in', methods=['POST'])
 def sign_in():
     # @params
     #     username: string

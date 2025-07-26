@@ -1,11 +1,9 @@
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
-from app.extension import db, FINANCE_DATA
 from app.models import CurrencyTypes, Group, User
-from sqlalchemy import select
 from .helpers import calulate_settlements
 # Create a blueprint
-auth_bp = Blueprint('group_data', __name__, url_prefix='/group/data')
+bp = Blueprint('group_data', __name__, url_prefix='/group/data')
 
 # List of allowed currencies
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
@@ -16,7 +14,7 @@ ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 # @params
 #    name: string
 #    gid: string
-@auth_bp.route('/all', methods=['POST'])
+@bp.route('/all', methods=['POST'])
 @jwt_required()
 def all_joined_groups():
     data = []
@@ -57,7 +55,7 @@ def all_joined_groups():
 #       amount: float
 #       currency: string
 #       time: string in isoformat
-@auth_bp.route('/current', methods=['POST'])
+@bp.route('/current', methods=['POST'])
 @jwt_required()
 def group_information():
     data = request.get_json() or {}
@@ -143,7 +141,7 @@ def group_information():
 #   amount: float
 #   currency: string
 #   owe: boolean
-@auth_bp.route('/owes', methods = ['POST'])
+@bp.route('/owes', methods = ['POST'])
 @jwt_required()
 def user_owes():
     # @params

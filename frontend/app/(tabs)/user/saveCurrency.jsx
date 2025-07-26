@@ -6,9 +6,6 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Platform,
-  ScrollView,
-  Button,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';

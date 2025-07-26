@@ -4,11 +4,11 @@ from app.extension import db
 from app.models import User
 
 # Create a blueprint
-auth_bp = Blueprint('sign_up', __name__, url_prefix='/auth')
+bp = Blueprint('sign_up', __name__, url_prefix='/auth')
 
 # Route for sign up
 # Return status only (201, 400, 409, 500)
-@auth_bp.route('/sign_up', methods=['POST'])
+@bp.route('/sign_up', methods=['POST'])
 def sign_up():
     # @params
     #     username: string

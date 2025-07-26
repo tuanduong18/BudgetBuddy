@@ -1,6 +1,5 @@
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
-import { ThemeProvider } from "@/context/ThemeContext";
 import { Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { Inter_400Regular } from "@expo-google-fonts/inter";
 import { SafeAreaProvider } from "react-native-safe-area-context";

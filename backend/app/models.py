@@ -1,8 +1,8 @@
 from .extension import db, CURRENCIES, EXPENSE_TYPES
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Numeric, String, Date, Text, ForeignKey, ARRAY, DateTime, Boolean
+from sqlalchemy import Numeric, String, Date, Text, ForeignKey, ARRAY, Boolean
 from sqlalchemy import Enum as SQLEnum
-from datetime import date, datetime
+from datetime import date
 import enum
 
 # enum types

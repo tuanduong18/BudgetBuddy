@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRefreshToken } from "@/hooks/auth";
 import { getAccessToken } from "@/constants/authStorage";

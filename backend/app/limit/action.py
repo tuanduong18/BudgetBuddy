@@ -5,7 +5,7 @@ from app.models import ExpenseTypes, CurrencyTypes, MonthlyLimit
 from sqlalchemy import update, delete
 
 # Create a blueprint
-auth_bp = Blueprint('monthly_limit_action', __name__, url_prefix='/limits/action')
+bp = Blueprint('monthly_limit_action', __name__, url_prefix='/limits/action')
 
 # List of allowed expense types and currencies
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes}   # type: ignore
@@ -13,7 +13,7 @@ ALLOWED_CATEGORIES = {e.value for e in ExpenseTypes}    # type: ignore
 
 # Route to add new monthly limit
 # Return status only (201, 400, 500)
-@auth_bp.route('/add', methods=['POST'])
+@bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_limit():
     # @params
@@ -57,7 +57,7 @@ def add_limit():
 
 # Route to update monthly limit
 # Return status only (201, 400, 404, 500)
-@auth_bp.route('/update', methods=['POST'])
+@bp.route('/update', methods=['POST'])
 @jwt_required()
 def update_limit():
     # @params
@@ -112,7 +112,7 @@ def update_limit():
 
 # Route to delete monthly limit
 # Return status only (201, 500)
-@auth_bp.route('/delete', methods=['POST'])
+@bp.route('/delete', methods=['POST'])
 @jwt_required()
 def delete_limit():
     # @params

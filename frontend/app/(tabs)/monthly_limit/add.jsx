@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Keyboard, TouchableWithoutFeedback, Platform, Modal, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, Modal, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, StyleSheet, } from 'react-native';
 import { useRouter } from 'expo-router';
 import DropDownPicker from "react-native-dropdown-picker";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useAddLimit } from "@/hooks/crud";
 import { useMonthlyLimitForm } from "@/hooks/monthlyLimitForm";
-import { MaterialIcons } from '@expo/vector-icons';
 import { useCurrencyPreference } from '@/hooks/data';
 import { useFocusEffect } from "@react-navigation/native";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';

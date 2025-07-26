@@ -2,12 +2,10 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from app.models import Group
-from datetime import datetime
-from sqlalchemy import update, delete
 import string, random
 
 # Create a blueprint
-auth_bp = Blueprint('group_action', __name__, url_prefix='/group/action')
+bp = Blueprint('group_action', __name__, url_prefix='/group/action')
 
 # Generate a unique group_id of specified length using uppercase letters and digits.
 def generate_group_id(length: int = 6) -> str:  
@@ -20,7 +18,7 @@ def generate_group_id(length: int = 6) -> str:
 
 # Route to create new group
 # Return status only (201, 400)
-@auth_bp.route('/create', methods=['POST'])
+@bp.route('/create', methods=['POST'])
 @jwt_required()
 def create_group():
     # @params
@@ -45,7 +43,7 @@ def create_group():
 
 # Route to join a group
 # Return status only (201, 400, 404)
-@auth_bp.route('/join', methods=['POST'])
+@bp.route('/join', methods=['POST'])
 @jwt_required()
 def join_group():
     # @params
@@ -70,7 +68,7 @@ def join_group():
 
 # Route to leave a group
 # Return status only (201, 400, 404)
-@auth_bp.route('/leave', methods=['POST'])
+@bp.route('/leave', methods=['POST'])
 @jwt_required()
 def leave_group():
     # @params

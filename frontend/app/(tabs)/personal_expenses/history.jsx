@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Platform, Text, View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput, Button
+  Platform, Text, View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import DropDownPicker from "react-native-dropdown-picker";

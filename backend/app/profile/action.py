@@ -2,17 +2,17 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from app.models import CurrencyTypes, User
-from sqlalchemy import update, delete
+from sqlalchemy import update
 
 # Create a blueprint
-auth_bp = Blueprint('profile_action', __name__, url_prefix='/profile/action')
+bp = Blueprint('profile_action', __name__, url_prefix='/profile/action')
 
 # List of allowed currencies
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes}   # type: ignore
 
 # Route for updating currency preference
 # Return status only (201, 400, 404, 500)
-@auth_bp.route('/currency', methods =['POST'])
+@bp.route('/currency', methods =['POST'])
 @jwt_required()
 def set_profile_currency():
     # @params

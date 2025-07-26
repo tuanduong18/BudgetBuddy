@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { BarChart, PieChart } from "react-native-chart-kit";
 import { useAnalytics } from "../../../hooks/useAnalytics";
-import { addDays, addMonths, format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { useCurrencyPreference } from "@/hooks/data";
 import { useFocusEffect } from "@react-navigation/native";
 import numeral from 'numeral';

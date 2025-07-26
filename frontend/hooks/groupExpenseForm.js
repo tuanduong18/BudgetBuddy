@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import { useExpenseTypes, useCurrencyTypes, useUpdatingLimit, useCurrencyPreference } from "./data";
+import { useCurrencyTypes, useCurrencyPreference } from "./data";
 
 export function useGroupExpenseForm(group_id, members, func, id = null) {
     // 1. form state

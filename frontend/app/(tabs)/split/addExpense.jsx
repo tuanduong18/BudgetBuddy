@@ -2,6 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, TextInput, View, Text, StyleSheet, Platform, Modal, TouchableOpacity, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import DropDownPicker from "react-native-dropdown-picker";
+import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAddGroupExpense } from "@/hooks/crud";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
@@ -80,6 +81,7 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
     // Screen  
     return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+      <ScrollView>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.backdrop}>
           <View style={GS.card}>
@@ -111,7 +113,7 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
               open={openCurrency}
               value={currency}
 
-              items={currencyTypes.map((c) => ({ label: c, value: c }))}
+              items={currency_types.map((c) => ({ label: c, value: c }))}
               setOpen={setOpenCurrency}
               setValue={setCurrency}    
 
@@ -256,6 +258,7 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
           </View>
         </View>
       </TouchableWithoutFeedback>
+      </ScrollView>
     </Modal>
   );
 }

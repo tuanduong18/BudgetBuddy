@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Platform, Button, ActivityIndicator, TextInput, View, Text, Alert, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, TextInput, View, Text, TouchableOpacity, ScrollView, StyleSheet, } from 'react-native';
 import { useRouter, useLocalSearchParams  } from 'expo-router';
 import DropDownPicker from "react-native-dropdown-picker";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";

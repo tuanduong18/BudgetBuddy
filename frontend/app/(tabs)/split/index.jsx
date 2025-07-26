@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Text, Platform, View, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { TouchableOpacity, StyleSheet, ActivityIndicator, Text, View, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useGroupNames } from "@/hooks/data";
 import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroup from './add';
-import { G } from 'react-native-svg';
 
 export default function HomeScreen() {  
     const router = useRouter();

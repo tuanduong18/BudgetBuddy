@@ -2,12 +2,11 @@ from flask import Blueprint, request, jsonify, abort
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime, timedelta
 from app.extension import FINANCE_DATA, db
-from app.models import Expenses, MonthlyLimit 
+from app.models import Expenses
 from sqlalchemy import func
-from app.limit.calculator import calulate_percentage
 from collections import defaultdict
 
-auth_bp = Blueprint('analytics_data', __name__, url_prefix='/analytics/data')
+bp = Blueprint('analytics_data', __name__, url_prefix='/analytics/data')
 
 # helper for 2 functions below
 # find the time period the visualisation will show (a week or a month)
@@ -48,7 +47,7 @@ def _parse_period(data):
     return start, end
 
 
-@auth_bp.route('/expenses', methods=['POST'])
+@bp.route('/expenses', methods=['POST'])
 @jwt_required()
 def get_analytics_expenses():
     """
@@ -61,14 +60,11 @@ def get_analytics_expenses():
     Response: JSON list of {date: ISO string, total: float} for each day.
     """
     data = request.get_json() or {}
-    print("🛠️  [DEBUG] /analytics/data/expenses called with payload:", data)
 
     start_date, end_date = _parse_period(data)
-    print(f"🛠️  [DEBUG] /analytics/data/expenses period window → start: {start_date}, end: {end_date}")
 
     # determine target currency
     target_cur = current_user.currency.value if current_user.currency else "SGD"
-    print(f"🛠️  [DEBUG] /analytics/data/expenses target currency for conversion: {target_cur}")
 
     # conversion helper
     def convert(amount: float, from_cur: str) -> float:
@@ -113,7 +109,7 @@ def get_analytics_expenses():
 
     return jsonify(output)
 
-@auth_bp.route('/categories', methods=['POST'])
+@bp.route('/categories', methods=['POST'])
 @jwt_required()
 def get_analytics_categories():
     """
@@ -126,14 +122,11 @@ def get_analytics_categories():
     Response: list of {category: str, amount: float, percent: float}.
     """
     data = request.get_json() or {}
-    # print("🛠️  [DEBUG] /analytics/data/categories called with payload:", data)
 
     start_date, end_date = _parse_period(data)
-    # print(f"🛠️  [DEBUG] /analytics/data/categories period window → start: {start_date}, end: {end_date}")
 
     # determine target currency
     target_cur = current_user.currency.value if current_user.currency else "SGD"
-    # print(f"🛠️  [DEBUG] /analytics/data/categories target currency for conversion: {target_cur}")
 
     # conversion helper
     def convert(amount: float, from_cur: str) -> float:
@@ -176,62 +169,4 @@ def get_analytics_categories():
         })
 
     return jsonify(result)
-
-
-
-# @auth_bp.route('/budgets-savings', methods=['POST'])
-# @jwt_required()
-# def get_analytics_budgets_savings():
-#     """
-#     Returns counts of monthly limits on track and subscription-based savings.
-
-#     Request JSON: same as above:
-#       { "period": "weekly" | "monthly",
-#         "referenceDate": "YYYY-MM-DD" }
-
-#     Response: {
-#       budgetsOnTrack: int,
-#       totalBudgets: int,
-#       savingsCompleted: int,
-#       totalSavings: int
-#     }
-#     """
-#     data = request.get_json() or {}
-
-#     # Retrieve monthly limits for this user
-#     limits = (
-#         MonthlyLimit.query
-#         .filter(MonthlyLimit.user_id == current_user.id)
-#         .all()
-#     )
-
-#     total_limits    = len(limits)
-#     # initiate counters
-#     on_track_budget = 0
-#     completed_sav   = 0
-
-#     for lim in limits:
-#         # calculate percentage of amount spent for this limit
-#         # using helper function from app.limit.calculator
-#         result = calulate_percentage(
-#             amount   = lim.amount,
-#             currency = lim.currency.value,
-#             types    = lim.types
-#         )
-#         pct = result['percentage']
-
-#         # Budget "on track" if not yet 100% spent
-#         if pct <= 100:
-#             on_track_budget += 1
-
-#         # Savings "completed" if 100% or more
-#         if pct >= 100:
-#             completed_sav += 1
-
-#     return jsonify({
-#         'budgetsOnTrack':   on_track_budget,
-#         'totalBudgets':     total_limits,
-#         'savingsCompleted': completed_sav,
-#         'totalSavings':     total_limits,   
-#     })
 

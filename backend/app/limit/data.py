@@ -6,7 +6,7 @@ from sqlalchemy import select
 from .calculator import calulate_percentage
 
 # Create a blueprint
-auth_bp = Blueprint('monthly_limit_data', __name__, url_prefix='/limits/data')
+bp = Blueprint('monthly_limit_data', __name__, url_prefix='/limits/data')
 
 # List of allowed currencies
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
@@ -21,7 +21,7 @@ ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 #    percentage: float rounded to 2 decimal point
 #    total: float rounded to 2 decimal point
 #    types: list of string (each string is an expense type)      
-@auth_bp.route('/all', methods=['POST'])
+@bp.route('/all', methods=['POST'])
 @jwt_required()
 def all_monthly_limit():
     # Select all monthly limit of user
@@ -106,7 +106,7 @@ def all_monthly_limit():
 #    amount: float rounded to 2 decimal point 
 #    currency: string
 #    types: list of string (each string is an expense type)  
-@auth_bp.route('/updating', methods=['POST'])
+@bp.route('/updating', methods=['POST'])
 @jwt_required()
 def updating_limit():
     # @params

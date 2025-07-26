@@ -2,18 +2,17 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
 from app.models import Group, CurrencyTypes, GroupExpenseOwe, GroupExpenses, User, Settlement
-from datetime import datetime, date
-from sqlalchemy import update, delete, or_
-import string, random
+from datetime import datetime
+from sqlalchemy import or_
 
 # Create a blueprint
-auth_bp = Blueprint('group_expense', __name__, url_prefix='/group/groupExpense')
+bp = Blueprint('group_expense', __name__, url_prefix='/group/groupExpense')
 
 ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 
 # Route to create new group expense
 # Return status only (201, 400, 404)
-@auth_bp.route('/add', methods=['POST'])
+@bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_group_expense():
     # @params
@@ -95,7 +94,7 @@ def add_group_expense():
 
 # Route to create a settlement
 # Return status only (201, 400, 404)
-@auth_bp.route('/settle', methods=['POST'])
+@bp.route('/settle', methods=['POST'])
 @jwt_required()
 def settle():
     # @params
