@@ -1,3 +1,3 @@
-export const API_BASE = 'http://192.168.0.2:5000';
+export const API_BASE = 'https://budgetbuddy-e54b.onrender.com';
 
 
