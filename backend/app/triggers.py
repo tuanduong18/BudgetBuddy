@@ -22,8 +22,6 @@ BEGIN
     'action', TG_OP,
     'data', group_unique_id
   )::text;
-
-  INSERT INTO trigger_log (name) VALUES (payload);
                       
   PERFORM pg_notify('table_updates', payload);
                       
@@ -34,12 +32,12 @@ $$ LANGUAGE plpgsql;
 
 # The trigger DDL
 create_trigger = DDL("""
-DROP TRIGGER IF EXISTS on_group_expenses_change ON group_expenses;
-CREATE TRIGGER on_group_expenses_change
-AFTER INSERT OR UPDATE OR DELETE
-ON group_expenses
-FOR EACH ROW
-EXECUTE FUNCTION notify_table_update();
+  DROP TRIGGER IF EXISTS on_group_expenses_change ON group_expenses;
+  CREATE TRIGGER on_group_expenses_change
+  AFTER INSERT OR UPDATE OR DELETE
+  ON group_expenses
+  FOR EACH ROW
+  EXECUTE FUNCTION notify_table_update();
 """)
 
 # Function to execute both
