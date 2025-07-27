@@ -42,7 +42,6 @@ def currency_types():
 # @params
 #   id: int                        
 #   category: string
-#   optional_cat: string
 #   amount: float rounded to 2 decimal point
 #   currency: string of length 3
 #   description: string
@@ -69,8 +68,7 @@ def expenses():
             trs_list = [
                 {
                     "id":               trn.id,                           
-                    "category":         trn.category.value,                 # type: ignore
-                    "optional_cat":     trn.optional_cat,        
+                    "category":         trn.category.value,                 # type: ignore     
                     "amount":           round(float(trn.amount), 2),                    
                     "currency":         trn.currency.value,                 # type: ignore
                     "description":      trn.description,          
@@ -86,8 +84,7 @@ def expenses():
             trs_list = [
                 {
                     "id":               trn.id,                           
-                    "category":         trn.category.value,                     # type: ignore
-                    "optional_cat":     trn.optional_cat,        
+                    "category":         trn.category.value,                     # type: ignore  
                     "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
                     "currency":         currency,           
                     "description":      trn.description,          
@@ -108,8 +105,7 @@ def expenses():
         trs_list = [
             {
                 "id":               trn.id,                           
-                "category":         trn.category.value,                     # type: ignore
-                "optional_cat":     trn.optional_cat,        
+                "category":         trn.category.value,                     # type: ignore       
                 "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
                 "currency":         currency,           
                 "description":      trn.description,          
@@ -123,7 +119,6 @@ def expenses():
 # Return a dict
 # @params                      
 #   category: string
-#   optional_cat: string
 #   amount: float rounded to 2 decimal point
 #   currency: string of length 3
 #   description: string
@@ -143,8 +138,7 @@ def updating_expense():
         return jsonify({"message":"Unauthorized"}), 400
     
     return jsonify({                           
-            "category":         trn.category.value,                 # type: ignore
-            "optional_cat":     trn.optional_cat,        
+            "category":         trn.category.value,                 # type: ignore       
             "amount":           trn.amount,                    
             "currency":         trn.currency.value,                 # type: ignore
             "description":      trn.description,          
@@ -160,7 +154,6 @@ def updating_expense():
 #       @params
 #           id: int                        
 #           category: string
-#           optional_cat: string
 #           amount: float rounded to 2 decimal point
 #           currency: string of length 3
 #           description: string
@@ -189,8 +182,7 @@ def newest_expenses():
     trs_list = [
         {
             "id":               trn.id,                           
-            "category":         trn.category.value,                     # type: ignore
-            "optional_cat":     trn.optional_cat,        
+            "category":         trn.category.value,                     # type: ignore       
             "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
             "currency":         currency,           
             "description":      trn.description,          

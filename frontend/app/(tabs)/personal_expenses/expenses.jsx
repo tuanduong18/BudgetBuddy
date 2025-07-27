@@ -59,11 +59,9 @@ export default function ExpensesScreen() {
     const pastelColors = ['#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5', '#FFEBEE'];
     const bgColor = pastelColors[index % pastelColors.length];
 
-    // If the category is "Other" and optional_cat is provided, use optional_cat as title
-    // Otherwise, use the category as title of the transaction card
     const title =
-      item.category === 'Other' && item.optional_cat
-        ? item.optional_cat
+      item.category === 'Other' && item.description
+        ? item.description
         : item.category;
 
     return (

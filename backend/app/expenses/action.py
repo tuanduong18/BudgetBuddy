@@ -19,7 +19,6 @@ ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
 def add_expense():
     # @params
     #   category: string
-    #   optional_cat: string
     #   amount: float
     #   currency: string
     #   description: string
@@ -32,7 +31,6 @@ def add_expense():
     
     category = ExpenseTypes(category) # type: ignore
 
-    optional_cat = data.get('optional_cat')
     amount = float(data.get('amount'))
 
     currency = data.get('currency')
@@ -52,7 +50,6 @@ def add_expense():
         new_trs = Expenses(
             user_id = current_user.id,          # type: ignore
             category = category,                # type: ignore
-            optional_cat = optional_cat,        # type: ignore
             amount = amount,                    # type: ignore
             currency = currency,                # type: ignore
             description = description,          # type: ignore
@@ -75,7 +72,6 @@ def update_expense():
     # @params
     #   id: int
     #   category: string
-    #   optional_cat: string
     #   amount: float
     #   currency: string
     #   description: string
@@ -89,7 +85,6 @@ def update_expense():
     
     category = ExpenseTypes(category) # type: ignore
 
-    optional_cat = data.get('optional_cat')
     amount = float(data.get('amount'))
 
     currency = data.get('currency')
@@ -109,8 +104,7 @@ def update_expense():
     try:
         upd: dict = {
             'user_id':          current_user.id, 
-            'category':         category,             
-            'optional_cat':     optional_cat,      
+            'category':         category,                   
             'amount':           amount,                
             'currency':         currency,                
             'description':      description,          

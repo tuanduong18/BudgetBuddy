@@ -32,8 +32,6 @@ export default function UpdateExpense() {
   const {
     category,
     setCategory,
-    optional_cat,      // not used as “Description” anymore
-    setOptionalCat,
     amount,
     setAmount,
     currency,

@@ -32,8 +32,6 @@ export default function AddExpenseModal({ visible, onClose }) {
   const {
     category,
     setCategory,
-    optional_cat,
-    setOptionalCat,
     amount,
     setAmount,
     currency,

@@ -5,7 +5,6 @@ import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense, useCurrencyPrefe
 export function useExpenseForm(func, id = null) {
     // 1. form state
     const [category, setCategory]           = useState("");
-    const [optional_cat, setOptionalCat]    = useState("");
     const [amount, setAmount]               = useState("");
     const [currency, setCurrency]           = useState("");
     const [description, setDescription]     = useState("");
@@ -35,7 +34,6 @@ export function useExpenseForm(func, id = null) {
         useEffect(() => {
             if (!load4) {
                 setCategory((expense.category).toString());
-                setOptionalCat((expense.optional_cat).toString());
                 setAmount((parseFloat(expense.amount)).toString());
                 setCurrency((expense.currency).toString());
                 setDescription((expense.description).toString());
@@ -68,7 +66,6 @@ export function useExpenseForm(func, id = null) {
         await func({
             id,
             category,
-            optional_cat,
             amount: amt,
             currency,
             description,
@@ -79,7 +76,6 @@ export function useExpenseForm(func, id = null) {
     return {
         // state + setters
         category, setCategory,
-        optional_cat, setOptionalCat,
         amount,   setAmount,
         currency, setCurrency,
         description, setDescription,
