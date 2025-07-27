@@ -81,7 +81,13 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
     // Screen  
     return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
-      <ScrollView>
+      <ScrollView
+        contentContainerStyle={{         
+          flexGrow: 1,                    //     make container fill the screen
+          justifyContent: 'flex-end',     //     push its child (backdrop) to the bottom
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.backdrop}>
           <View style={GS.card}>
