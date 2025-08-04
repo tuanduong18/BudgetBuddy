@@ -76,7 +76,7 @@ export default function AllLimits() {
       const spent      = parseFloat(item.total);      // already rounded on the API
       const cap        = parseFloat(item.amount);
       const remaining  = cap - spent;  
-      const progress   = Math.min(spent / cap, 1);    // 0 → 1
+      const progress   = Math.min(spent / cap, 1) < 0 ? 0 : Math.min(spent / cap, 1);    // 0 → 1
       const bg         = PASTELS[index % PASTELS.length];
       const title      = item.types.length === 12 ? "Everything" : item.types.join(", ");       // “Food, Transport” …
 
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',

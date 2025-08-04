@@ -39,7 +39,7 @@ export function useMonthlyLimitForm(func, id = null) {
 
         // amount parse
         const amt = parseFloat(amount);
-        if (isNaN(amt)) {
+        if (isNaN(amt) || amt <= 0) {
             return Alert.alert("Invalid amount");
         }
 

@@ -84,6 +84,11 @@ export default function AddLimit() {
       }
     };
 
+    const onSave = async () => {
+        await updateLimit();     // wait for submit to complete
+        router.replace('/(tabs)/monthly_limit/allLimits')
+    };
+
     return (
     <ScrollView contentContainerStyle={[styles.card, { paddingTop: 70 }]}>
         <Text style={styles.heading}>Update Budget Limit</Text>
@@ -176,7 +181,7 @@ export default function AddLimit() {
 
 
         {/* ── Buttons ────────────────────────────────────────── */}
-        <TouchableOpacity onPress={updateLimit} style={styles.saveBtn}>
+        <TouchableOpacity onPress={onSave} style={styles.saveBtn}>
         <Text style={styles.btnTxt}>Save</Text>
         </TouchableOpacity>
 
