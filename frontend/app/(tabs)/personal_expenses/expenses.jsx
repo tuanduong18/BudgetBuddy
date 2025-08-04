@@ -82,7 +82,7 @@ export default function ExpensesScreen() {
               { color: Number(item.amount) < 0 ? 'green' : 'red' },
             ]}
           >
-            {Number(item.amount) < 0 ? '+' : '-'} {numeral(item.amount).format('0.0 a')} {item.currency}
+            {Number(item.amount) < 0 ? '+' : '-'} {numeral(Math.abs(item.amount)).format('0.0 a')} {item.currency}
           </Text>
           <Text style={styles.txnDate}>{`${day}/${month}/${year}`}</Text>
         </View>
