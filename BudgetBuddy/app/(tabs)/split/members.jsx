@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   FlatList,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGroupDetails } from '@/hooks/data';
@@ -15,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroupExpense from './addExpense';
 import socket from '@/constants/socket';
+import * as Clipboard from 'expo-clipboard';
 
 export default function GroupDetails() {
   // hooks
@@ -75,6 +77,12 @@ export default function GroupDetails() {
     await left({id: id});
     router.replace('/(tabs)/split');
   };
+
+  const copyToClipboard = async () => {
+    await Clipboard.setStringAsync(details.group_id);
+    Alert.alert("Copied to clipboard");
+  };
+
   return (
     <>
         <View style={styles.container}>
@@ -82,13 +90,19 @@ export default function GroupDetails() {
             flexDirection: 'row', 
             flexWrap: 'wrap',
             justifyContent:'space-between',
+            paddingTop:10,
           }}> 
           
             <Ionicons name="arrow-back" size={30} color="black"
               onPress = {() => router.replace({ pathname: '/(tabs)/split/groupDetails', params: { id: id } })}
             />
             
-            <Text style={[styles.grpID, {alignItems:'center'}]}>Group code: #{details.group_id}</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={styles.grpID}>Group code: #{details.group_id}</Text>
+              <TouchableOpacity onPress={copyToClipboard} style = {{paddingBottom: 5,}}>
+                <Ionicons name="copy-outline" size={24} color="black" style = {{paddingBottom: 20, paddingLeft: 10,}}/>
+              </TouchableOpacity>
+            </View>
             
             <Ionicons name="arrow-back" size={30} color="white"/>
 
