@@ -72,7 +72,7 @@ export function useGroupExpenseForm(group_id, members, func, id = null) {
 
         const amt = parseFloat(amount);
         const tot = parseFloat(total);
-        if (isNaN(amt) || amt < 0 || isNaN(tot)) {
+        if (isNaN(amt) || amt <= 0 || isNaN(tot)) {
             return Alert.alert("Invalid amount");
         }
 
