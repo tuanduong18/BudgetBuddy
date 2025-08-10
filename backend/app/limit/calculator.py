@@ -11,7 +11,7 @@ from datetime import date
 #   total: float rounded to 2 decimal points
 def calulate_percentage(amount, currency, types):
     # Get today's month
-    current_month = date.today().month
+    today = date.today()
 
     # Get a list of string (each string is an expense type)
     raw_types = [val for val in types]
@@ -25,8 +25,9 @@ def calulate_percentage(amount, currency, types):
     # Select all expenses this month so far
     query = (select(Expenses)
         .where(Expenses.user_id==current_user.id)
-        .where(Expenses.category.in_(raw_types))        # type: ignore
-        .where(extract('month', Expenses.time) == current_month))       # type: ignore
+        .where(Expenses.category.in_(raw_types))   
+        .where(extract('year', Expenses.time) == today.year)
+        .where(extract('month', Expenses.time) == today.month))
     trs = db.session.execute(query).scalars().all()
     
     # Adding up

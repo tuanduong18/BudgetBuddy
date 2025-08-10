@@ -192,10 +192,12 @@ def newest_expenses():
     ]
 
     # Select all expenses today
-    today = date.today().day
+    today = date.today()
     query = (select(Expenses)
                 .where(Expenses.user_id == current_user.id)
-                .where(extract('day', Expenses.time) == today))
+                .where(extract('year', Expenses.time) == today.year)
+                .where(extract('month', Expenses.time) == today.month)
+                .where(extract('day', Expenses.time) == today.day))
     trs = db.session.execute(query).scalars().all() 
     
     # Calculate today's total spending
