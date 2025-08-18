@@ -78,7 +78,7 @@ export default function GroupOwes() {
               ellipsizeMode="tail"
             >
               You owe {item.name}{' '}
-              {numeral(item.amount).format('0,0.[00]')} {item.currency}
+              {numeral(item.amount).format('0,00 a')} {item.currency}
             </Text>
           </View>
         </View>
@@ -90,7 +90,7 @@ export default function GroupOwes() {
       <View style={[styles.card, { backgroundColor: bgColor }]}>
         <Text style={styles.category}>
           {item.name} owes you{' '}
-          {numeral(item.amount).format('0,0.[00]')} {item.currency}
+          {numeral(item.amount).format('0,00 a')} {item.currency}
         </Text>
         <TouchableOpacity
           style={styles.settleBtn}

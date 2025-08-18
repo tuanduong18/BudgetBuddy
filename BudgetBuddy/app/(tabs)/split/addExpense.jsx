@@ -129,6 +129,10 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
               textStyle={styles.dropdownText}
               listItemLabelStyle={styles.dropdownText}
 
+              listMode="MODAL"
+              modalTitle="Select currency"
+              closeOnBackPressed
+
               placeholder="Select"
               searchable
               zIndex={10}        

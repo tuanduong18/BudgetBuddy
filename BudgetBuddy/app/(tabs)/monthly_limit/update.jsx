@@ -166,6 +166,10 @@ export default function AddLimit() {
           textStyle={styles.dropdownText}
           listItemLabelStyle={styles.dropdownText}
 
+          listMode="MODAL"
+          modalTitle="Select currency"
+          closeOnBackPressed
+
           placeholder="Select"
           searchable
           zIndex={10}        /* avoids overlap inside ScrollViews / modals */
