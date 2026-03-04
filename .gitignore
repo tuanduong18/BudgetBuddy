@@ -38,3 +38,9 @@ __pycache__
 *.tsbuildinfo
 
 app-example
+
+*.dump
+
+backend/.venv/
+.venv/
+venv/

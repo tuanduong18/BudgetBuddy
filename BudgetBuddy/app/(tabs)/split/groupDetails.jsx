@@ -101,7 +101,7 @@ export default function GroupDetails() {
           </View>
             <View style={styles.bottomRow}>
               <Text style={styles.amountText}>
-                Pay amount: {numeral(item.amount).format('0,0.[00]')} {item.currency}
+                Pay amount: {numeral(item.amount).format('0.00 a')} {item.currency}
               </Text>
               <Text style={styles.dateText}>
                 {`${day} ${month}, ${year}`}
@@ -147,7 +147,7 @@ export default function GroupDetails() {
 
           <View style={styles.bottomRow}>
               <Text style={styles.amountText}>
-                Shared amount: {numeral(item.amount).format('0,0.[00]')} {item.currency}
+                Shared amount: {numeral(item.amount).format('0.00 a')} {item.currency}
               </Text>
               <Text style={styles.dateText}>
                 {`${day} ${month}, ${year}`}
