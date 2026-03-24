@@ -1,3 +1,9 @@
+"""
+Personal expense write endpoints (add / update / delete).
+
+All routes are JWT-protected. Input validation is performed before any
+database operation to keep the try/except blocks narrow.
+"""
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from app.extension import db
@@ -5,57 +11,61 @@ from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import datetime
 from sqlalchemy import update, delete
 
-# Create a blueprint
 bp = Blueprint('expense_action', __name__, url_prefix='/expenses/action')
 
-# List of allowed expense types and currencies
+# Pre-computed sets for O(1) input validation.
 ALLOWED_CATEGORIES = {e.value for e in ExpenseTypes}  # type: ignore
-ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
+ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes}  # type: ignore
 
-# Route to add new expense
-# Return status only (201, 400, 500)
+
 @bp.route('/add', methods=['POST'])
 @jwt_required()
 def add_expense():
-    # @params
-    #   category: string
-    #   amount: float
-    #   currency: string
-    #   description: string
-    #   time: string in isoformat
+    """Create a new personal expense record for the authenticated user.
+
+    Request JSON:
+        category    (str):   Must be one of the ALLOWED_CATEGORIES values.
+        amount      (float): Positive monetary amount.
+        currency    (str):   ISO 4217 currency code.
+        description (str):   Optional free-text note.
+        time        (str):   ISO 8601 date string.
+
+    Returns:
+        201: Expense created.
+        400: Missing or invalid field.
+        500: Database error.
+    """
     data = request.get_json()
 
     category = data.get('category')
     if category not in ALLOWED_CATEGORIES:
-        return jsonify({ 'message': 'Invalid expense type' }), 400
-    
-    category = ExpenseTypes(category) # type: ignore
+        return jsonify({'message': 'Invalid expense type'}), 400
+    category = ExpenseTypes(category)  # type: ignore
 
     amount = float(data.get('amount'))
 
     currency = data.get('currency')
     if currency not in ALLOWED_CURRENCIES:
-        return jsonify({ 'message': 'Unknown currency' }), 400
+        return jsonify({'message': 'Unknown currency'}), 400
+    # Convert the raw string to the enum type expected by the ORM.
+    currency = CurrencyTypes(currency)  # type: ignore
 
-    # Convert string to custom data type
-    currency = CurrencyTypes(currency) # type: ignore
     description = data.get('description')
     time = datetime.fromisoformat(data.get('time')).date()
 
-    # Check for compulsory fields
     if not category or not amount or not currency or not time:
-        return jsonify({ 'message': 'Missing values' }), 400
+        return jsonify({'message': 'Missing values'}), 400
 
     try:
-        new_trs = Expenses(
-            user_id = current_user.id,          # type: ignore
-            category = category,                # type: ignore
-            amount = amount,                    # type: ignore
-            currency = currency,                # type: ignore
-            description = description,          # type: ignore
-            time = time,                        # type: ignore
-        ) 
-        db.session.add(new_trs)
+        new_expense = Expenses(
+            user_id=current_user.id,   # type: ignore
+            category=category,         # type: ignore
+            amount=amount,             # type: ignore
+            currency=currency,         # type: ignore
+            description=description,   # type: ignore
+            time=time,                 # type: ignore
+        )
+        db.session.add(new_expense)
         db.session.commit()
         return jsonify({'message': 'Successfully add a new Expense'}), 201
 
@@ -64,64 +74,68 @@ def add_expense():
         db.session.rollback()
         return jsonify({'message': 'Database error'}), 500
 
-# Route to update expense
-# Return status only (201, 400, 404, 500)
+
 @bp.route('/update', methods=['POST'])
 @jwt_required()
 def update_expense():
-    # @params
-    #   id: int
-    #   category: string
-    #   amount: float
-    #   currency: string
-    #   description: string
-    #   time: string in isoformat
+    """Update an existing expense record owned by the authenticated user.
+
+    The WHERE clause includes both the expense id AND the current user's id
+    to prevent one user from modifying another user's expenses.
+
+    Request JSON:
+        id          (int):   Primary key of the expense to update.
+        category    (str):   New expense category.
+        amount      (float): New amount.
+        currency    (str):   New ISO 4217 currency code.
+        description (str):   New optional note.
+        time        (str):   New ISO 8601 date.
+
+    Returns:
+        201: Expense updated.
+        400: Invalid or missing field.
+        404: Expense not found or no rows changed.
+        500: Database error.
+    """
     data = request.get_json()
 
-    id = data.get('id')
+    expense_id = data.get('id')
     category = data.get('category')
     if category not in ALLOWED_CATEGORIES:
-        return jsonify({ 'message': 'Invalid Expense type' }), 400
-    
-    category = ExpenseTypes(category) # type: ignore
+        return jsonify({'message': 'Invalid Expense type'}), 400
+    category = ExpenseTypes(category)  # type: ignore
 
     amount = float(data.get('amount'))
 
     currency = data.get('currency')
     if currency not in ALLOWED_CURRENCIES:
-        return jsonify({ 'message': 'Unknown currency' }), 400
+        return jsonify({'message': 'Unknown currency'}), 400
+    currency = CurrencyTypes(currency)  # type: ignore
 
-    # Convert string to custom data type
-    currency = CurrencyTypes(currency) # type: ignore
-    
     description = data.get('description')
     time = datetime.fromisoformat(data.get('time')).date()
 
-    # Check for compulsory fields
     if not category or not amount or not currency or not time:
-        return jsonify({ 'message': 'Missing values' }), 400
+        return jsonify({'message': 'Missing values'}), 400
 
     try:
-        upd: dict = {
-            'user_id':          current_user.id, 
-            'category':         category,                   
-            'amount':           amount,                
-            'currency':         currency,                
-            'description':      description,          
-            'time':             time,                        
+        values: dict = {
+            'user_id':     current_user.id,
+            'category':    category,
+            'amount':      amount,
+            'currency':    currency,
+            'description': description,
+            'time':        time,
         }
-
-        # Update expense based on expense id and user id
         query = (
             update(Expenses)
-            .where(Expenses.id == id)
-            .where(Expenses.user_id == current_user.id)
-            .values(**upd)
+            .where(Expenses.id == expense_id)
+            .where(Expenses.user_id == current_user.id)  # ownership check
+            .values(**values)
         )
-        
         result = db.session.execute(query)
         if not result:
-            return jsonify({ 'message': 'Expense not found or no changes' }), 404
+            return jsonify({'message': 'Expense not found or no changes'}), 404
 
         db.session.commit()
         return jsonify({'message': 'Successfully updated your expense'}), 201
@@ -129,26 +143,31 @@ def update_expense():
     except Exception as e:
         print("DB Error:", e)
         db.session.rollback()
-        return jsonify({'message': 'Database error'}), 500    
+        return jsonify({'message': 'Database error'}), 500
 
-# Route to delete expense
-# Return status only (201, 500)
+
 @bp.route('/delete', methods=['POST'])
 @jwt_required()
 def delete_expense():
-    # @params
-    #   id: int
-    data = request.get_json()
+    """Delete an expense record by its primary key.
 
-    id = int(data.get('id'))
+    Request JSON:
+        id (int): Primary key of the expense to delete.
+
+    Returns:
+        201: Expense deleted.
+        500: Database error.
+    """
+    data = request.get_json()
+    expense_id = int(data.get('id'))
+
     try:
-        query = delete(Expenses).where(Expenses.id == id)
+        query = delete(Expenses).where(Expenses.id == expense_id)
         db.session.execute(query)
         db.session.commit()
         return jsonify({'message': 'Successfully deleted your expense'}), 201
+
     except Exception as e:
         print("DB Error:", e)
         db.session.rollback()
-        return jsonify({'message': 'Database error'}), 500  
-
-
+        return jsonify({'message': 'Database error'}), 500

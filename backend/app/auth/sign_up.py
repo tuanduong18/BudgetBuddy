@@ -1,37 +1,47 @@
+"""
+Sign-up endpoint.
+
+Creates a new user account after validating that the username is not already
+taken. The password is stored as a bcrypt hash; the plaintext is never persisted.
+"""
 from flask import jsonify, request, Blueprint
 from werkzeug.security import generate_password_hash
 from app.extension import db
 from app.models import User
 
-# Create a blueprint
 bp = Blueprint('sign_up', __name__, url_prefix='/auth')
 
-# Route for sign up
-# Return status only (201, 400, 409, 500)
+
 @bp.route('/sign_up', methods=['POST'])
 def sign_up():
-    # @params
-    #     username: string
-    #     password: string
+    """Register a new user account.
+
+    Request JSON:
+        username (str): Desired username (must be globally unique).
+        password (str): Plaintext password; stored as a bcrypt hash.
+
+    Returns:
+        201: Account created successfully.
+        400: Missing username or password.
+        409: Username already taken.
+        500: Unexpected database error.
+    """
     data = request.get_json()
 
     cur_username = data.get('username')
     cur_password = data.get('password')
-    
-    # Check for missing fields
-    if not cur_username or not cur_password:
-        return jsonify({ 'message': 'Missing username and/or password' }), 400
-        
-    try:
-        # Check if user already exists
-        find_username = db.session.query(User).filter_by(username = cur_username).first()
 
-        if find_username:
+    if not cur_username or not cur_password:
+        return jsonify({'message': 'Missing username and/or password'}), 400
+
+    try:
+        # Check for duplicate username before inserting.
+        existing_user = db.session.query(User).filter_by(username=cur_username).first()
+        if existing_user:
             return jsonify({'message': 'Already used username'}), 409
 
-        # Create new user
         hashed_password = generate_password_hash(cur_password)
-        new_user = User(username = cur_username, password = hashed_password) # type: ignore
+        new_user = User(username=cur_username, password=hashed_password)  # type: ignore
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'Successfully signed up a new account'}), 201
