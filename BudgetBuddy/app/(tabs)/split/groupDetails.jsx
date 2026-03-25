@@ -40,14 +40,16 @@ export default function GroupDetails() {
     if (!socket.connected) {
       socket.connect();
     }
-    // console.log(id)
-    socket.emit('join_group', { group_id: id })
+    // Join the Socket.IO room for this group so the server can broadcast
+    // table_update events scoped only to this group's members.
+    socket.emit('join_group', { group_id: id });
 
+    // Re-fetch group details whenever the server signals a database change.
     socket.on('table_update', () => {
-      refetchDetails({group_id: id});
+      refetchDetails({ group_id: id });
     });
-    
-    // cleanup on unmount
+
+    // Disconnect cleanly when the component unmounts to avoid stale listeners.
     return () => {
       socket.disconnect();
     };
@@ -72,19 +74,36 @@ export default function GroupDetails() {
   };
 
 
-  //@params
-  //  type: "settlement" or "expense"
-  const renderHistory = ({item, index}) => {
+  /**
+   * Render a single history row.
+   *
+   * Each item is either a Settlement or a GroupExpense (distinguished by item.type).
+   * Settlements are non-interactive; expenses navigate to the expenseDetails screen.
+   *
+   * Settlement shape:
+   *   payer    {string}  Username of the person who paid.
+   *   payee    {string}  Username of the person who received payment.
+   *   amount   {number}  Amount transferred.
+   *   currency {string}  ISO 4217 currency code.
+   *   time     {string}  ISO 8601 date string.
+   *
+   * GroupExpense shape:
+   *   id        {number}  Primary key.
+   *   lender    {string}  Username of the payer.
+   *   amount    {number}  Total amount paid.
+   *   currency  {string}  ISO 4217 currency code.
+   *   note      {string}  Short description.
+   *   time      {string}  ISO 8601 date string.
+   *   borrowers {Array}   Per-borrower owe entries:
+   *               name     {string}  Username.
+   *               amount   {number}  Amount owed.
+   *               currency {string}  Currency code.
+   *               settled  {boolean} Whether the owe row is paid.
+   */
+  const renderHistory = ({ item, index }) => {
     const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
     const bgColor = colors[index % colors.length];
-    if (item.type === "settlement"){
-      //@params
-      //  payer: string,
-      //  payee: string,
-      //  amount: float,
-      //  currency: string,
-      //  time: time string in isoformat,
-      const date = new Date(item.time);
+    if (item.type === 'settlement') {
       const day = date.toLocaleString('en-US', { day:   '2-digit' });
       const month = date.toLocaleString('en-US', { month: 'short' });
       const year = date.getFullYear();

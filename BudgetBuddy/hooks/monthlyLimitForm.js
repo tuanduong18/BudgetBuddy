@@ -1,43 +1,56 @@
+/**
+ * Monthly budget limit form state management hook.
+ *
+ * Mirrors the pattern of useExpenseForm: when `id` is null the form is
+ * initialised for creation; when `id` is provided the existing limit is
+ * loaded and pre-populated for editing.
+ *
+ * @param {Function}    func - The CRUD action callback (useAddLimit or useUpdateLimit).
+ * @param {number|null} id   - Limit ID for updates, or null for new entries.
+ */
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import { useExpenseTypes, useCurrencyTypes, useUpdatingLimit, useCurrencyPreference } from "./data";
 
 export function useMonthlyLimitForm(func, id = null) {
-    // 1. form state
+    // Form state
     const [types, setTypes]                 = useState([]);
     const [amount, setAmount]               = useState("");
     const [currency, setCurrency]           = useState("");
 
-    // 2. load data hooks
-    const { data: expense_types,  loading: load1 }   = useExpenseTypes();
-    const { data: currency_types, loading: load2 }   = useCurrencyTypes();
-    const { data: currency_preference, loading: load3 }   = useCurrencyPreference();
+    // Reference data for the category and currency dropdowns.
+    const { data: expense_types,  loading: load1 } = useExpenseTypes();
+    const { data: currency_types, loading: load2 } = useCurrencyTypes();
+    const { data: currency_preference, loading: load3 } = useCurrencyPreference();
 
-    // 3. set defaults when loaded
-    if(id == null){
+    // Initialise defaults once reference data finishes loading.
+    if (id == null) {
         useEffect(() => {
             if (!load1 && !load2 && !load3) {
                 setCurrency((currency_preference == null ? "SGD" : currency_preference));
             }
         }, [load1, load2, load3, expense_types, currency_types, currency_preference]);
     } else {
-        const {data: lim, loading: load4} = useUpdatingLimit({id: id});
+        // Pre-populate fields from the existing limit being edited.
+        const { data: lim, loading: load4 } = useUpdatingLimit({ id });
         useEffect(() => {
             if (!load4) {
                 setAmount((parseFloat(lim.amount)).toString());
-                setCurrency((lim.currency) );
-                setTypes(lim.types)
+                setCurrency(lim.currency);
+                setTypes(lim.types);
             }
         }, [load4, lim]);
     }
-    // 4. validate + submit
+
+    /**
+     * Validate required fields, parse the amount, then delegate to the
+     * provided CRUD action callback.
+     */
     const submit = async () => {
-        // all required fields filled?
         if (![amount, currency].every(Boolean) || types.length == 0) {
-        return Alert.alert("Please fill out all compulsory fields");
+            return Alert.alert("Please fill out all compulsory fields");
         }
 
-        // amount parse
         const amt = parseFloat(amount);
         if (isNaN(amt) || amt <= 0) {
             return Alert.alert("Invalid amount");
@@ -47,23 +60,23 @@ export function useMonthlyLimitForm(func, id = null) {
             id,
             amount: amt,
             currency,
-            types: types,
+            types,
         });
     };
 
     return {
-        // state + setters
+        // Form state + setters
         types,      setTypes,
         amount,     setAmount,
         currency,   setCurrency,
 
-        // data
+        // Reference data for dropdowns
         expense_types, currency_types,
 
-        // loading flags
+        // Loading flags
         load1, load2,
 
-        // submit fn
+        // Submit handler
         submit,
     };
 }

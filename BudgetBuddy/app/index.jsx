@@ -53,46 +53,42 @@ export default function App() {
     })();
   }, [refresh, router]);
 
+  // Show a spinner while the session-restore check is in progress.
   if (checking) {
-    return <ActivityIndicator size="large" />;  // your splash/loading UI
+    return <ActivityIndicator size="large" />;
   }
 
   return (
     <SafeAreaView style={[local.safeArea, { backgroundColor: '#ffde1a' }]}>
       <View style={local.container}>
-        {/* Illustration */}
         <Image
           source={require("@/assets/images/index-page-image.png")}
           style={local.image}
           resizeMode="contain"
         />
 
-        {/* Title */}
         <Text style={[GS.title, { textAlign: 'center' }]}>
           Welcome to <Text style={local.brand}>{"\n"}Budget Buddy!</Text>
         </Text>
 
-        {/* Subtitle */}
         <Text style={[GS.subtitle, local.subtitleSpacing, { textAlign: 'center' }]}>
           Tired of forgetting what you spent on?{"\n"}You have come to the right place!
         </Text>
 
-        {/* Buttons */}
         <View style={{ width: '100%', paddingHorizontal: 40 }}>
-          <TouchableOpacity 
-            style={local.button} 
+          <TouchableOpacity
+            style={local.button}
             onPress={() => router.replace('/auth/sign_up')}>
             <Text style={GS.buttonText}>Sign Up</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={local.button} 
+          <TouchableOpacity
+            style={local.button}
             onPress={() => router.replace('/auth/sign_in')}>
             <Text style={GS.buttonText}>Sign In</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Legal */}
         <Text style={local.legalText}>
           By continuing you accept our{" "}
           <Text style={local.link}>Privacy Policy</Text> and{" "}
@@ -111,22 +107,22 @@ const local = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: "flex-start", // move content up
-    alignItems: "center",
-    paddingTop: 120,               // adjust image top position
-    backgroundColor: "transparent",
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 120,
+    backgroundColor: 'transparent',
   },
   image: {
     width: 250,
     height: 250,
-    marginBottom: 10,            // less space below image
+    marginBottom: 10,
   },
   brand: {
     color: "#2e7d32",
     fontFamily: "Poppins_700Bold",
   },
   subtitleSpacing: {
-    marginBottom: 30,           // space between subtitle and buttons
+    marginBottom: 30,
   },
   legalText: {
     fontSize: 12,

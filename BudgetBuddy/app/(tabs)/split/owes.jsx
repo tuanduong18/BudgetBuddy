@@ -17,16 +17,16 @@ import numeral from 'numeral';
 import socket from '@/constants/socket';
 
 export default function GroupOwes() {
-  // hooks
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const settle = useSettleGroupExpense();
-  const {data: owes, loading, refetch} = useGroupOwes({group_id: id});
-  // Font loading
+  const { data: owes, loading, refetch } = useGroupOwes({ group_id: id });
   const [loaded, error] = useFonts({ Inter_500Medium });
+
+  // Re-fetch balances on every screen focus.
   useFocusEffect(
       React.useCallback(() => {
-        refetch({group_id: id});
+        refetch({ group_id: id });
       }, [refetch])
     );
 
@@ -34,36 +34,40 @@ export default function GroupOwes() {
     if (!socket.connected) {
       socket.connect();
     }
-    // console.log(id)
-    socket.emit('join_group', { group_id: id })
+    // Join the Socket.IO room so settlements from other members trigger a re-fetch.
+    socket.emit('join_group', { group_id: id });
 
     socket.on('table_update', () => {
-      refetch({group_id: id});
+      refetch({ group_id: id });
     });
-    
-    // cleanup on unmount
+
     return () => {
       socket.disconnect();
     };
   }, [id, refetch]);
 
-  // Early returns (now safe, because hooks are already called) 
-  if (!loaded && !error) {
-    return null; // font not ready
-  }
+  if (!loaded && !error) return null;
+
   if (loading) {
-          return (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" />
-            </View>
-          );
-        }
-      
-    //@params
-    //   name: string
-    //   amount: float
-    //   currency: string
-    //   owe: boolean
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  /**
+   * Render a single owe row.
+   *
+   * If `item.owe` is true the current user owes someone; otherwise the
+   * current user is owed, and a "Settle" button is rendered.
+   *
+   * @param {object} item - Owe object:
+   *   name     {string}  Counter-party username.
+   *   amount   {number}  Outstanding amount.
+   *   currency {string}  ISO 4217 currency code.
+   *   owe      {boolean} true = you owe them, false = they owe you.
+   */
   const renderItem = ({item, index}) => {
     const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
     const bgColor = colors[index % colors.length];

@@ -1,9 +1,21 @@
+/**
+ * Expense form state management hook.
+ *
+ * Encapsulates all form fields, validation, and submission logic for both
+ * the "add expense" and "update expense" flows.  When `id` is null the form
+ * initialises with today's date and the user's currency preference; when
+ * `id` is provided the existing expense is fetched and the fields are
+ * pre-populated.
+ *
+ * @param {Function}    func - The CRUD action callback (useAddExpense or useUpdateExpense).
+ * @param {number|null} id   - Expense ID for updates, or null for new entries.
+ */
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import { useExpenseTypes, useCurrencyTypes, useUpdatingExpense, useCurrencyPreference } from "./data";
 
 export function useExpenseForm(func, id = null) {
-    // 1. form state
+    // Form state — each field maps 1-to-1 with the API request body.
     const [category, setCategory]           = useState("");
     const [amount, setAmount]               = useState("");
     const [currency, setCurrency]           = useState("");
@@ -12,14 +24,14 @@ export function useExpenseForm(func, id = null) {
     const [month, setMonth]                 = useState("");
     const [year, setYear]                   = useState("");
 
-    // 2. load data hooks
+    // Reference data used by dropdowns / pickers.
     const { data: expense_types, loading: load1 }           = useExpenseTypes();
     const { data: currency_types, loading: load2 }          = useCurrencyTypes();
     const { data: currency_preference, loading: load3 }     = useCurrencyPreference();
 
-    // 3. set defaults when loaded
-    if(id == null){
-        const today = new Date()
+    // Initialise defaults once reference data finishes loading.
+    if (id == null) {
+        const today = new Date();
         useEffect(() => {
             if (!load1 && !load2 && !load3) {
                 setCategory((expense_types[0]).toString());
@@ -30,7 +42,8 @@ export function useExpenseForm(func, id = null) {
             }
         }, [load1, load2, load3, expense_types, currency_types, currency_preference]);
     } else {
-        const {data: expense, loading: load4} = useUpdatingExpense({id: id});
+        // Pre-populate all fields from the existing expense being edited.
+        const { data: expense, loading: load4 } = useUpdatingExpense({ id });
         useEffect(() => {
             if (!load4) {
                 setCategory((expense.category).toString());
@@ -44,20 +57,21 @@ export function useExpenseForm(func, id = null) {
             }
         }, [load4, expense]);
     }
-    // 4. validate + submit
+
+    /**
+     * Validate all required fields, build the ISO date, parse the amount,
+     * then delegate to the provided CRUD action callback.
+     */
     const submit = async () => {
-        // all required fields filled?
         if (![category, amount, currency, day, month, year].every(Boolean)) {
-        return Alert.alert("Please fill out all compulsory fields");
+            return Alert.alert("Please fill out all compulsory fields");
         }
 
-        // build date
-        const dt = new Date(+year, +month - 1, +day+1);
+        const dt = new Date(+year, +month - 1, +day + 1);
         if (isNaN(dt.getTime())) {
             return Alert.alert("Invalid date");
         }
 
-        // amount parse
         const amt = parseFloat(amount);
         if (isNaN(amt) || amt < 0) {
             return Alert.alert("Invalid amount");
@@ -74,7 +88,7 @@ export function useExpenseForm(func, id = null) {
     };
 
     return {
-        // state + setters
+        // Form state + setters
         category, setCategory,
         amount,   setAmount,
         currency, setCurrency,
@@ -83,13 +97,13 @@ export function useExpenseForm(func, id = null) {
         month,    setMonth,
         year,     setYear,
 
-        // data
+        // Reference data for dropdowns
         expense_types, currency_types,
 
-        // loading flags
+        // Loading flags (exposed so screens can show a spinner)
         load1, load2,
 
-        // submit fn
+        // Submit handler
         submit,
     };
 }

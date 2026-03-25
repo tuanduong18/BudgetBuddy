@@ -1,6 +1,21 @@
+"""
+PostgreSQL trigger definitions for real-time group activity notifications.
+
+The triggers fire after any INSERT / UPDATE / DELETE on the tables listed
+below and call pg_notify() with a JSON payload containing the affected
+group's public identifier. The Python socket listener (socket_listener.py)
+then broadcasts the event to the relevant Socket.IO room.
+
+Tables monitored:
+  - group_expenses   → on_group_expenses_change
+  - group_members    → on_group_members_change
+  - settlement       → on_owe_change
+"""
 from sqlalchemy import DDL
 
-# Trigger the change in group_expense
+# Shared PL/pgSQL function that all three triggers invoke.
+# Resolves the internal group PK to the public group_id string so the
+# frontend can identify which group was updated without exposing PKs.
 expense_function = DDL("""
 CREATE OR REPLACE FUNCTION notify_table_update()
 RETURNS trigger AS $$
@@ -9,6 +24,7 @@ DECLARE
   gid integer;
   group_unique_id TEXT;
 BEGIN
+  -- Use OLD.group_id on DELETE because NEW is not available.
   IF (TG_OP = 'DELETE') THEN 
     gid := OLD.group_id;
   ELSE
@@ -30,6 +46,7 @@ END;
 $$ LANGUAGE plpgsql;
 """)
 
+# Trigger on group_expenses: fires after expense rows change.
 expense_trigger = DDL("""
   DROP TRIGGER IF EXISTS on_group_expenses_change ON group_expenses;
   CREATE TRIGGER on_group_expenses_change
@@ -39,6 +56,7 @@ expense_trigger = DDL("""
   EXECUTE FUNCTION notify_table_update();
 """)
 
+# Trigger on group_members: fires when users join or leave a group.
 members_trigger = DDL("""
   DROP TRIGGER IF EXISTS on_group_members_change ON group_members;
   CREATE TRIGGER on_group_members_change
@@ -48,6 +66,7 @@ members_trigger = DDL("""
   EXECUTE FUNCTION notify_table_update();
 """)
 
+# Trigger on settlement: fires when a debt is marked as settled.
 settle_trigger = DDL("""
   DROP TRIGGER IF EXISTS on_owe_change ON settlement;
   CREATE TRIGGER on_owe_change
@@ -58,11 +77,17 @@ settle_trigger = DDL("""
 """)
 
 
-# Function to execute both
-def create_triggers(engine):
+def create_triggers(engine) -> None:
+    """Install the shared notify function and all table triggers.
+
+    Executes each DDL statement inside a single transaction so that either
+    all triggers are created or none are (atomicity).
+
+    Args:
+        engine: A SQLAlchemy Engine connected to the target PostgreSQL DB.
+    """
     with engine.begin() as conn:
         conn.execute(expense_function)
         conn.execute(expense_trigger)
         conn.execute(members_trigger)
         conn.execute(settle_trigger)
-      

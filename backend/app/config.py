@@ -1,30 +1,40 @@
+"""
+Application configuration loaded from environment variables.
+
+All sensitive values (keys, database URLs) are read from the .env file via
+python-dotenv so that secrets are never hard-coded in source.
+"""
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
-    # Need for jwt token
+    # Secret key used by Flask-JWT-Extended to sign tokens.
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+    # Flask session secret key.
     SECRET_KEY = os.getenv("SECRET_KEY")
 
-    # Need to link to database
+    # SQLAlchemy connection string for the PostgreSQL database.
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+
+    # Disable SQLAlchemy modification tracking to reduce overhead.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Access token lifespan
+    # Short-lived access token; expire quickly to limit exposure if stolen.
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
 
-    # Refresh token lifespan
+    # Long-lived refresh token used to reissue access tokens without re-login.
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
-    # Place to search for token in json
+    # Expect the JWT to be transmitted inside the Authorization HTTP header.
     JWT_TOKEN_LOCATION = ['headers']
 
-    # Name of element contains token
+    # HTTP header name that carries the token.
     JWT_HEADER_NAME = 'Authorization'
-    
-    # Word to flag token (token string start after this)
+
+    # Token type prefix; the raw token string follows this keyword.
     JWT_HEADER_TYPE = 'Bearer'
-    

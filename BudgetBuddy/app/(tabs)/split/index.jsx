@@ -15,7 +15,7 @@ export default function HomeScreen() {
     })  
     const {data: Groups, loading, refetch: refetchGroups} = useGroupNames();
 
-    // Reload whenever access this screen once
+    // Re-fetch the group list each time the user navigates back to this screen.
     useFocusEffect(
       React.useCallback(() => {
         refetchGroups();
@@ -36,11 +36,6 @@ export default function HomeScreen() {
       }
 
     const renderItem = ({ item, index }) => {
-      // const itemDate = new Date(new Date());
-      // const day = itemDate.getDate().toString().padStart(2, '0');
-      // const month = (itemDate.getMonth() + 1).toString().padStart(2, '0');
-      // const year = itemDate.getFullYear();
-    
       const pastelColors = ['#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5', '#FFEBEE'];
       const bgColor = pastelColors[index % pastelColors.length];
       return (

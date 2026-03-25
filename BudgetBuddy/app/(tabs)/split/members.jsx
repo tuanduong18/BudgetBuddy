@@ -19,17 +19,17 @@ import socket from '@/constants/socket';
 import * as Clipboard from 'expo-clipboard';
 
 export default function GroupDetails() {
-  // hooks
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const left = useLeaveGroup();
   const [addVisible, setAddVisible] = useState(false);
-  const {data: details, loading, refetch: refetchDetails} = useGroupDetails({group_id: id});
-  // Font loading
+  const { data: details, loading, refetch: refetchDetails } = useGroupDetails({ group_id: id });
   const [loaded, error] = useFonts({ Inter_500Medium });
+
+  // Re-fetch member list on every screen focus.
   useFocusEffect(
       React.useCallback(() => {
-        refetchDetails({group_id: id});
+        refetchDetails({ group_id: id });
       }, [refetchDetails])
     );
 
@@ -37,30 +37,27 @@ export default function GroupDetails() {
     if (!socket.connected) {
       socket.connect();
     }
-    // console.log(id)
-    socket.emit('join_group', { group_id: id })
+    // Join the Socket.IO room for real-time member updates.
+    socket.emit('join_group', { group_id: id });
 
     socket.on('table_update', () => {
-      refetchDetails({group_id: id});
+      refetchDetails({ group_id: id });
     });
-    
-    // cleanup on unmount
+
     return () => {
       socket.disconnect();
     };
   }, [id, refetchDetails]);
 
-  // Early returns (now safe, because hooks are already called)
-  if (!loaded && !error) {
-    return null; // font not ready
-  }
+  if (!loaded && !error) return null;
+
   if (loading) {
-          return (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" />
-            </View>
-          );
-        }
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   const renderMember = ({ item, index }) => {
         const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];

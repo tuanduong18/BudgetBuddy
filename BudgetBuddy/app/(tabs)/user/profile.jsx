@@ -15,7 +15,10 @@ import { useUsername } from '@/hooks/data';
 import { useSignOut } from '@/hooks/auth';
 import * as Notifications from 'expo-notifications';
 
-// ── Notification Handler (Foreground) ─────────────────────────────────────────────────────────────────
+/**
+ * Configure how notifications are displayed while the app is in the foreground.
+ * Without this handler, foreground notifications are silently suppressed on iOS.
+ */
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner:   true,
@@ -28,27 +31,18 @@ Notifications.setNotificationHandler({
 export default function ProfileScreen() {
   const router = useRouter();
 
-  // On Android: ensure the default notification channel exists
+  // Android requires the notification channel to exist before alerts can fire.
   useEffect(() => {
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('default');
     }
   }, []);
 
-  // Load custom font
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_500Medium,
-  });
-
-  // Fetch username
+  const [fontsLoaded, fontError] = useFonts({ Inter_500Medium });
   const { data: username, loading: usernameLoading } = useUsername();
-
-  // Hook to sign out
   const signOut = useSignOut();
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  if (!fontsLoaded && !fontError) return null;
 
   if (usernameLoading) {
     return <ActivityIndicator style={{ flex: 1 }} />;
@@ -62,6 +56,7 @@ export default function ProfileScreen() {
     );
   }
 
+  /** Sign out and navigate back to the sign-in screen. */
   const handleSignOut = async () => {
     await signOut();
     router.replace('/auth/sign_in');
@@ -69,7 +64,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.wrapper}>
-      {/* Top Green Header */}
+      {/* Green header banner with avatar and username */}
       <View style={styles.headerContainer}>
         <Image
           source={require('@/assets/images/profile_pic.png')}
@@ -77,25 +72,15 @@ export default function ProfileScreen() {
         />
         <View style={styles.headerTextContainer}>
           <Text style={styles.nameText}>{username}</Text>
-          
         </View>
       </View>
 
-      {/* White Card for Options */}
+      {/* White card containing profile action buttons */}
       <View style={styles.cardContainer}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.cardContent}>
-          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/settings/private')}>
-            <Text style={styles.optionText}>Private settings</Text>
-          </TouchableOpacity> */}
           <TouchableOpacity style={styles.optionButton} onPress={() => router.replace('/(tabs)/user/saveCurrency')}>
             <Text style={styles.optionText}>Set currency preference</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/about')}>
-            <Text style={styles.optionText}>About us</Text>
-          </TouchableOpacity> */}
-          {/* <TouchableOpacity style={styles.optionButton} onPress={() => router.push('/feedback')}>
-            <Text style={styles.optionText}>Any feedback? Let us know!</Text>
-          </TouchableOpacity> */}
           <TouchableOpacity style={styles.optionButton} onPress={handleSignOut}>
             <Text style={styles.optionText}>Sign Out</Text>
           </TouchableOpacity>

@@ -1,3 +1,13 @@
+/**
+ * Push-notification permission helper.
+ *
+ * Called once at app launch (app/index.jsx) to request OS-level notification
+ * permissions.  On iOS, requesting permissions is mandatory before any local
+ * notification can be scheduled.  On Android 13+ (API 33), the POST_NOTIFICATIONS
+ * runtime permission is also required.
+ *
+ * @returns {Promise<boolean>} `true` if permissions are granted, `false` otherwise.
+ */
 import * as Notifications from 'expo-notifications';
 
 export async function requestPermissions() {

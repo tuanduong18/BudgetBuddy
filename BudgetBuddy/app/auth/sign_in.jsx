@@ -67,19 +67,19 @@ const local = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: "flex-start", // move content to the bottom
-    alignItems: "center",
-    paddingTop: 90,               // adjust image top position
-    backgroundColor: "transparent",
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 90,
+    backgroundColor: 'transparent',
   },
   image: {
     width: 250,
     height: 250,
-    marginTop: 40,              // space above image
-    alignSelf: 'center',        // center the image
+    marginTop: 40,
+    alignSelf: 'center',
   },
   subtitleSpacing: {
-    marginBottom: 30,           // space between subtitle and buttons
+    marginBottom: 30,
   },
   legalText: {
     fontSize: 12,

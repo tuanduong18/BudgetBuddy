@@ -1,3 +1,10 @@
+"""
+Personal expense read endpoints.
+
+All routes are JWT-protected. Amounts are converted to the requester's
+preferred currency (or SGD as default) using live exchange rates fetched
+at startup in extension.py.
+"""
 from flask import jsonify, request, Blueprint, Response
 import csv
 import io
@@ -7,206 +14,218 @@ from sqlalchemy import select, desc, extract
 from app.models import Expenses, ExpenseTypes, CurrencyTypes
 from datetime import date
 
-# Create a blueprint
 bp = Blueprint('expense_data', __name__, url_prefix='/expenses/data')
 
-# List of allowed currencies
-ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes} # type: ignore
+# Pre-computed set for O(1) currency validation.
+ALLOWED_CURRENCIES = {c.value for c in CurrencyTypes}  # type: ignore
 
-# Route for getting username
-# Return a single string
+
 @bp.route('/username', methods=['POST'])
 @jwt_required()
 def username():
+    """Return the authenticated user's username.
+
+    Returns:
+        200: JSON string containing the username.
+    """
     return jsonify(current_user.username)
 
-# Route for getting all expense types
-# Return a list
+
 @bp.route('/expense_types', methods=['POST'])
 @jwt_required()
 def expense_types():
-    categories = [e.value for e in ExpenseTypes] # type: ignore
+    """Return all valid expense category names.
+
+    Returns:
+        200: JSON list of category strings.
+    """
+    categories = [e.value for e in ExpenseTypes]  # type: ignore
     return jsonify(categories)
 
-# Route for getting all allowed currencies
-# Return a list
+
 @bp.route('/currency_types', methods=['POST'])
 @jwt_required()
 def currency_types():
-    currencies = [c.value for c in CurrencyTypes] # type: ignore
+    """Return all supported currency codes.
+
+    Returns:
+        200: JSON list of 3-letter currency code strings.
+    """
+    currencies = [c.value for c in CurrencyTypes]  # type: ignore
     return jsonify(currencies)
 
-# Route for getting all expenses of user
-# Return a list of elements
-# Each element is a dict 
-# @params
-#   id: int                        
-#   category: string
-#   amount: float rounded to 2 decimal point
-#   currency: string of length 3
-#   description: string
-#   time: string of date in isoformat
+
 @bp.route('/expenses', methods=['POST'])
 @jwt_required()
 def expenses():
-    # Select all expenses and sort from newest to oldest
-    query = select(Expenses).filter_by(user_id=current_user.id).order_by(desc(Expenses.time), desc(Expenses.id))     # type: ignore
+    """Return all expenses for the authenticated user.
+
+    Amounts are converted to the target currency in this priority order:
+      1. Currency explicitly provided in the request body.
+      2. User's saved currency preference.
+      3. Raw stored currency (no conversion) if no preference is set.
+
+    Request JSON (optional):
+        currency (str): ISO 4217 target currency code.
+
+    Returns:
+        200: JSON list of expense dicts:
+            {id, category, amount, currency, description, time (ISO date)}.
+        400: Unrecognised currency code.
+    """
+    # Fetch all expenses sorted newest-first.
+    query = (
+        select(Expenses)
+        .filter_by(user_id=current_user.id)
+        .order_by(desc(Expenses.time), desc(Expenses.id))
+    )  # type: ignore
     trs = db.session.execute(query).scalars().all()
-    
-    # @params
-    #   currency: string
+
     data = request.get_json()
-    
-    # Initialize return list
     trs_list = []
 
-    # Check if nothing is sent from frontend
+    # Currency conversion helper: convert `x` units of `y` to the target currency.
+    def convert_amt(x, y):
+        return round(float(x) / FINANCE_DATA['rates'][y] * FINANCE_DATA['rates'][currency], 2)
+
     if data is None or data.get('currency') is None:
         currency = current_user.currency
-        # Check if user has not set their currency preference
         if currency is None:
+            # No preference set — return amounts in their original stored currency.
             trs_list = [
                 {
-                    "id":               trn.id,                           
-                    "category":         trn.category.value,                 # type: ignore     
-                    "amount":           round(float(trn.amount), 2),                    
-                    "currency":         trn.currency.value,                 # type: ignore
-                    "description":      trn.description,          
-                    "time":             trn.time.isoformat(),
-                } 
+                    "id":          trn.id,
+                    "category":    trn.category.value,     # type: ignore
+                    "amount":      round(float(trn.amount), 2),
+                    "currency":    trn.currency.value,     # type: ignore
+                    "description": trn.description,
+                    "time":        trn.time.isoformat(),
+                }
                 for trn in trs
             ]
         else:
             currency = currency.value
-            
-            # Lambda function to convert money
-            amt = lambda x, y: round(float(x)/FINANCE_DATA['rates'][y]* FINANCE_DATA['rates'][currency], 2)
             trs_list = [
                 {
-                    "id":               trn.id,                           
-                    "category":         trn.category.value,                     # type: ignore  
-                    "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
-                    "currency":         currency,           
-                    "description":      trn.description,          
-                    "time":             trn.time.isoformat(),
-                } 
+                    "id":          trn.id,
+                    "category":    trn.category.value,                      # type: ignore
+                    "amount":      convert_amt(trn.amount, trn.currency.value),  # type: ignore
+                    "currency":    currency,
+                    "description": trn.description,
+                    "time":        trn.time.isoformat(),
+                }
                 for trn in trs
             ]
     else:
-        # retrieve currency from frontend
         currency = data.get('currency')
-
-        # Check for allowance
         if currency not in ALLOWED_CURRENCIES:
-            return jsonify({ 'message': 'Unknown currency' }), 400
-        
-        # Lambda function to convert money
-        amt = lambda x, y: round(float(x)/FINANCE_DATA['rates'][y]* FINANCE_DATA['rates'][currency], 2)
+            return jsonify({'message': 'Unknown currency'}), 400
+
         trs_list = [
             {
-                "id":               trn.id,                           
-                "category":         trn.category.value,                     # type: ignore       
-                "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
-                "currency":         currency,           
-                "description":      trn.description,          
-                "time":             trn.time.isoformat(),
-            } 
+                "id":          trn.id,
+                "category":    trn.category.value,                      # type: ignore
+                "amount":      convert_amt(trn.amount, trn.currency.value),  # type: ignore
+                "currency":    currency,
+                "description": trn.description,
+                "time":        trn.time.isoformat(),
+            }
             for trn in trs
         ]
+
     return jsonify(trs_list), 200
 
-# Route for getting the updating expense of user
-# Return a dict
-# @params                      
-#   category: string
-#   amount: float rounded to 2 decimal point
-#   currency: string of length 3
-#   description: string
-#   time: string of date in isoformat
+
 @bp.route('/updating', methods=['POST'])
 @jwt_required()
 def updating_expense():
-    
-    data = request.get_json()
-    # @params
-    # id: maybe a string to link to primary key in table 'expense'
+    """Return a single expense record to pre-populate the update form.
 
+    Request JSON:
+        id (int): Primary key of the expense to retrieve.
+
+    Returns:
+        200: JSON dict {category, amount, currency, description, time}.
+        400: Expense not found or does not belong to the user.
+    """
+    data = request.get_json()
     expense_id = int(data.get('id'))
+
     query = select(Expenses).filter_by(id=expense_id)
     trn = db.session.execute(query).scalars().one_or_none()
     if trn is None:
-        return jsonify({"message":"Unauthorized"}), 400
-    
-    return jsonify({                           
-            "category":         trn.category.value,                 # type: ignore       
-            "amount":           trn.amount,                    
-            "currency":         trn.currency.value,                 # type: ignore
-            "description":      trn.description,          
-            "time":             trn.time.isoformat(),
-        }), 200 
+        return jsonify({"message": "Unauthorized"}), 400
 
-# Route for getting 5 newest expenses of user and total spending today
-# Return a dict
-# @params
-#   total: float rounded to 2 decimal point
-#   currency: string of length 3
-#   newestExpenses: list of length 5, each is a dict 
-#       @params
-#           id: int                        
-#           category: string
-#           amount: float rounded to 2 decimal point
-#           currency: string of length 3
-#           description: string
-#           time: string of date in isoformat
-@bp.route('/dashboard', methods = ['POST'])
+    return jsonify({
+        "category":    trn.category.value,   # type: ignore
+        "amount":      trn.amount,
+        "currency":    trn.currency.value,   # type: ignore
+        "description": trn.description,
+        "time":        trn.time.isoformat(),
+    }), 200
+
+
+@bp.route('/dashboard', methods=['POST'])
 @jwt_required()
-def newest_expenses(): 
-    # Select the newest 5 expenses 
-    query = (select(Expenses)
-                .where(Expenses.user_id == current_user.id)
-                .order_by(desc(Expenses.time), desc(Expenses.id))
-                .limit(5))
+def newest_expenses():
+    """Return dashboard summary data for the authenticated user.
+
+    Provides the 5 most recent expenses and the total spending for today,
+    both converted to the user's preferred currency (defaulting to SGD).
+
+    Returns:
+        200: JSON dict:
+            {
+              total    (float): Today's total spending (2 d.p.),
+              currency (str):   Active display currency,
+              newestExpenses (list): Up to 5 most recent expense dicts.
+            }
+    """
+    # Fetch the 5 most recent expenses.
+    query = (
+        select(Expenses)
+        .where(Expenses.user_id == current_user.id)
+        .order_by(desc(Expenses.time), desc(Expenses.id))
+        .limit(5)
+    )
     trs = db.session.execute(query).scalars().all()
 
-    # Default currency of the app
+    # Resolve display currency; default to SGD when no preference is saved.
     currency = "SGD"
-    
-    # Check if user has set their currency preference
     if current_user.currency is not None:
         currency = current_user.currency.value
 
-    # Lambda function to convert money
-    amt = lambda x, y: round(float(x)/FINANCE_DATA['rates'][y]* FINANCE_DATA['rates'][currency], 2)
-    
-    # List of 5 newest expenses after converting
+    # Convert any stored currency to the display currency.
+    def convert_amt(x, y):
+        return round(float(x) / FINANCE_DATA['rates'][y] * FINANCE_DATA['rates'][currency], 2)
+
     trs_list = [
         {
-            "id":               trn.id,                           
-            "category":         trn.category.value,                     # type: ignore       
-            "amount":           amt(trn.amount, trn.currency.value),    # type: ignore
-            "currency":         currency,           
-            "description":      trn.description,          
-            "time":             trn.time.isoformat(),
-        } 
+            "id":          trn.id,
+            "category":    trn.category.value,                          # type: ignore
+            "amount":      convert_amt(trn.amount, trn.currency.value), # type: ignore
+            "currency":    currency,
+            "description": trn.description,
+            "time":        trn.time.isoformat(),
+        }
         for trn in trs
     ]
 
-    # Select all expenses today
+    # Sum all of today's expenses to display the daily total.
     today = date.today()
-    query = (select(Expenses)
-                .where(Expenses.user_id == current_user.id)
-                .where(extract('year', Expenses.time) == today.year)
-                .where(extract('month', Expenses.time) == today.month)
-                .where(extract('day', Expenses.time) == today.day))
-    trs = db.session.execute(query).scalars().all() 
-    
-    # Calculate today's total spending
-    total = float(0)
-    for trn in trs:
-        total += float(amt(trn.amount, trn.currency.value)) # type: ignore
+    today_query = (
+        select(Expenses)
+        .where(Expenses.user_id == current_user.id)
+        .where(extract('year',  Expenses.time) == today.year)
+        .where(extract('month', Expenses.time) == today.month)
+        .where(extract('day',   Expenses.time) == today.day)
+    )
+    today_trs = db.session.execute(today_query).scalars().all()
+
+    total = sum(convert_amt(trn.amount, trn.currency.value) for trn in today_trs)  # type: ignore
 
     return jsonify({
-        'total': round(total, 2),
-        'currency': currency,
+        'total':          round(total, 2),
+        'currency':       currency,
         'newestExpenses': trs_list,
     }), 200

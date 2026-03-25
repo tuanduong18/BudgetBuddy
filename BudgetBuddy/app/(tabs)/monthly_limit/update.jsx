@@ -62,11 +62,13 @@ export default function AddLimit() {
       }
     };
 
+    /** Persist the updated limit then return to the list view. */
     const onSave = async () => {
-        await updateLimit();     // wait for submit to complete
-        router.replace('/(tabs)/monthly_limit/allLimits')
+        await updateLimit();
+        router.replace('/(tabs)/monthly_limit/allLimits');
     };
 
+    /** Confirm deletion via an alert, then remove the limit and navigate back. */
     const onDelete = () => {
         Alert.alert('Delete Monthly budget limit', 'Are you sure you want to delete this item?', [
           { text: 'Cancel', style: 'cancel' },
@@ -75,7 +77,7 @@ export default function AddLimit() {
             style: 'destructive',
             onPress: async () => {
                 const ok = await deleteLimit({ id });
-                router.replace('/(tabs)/monthly_limit/allLimits')
+                router.replace('/(tabs)/monthly_limit/allLimits');
             }
           }
         ]);

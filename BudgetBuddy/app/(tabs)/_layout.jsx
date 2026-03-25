@@ -1,3 +1,13 @@
+/**
+ * Main tab navigator layout.
+ *
+ * Each tab is `unmountOnBlur: true` so components are fully remounted on
+ * every visit, ensuring data hooks re-fetch and the user always sees fresh
+ * data without manual pull-to-refresh.
+ *
+ * The tab bar height accounts for device safe-area insets so the bar does
+ * not overlap the system home indicator on notched/pill devices.
+ */
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
@@ -11,9 +21,9 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: '#2f95dc',
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: { 
+        tabBarStyle: {
           backgroundColor: '#fff',
-          height: 70 + insets.bottom, 
+          height: 70 + insets.bottom,
           paddingBottom: insets.bottom,
         },
         unmountOnBlur: true,
@@ -27,10 +37,7 @@ export default function TabsLayout() {
             <FontAwesome name="money" size={size} color={color} />
           ),
           unmountOnBlur: true,
-          tabBarLabelStyle: {
-            flexWrap: 'nowrap',
-          
-          },
+          tabBarLabelStyle: { flexWrap: 'nowrap' },
         }}
       />
 
@@ -42,10 +49,7 @@ export default function TabsLayout() {
             <FontAwesome name="pie-chart" size={size} color={color} />
           ),
           unmountOnBlur: true,
-          tabBarLabelStyle: {
-            flexWrap: 'nowrap',
-          
-          },
+          tabBarLabelStyle: { flexWrap: 'nowrap' },
         }}
       />
 
@@ -56,7 +60,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="bell" size={size} color={color} />
           ),
-          unmountOnBlur: true
+          unmountOnBlur: true,
         }}
       />
 
@@ -67,9 +71,10 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="line-chart" size={size} color={color} />
           ),
-          unmountOnBlur: true
+          unmountOnBlur: true,
         }}
       />
+
       <Tabs.Screen
         name="split"
         options={{
@@ -77,7 +82,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="group" size={size} color={color} />
           ),
-          unmountOnBlur: true
+          unmountOnBlur: true,
         }}
       />
 
@@ -88,7 +93,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="user" size={size} color={color} />
           ),
-          unmountOnBlur: true
+          unmountOnBlur: true,
         }}
       />
     </Tabs>

@@ -32,7 +32,8 @@ export default function AnalyticsScreen() {
 
   const { expenses, categories, loading, error, reload } = useAnalytics(period, refDate);
 
-  // Reload whenever access this screen
+  // Re-fetch data and reset the period to 'weekly' each time the tab is focused,
+  // ensuring charts always reflect live data rather than a stale cached state.
   useFocusEffect(
     React.useCallback(() => {
       refetchCurrency();
@@ -41,7 +42,7 @@ export default function AnalyticsScreen() {
     }, [refetchCurrency])
   );
 
-  // BarChart data 
+  // Derive BarChart labels (day abbreviation or day-of-month) and totals from the API response.
   const labels = expenses.map((e) =>
     format(new Date(e.date), period === "weekly" ? "E" : "d")
   );
@@ -52,6 +53,7 @@ export default function AnalyticsScreen() {
       period === "weekly" ? addDays(d, dir * 7) : firstOfMonthShift(d, dir)
     );
 
+  // Build a human-readable date range label (e.g. "01 Jan – 07 Jan").
   const rangeText = (() => {
     if (!expenses.length) return "";
     const first = format(new Date(expenses[0].date), "dd MMM");
@@ -59,16 +61,18 @@ export default function AnalyticsScreen() {
     return `${first} – ${last}`;
   })();
 
-  // PieChart data, displaying at most 5 categories
-  // If there are more than 5, aggregate the rest into "Others"
+  /**
+   * Build PieChart data, showing at most 5 slices.
+   * Categories are sorted by descending amount so the biggest spenders appear first.
+   * If there are more than 5 categories, all remaining ones are aggregated into
+   * a neutral grey "Others" slice to keep the chart readable.
+   */
   const pieData = useMemo(() => {
     if (!categories.length) return [];
 
-    // Sort categories by descending amount so the biggest spenders are first
     const sorted = [...categories].sort((a, b) => b.amount - a.amount);
     const MAX_SLICES = 5;
 
-    // If we already have 5 or fewer categories, show them all
     if (sorted.length <= MAX_SLICES) {
       return sorted.map((c, idx) => ({
         name: c.category,
@@ -79,13 +83,11 @@ export default function AnalyticsScreen() {
       }));
     }
 
-    // Otherwise, keep the top 4 and aggregate the rest into "Others"
     const major = sorted.slice(0, MAX_SLICES - 1);
     const othersAmount = sorted
       .slice(MAX_SLICES - 1)
       .reduce((sum, c) => sum + c.amount, 0);
 
-    // Legend
     const chartReady = major.map((c, idx) => ({
       name: c.category,
       population: c.amount,
@@ -97,7 +99,7 @@ export default function AnalyticsScreen() {
     chartReady.push({
       name: "Others",
       population: othersAmount,
-      color: "#a0a0a0", // neutral grey for aggregated slice
+      color: "#a0a0a0", // neutral grey for the aggregated "Others" slice
       legendFontColor: "#333",
       legendFontSize: 12,
     });
@@ -175,7 +177,10 @@ export default function AnalyticsScreen() {
   );
 }
 
-// BarChart config
+/**
+ * react-native-chart-kit configuration for the spending BarChart.
+ * formatYLabel compacts large values (e.g. 1200 → "1.2 k") via numeral.js.
+ */
 const chartCfg = {
   backgroundGradientFrom: "#fff",
   backgroundGradientTo:   "#fff",

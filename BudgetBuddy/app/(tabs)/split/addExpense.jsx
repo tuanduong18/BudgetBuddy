@@ -38,17 +38,15 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
       submit,
     } = useGroupExpenseForm(group_id, members, addExpense)    
 
-    // Reload whenever access this screen
+    // Pre-fill the currency with the user's saved preference.
     const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
-    
-    // local state for the field 
     const [openCurrency, setOpenCurrency] = useState(false);
-      
-    useEffect(()=>{
-      if(!preferenceCurrencyLoading) {
-        setCurrency(preferenceCurrency)
+
+    useEffect(() => {
+      if (!preferenceCurrencyLoading) {
+        setCurrency(preferenceCurrency);
       }
-    },[preferenceCurrencyLoading, preferenceCurrency])
+    }, [preferenceCurrencyLoading, preferenceCurrency]);
 
     useFocusEffect(
       React.useCallback(() => {
@@ -56,10 +54,10 @@ export default function AddGroupExpense({ visible, onClose, data, group_id }) {
       }, [refetchCurrency])
     );
 
-
+    /** Submit the group expense, then close the modal. */
     const onSubmit = async () => {
-      await submit();         // wait for submit to complete
-      onClose();              // close modal after success
+      await submit();
+      onClose();
     };
 
     const [loaded, error] = useFonts({        

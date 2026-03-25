@@ -29,9 +29,8 @@ export default function AddReminder({ visible, onClose }) {
     }
 
     const onAddPress = async () => {
-      console.log(1)
-      await addSubs();        // wait for submit to complete
-      onClose();              // close modal after success
+      await addSubs();
+      onClose();
     };
 
     const onEDateChange = (event, selectedDate) => {

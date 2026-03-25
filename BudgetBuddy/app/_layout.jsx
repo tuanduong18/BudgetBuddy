@@ -1,3 +1,8 @@
+/**
+ * Root layout — mounts the global font families and wraps the entire
+ * navigation tree in a SafeAreaProvider so all child screens can use
+ * useSafeAreaInsets() without requiring their own provider.
+ */
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { Poppins_700Bold } from "@expo-google-fonts/poppins";
@@ -10,7 +15,8 @@ export default function RootLayout() {
     Inter_400Regular,
   });
 
-  if (!fontsLoaded) return null; // Prevent font flickering
+  // Delay rendering until both custom fonts are loaded to avoid FOUT.
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>

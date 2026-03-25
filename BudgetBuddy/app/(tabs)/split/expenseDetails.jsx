@@ -12,25 +12,28 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import numeral from 'numeral';
 
 export default function GroupDetails() {
-  // hooks
   const { expense, group_id } = useLocalSearchParams();
-  const curr = JSON.parse(expense)
+  const curr = JSON.parse(expense);
   const router = useRouter();
-  // Font loading
   const [loaded, error] = useFonts({ Inter_500Medium });
-  // Early returns (now safe, because hooks are already called) 
-  if (!loaded && !error) {
-    return null; // font not ready
-  }
+
+  if (!loaded && !error) return null;
+
   const date = new Date(curr.time);
   const day = date.toLocaleString('en-US', { day: '2-digit' });
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
-  //@params 
-  //  name: string,
-  //  amount: float,
-  //  currency: string,
-  //  settled: boolean
+
+  /**
+   * Render a single borrower row showing their name, owed amount, and
+   * settlement status (green ✔ with strikethrough if settled, red ✖ if not).
+   *
+   * @param {object} item - Borrower object:
+   *   name     {string}  Username.
+   *   amount   {number}  Amount owed.
+   *   currency {string}  ISO 4217 currency code.
+   *   settled  {boolean} Whether this owe row has been paid.
+   */
   const renderItem = ({item, index}) => {
     const colors = ['#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0', '#F3E5F5'];
     const bgColor = colors[index % colors.length];

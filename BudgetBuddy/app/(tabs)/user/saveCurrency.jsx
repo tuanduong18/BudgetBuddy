@@ -16,7 +16,10 @@ import * as Notifications from 'expo-notifications';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
-// ── Notification Handler (Foreground) ─────────────────────────────────────────────────────────────────
+/**
+ * Configure foreground notification display.
+ * Without this handler, foreground notifications are silently suppressed on iOS.
+ */
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner:   true,
@@ -29,34 +32,21 @@ Notifications.setNotificationHandler({
 export default function ProfileScreen() {
   const router = useRouter();
 
-  // load all supported currencies
-  const {data: currencyTypes, loading: currencyLoading} = useCurrencyTypes();
-
-  // load user's preference 
+  const { data: currencyTypes, loading: currencyLoading } = useCurrencyTypes();
   const { data: preferenceCurrency, loading: preferenceCurrencyLoading } = useCurrencyPreference();
 
-  /* ────────── local state for the field ────────── */
   const [openCurrency, setOpenCurrency] = useState(false);
-
-  // hook
   const update = useUpdateProfileCurrency();
-
-  // fetch data based on user's currency preference
   const [currency, setCurrency] = useState(null);
+  const [fontsLoaded, fontError] = useFonts({ Inter_500Medium });
 
-  // Load custom font
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_500Medium,
-  });
-
-  // set initial value to user's preference
-  useEffect(()=>{
-    if(!preferenceCurrencyLoading) {
-      setCurrency(preferenceCurrency)
+  // Pre-fill the picker with the user's saved currency preference once loaded.
+  useEffect(() => {
+    if (!preferenceCurrencyLoading) {
+      setCurrency(preferenceCurrency);
     }
-  },[preferenceCurrencyLoading])
+  }, [preferenceCurrencyLoading]);
 
-  // Fetch username
   const { data: username, loading: usernameLoading } = useUsername();
 
   if (!fontsLoaded && !fontError) {

@@ -17,15 +17,16 @@ export default function AllLimits() {
 
     const [addVisible, setAddVisible] = useState(false);
     
-    /* Fetch data based on user's currency preference
-    @params
-        id: int
-        amount: float rounded to 2 decimal point 
-        currency: string of length 3
-        percentage: float rounded to 2 decimal point
-        total: float rounded to 2 decimal point
-        types: list of string (each string is an expense type)*/  
-    const {data: Limits, loading: limitLoading, refetch: refetchLimit} = useMonthlyLimits({currency: cur});
+    /**
+     * Monthly limits returned by /limits/data/all (one per limit record):
+     *   id         {number}   Primary key.
+     *   amount     {number}   Budget cap (2 d.p.).
+     *   currency   {string}   ISO 4217 display currency.
+     *   percentage {number}   Current month's spend as % of cap.
+     *   total      {number}   Current month's absolute spend.
+     *   types      {string[]} Expense categories tracked by this limit.
+     */
+    const { data: Limits, loading: limitLoading, refetch: refetchLimit } = useMonthlyLimits({ currency: cur });
 
     // load user's preference 
     const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
@@ -38,21 +39,20 @@ export default function AllLimits() {
       "#F1E4FF"  // lavender
     ];
 
-    // Reload whenever access this screen
-      useFocusEffect(
-        React.useCallback(() => {
-          refetchCurrency();
-          refetchLimit({currency: cur});
-        }, [refetchCurrency])
-      );
-    
+    // Re-fetch on every focus so cards reflect the current month's spend.
+    useFocusEffect(
+      React.useCallback(() => {
+        refetchCurrency();
+        refetchLimit({ currency: cur });
+      }, [refetchCurrency])
+    );
 
-    // set initial value to user's preference
-    useEffect(()=>{
-        if(!preferenceCurrencyLoading) {
-            setCurrency(preferenceCurrency)
+    // Pre-fill the display currency with the user's saved preference once loaded.
+    useEffect(() => {
+        if (!preferenceCurrencyLoading) {
+            setCurrency(preferenceCurrency);
         }
-    }, [preferenceCurrencyLoading, preferenceCurrency])
+    }, [preferenceCurrencyLoading, preferenceCurrency]);
 
     const router = useRouter();
     const [loaded, error] = useFonts({        

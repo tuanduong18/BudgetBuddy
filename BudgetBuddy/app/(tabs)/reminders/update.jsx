@@ -71,13 +71,19 @@ export default function AddExpense() {
       router.replace('/(tabs)/reminders/allReminders');
     };
 
+    /**
+     * Roll the subscription forward by the same duration.
+     * Moves start to the current end, and sets the new end to
+     * start + original (end − start) gap, effectively "renewing" for
+     * another subscription cycle.
+     */
     const autoRenew = () => {
       const e = new Date(end_time);
-      const s = new Date(start_time); 
+      const s = new Date(start_time);
       const gap = e.getTime() - s.getTime();
       setStartTime(new Date(e));
       setEndTime(new Date(e.getTime() + gap));
-    }
+    };
 
     // Screen
     return (

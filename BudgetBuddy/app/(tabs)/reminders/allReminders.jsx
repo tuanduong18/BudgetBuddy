@@ -8,31 +8,19 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import AddReminder from './add';
 
 export default function AllReminders() {
-    // Use to debug in console
-    // useEffect(() => {
-    //   (async () => {
-    //       const all = await Notifications.getAllScheduledNotificationsAsync();
-    //       console.log('All scheduled notifications:', all);
-    //       //await Notifications.cancelAllScheduledNotificationsAsync();
-    //   })();
-    // }, []);
-
     const [addVisible, setAddVisible] = useState(false);
-
     const router = useRouter();
     const deleteSubs = useDeleteSubscription();
 
-    /*Fetch all user's subscriptions & reminders
-      Get a list of elements
-      Each element is a dict
-      @params
-        id: int
-        name: string
-        noti_id: string
-        start_time: string in isoformat
-        end_time: string in isoformat
-    */
-    const {data: Subscriptions, loading} = useSubscriptions();
+    /**
+     * Each subscription object returned by the API:
+     *   id         {number} Primary key.
+     *   name       {string} Subscription display name.
+     *   noti_id    {string} Device-side notification identifier for cancellation.
+     *   start_time {string} ISO 8601 start date.
+     *   end_time   {string} ISO 8601 renewal/expiry date.
+     */
+    const { data: Subscriptions, loading } = useSubscriptions();
 
     if (loading) {
         return (
@@ -42,7 +30,7 @@ export default function AllReminders() {
         );
       }
 
-    // Render a single row
+    /** Render a single subscription row, colour-coded by expiry status. */
     const renderItem = ({ item, index }) => {
         const now = new Date();
         const date = new Date(item.end_time);

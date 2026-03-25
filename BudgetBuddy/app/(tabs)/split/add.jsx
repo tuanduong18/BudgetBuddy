@@ -19,14 +19,16 @@ export default function AddGroup({ visible, onClose }) {
         return null
     }
 
+    /** Create a new group then close the modal. */
     const onAddPress1 = async () => {
-      await create({name: name});        // wait for submit to complete
-      onClose();              // close modal after success
+      await create({ name });
+      onClose();
     };
 
+    /** Join an existing group by code then close the modal. */
     const onAddPress2 = async () => {
-      await join({id: code});        // wait for submit to complete
-      onClose();              // close modal after success
+      await join({ id: code });
+      onClose();
     };
 
     // Screen

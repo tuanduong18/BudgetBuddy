@@ -24,10 +24,8 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function AddExpenseModal({ visible, onClose }) {
   const router = useRouter();
 
-  // load fonts
+  // All hooks must be called unconditionally before any early returns.
   const [loaded, error] = useFonts({ Inter_500Medium });
-
-  // other hooks (always called in same order)
   const add = useAddExpense();
   const {
     category,
@@ -51,18 +49,17 @@ export default function AddExpenseModal({ visible, onClose }) {
     submit: addExpense,
   } = useExpenseForm(add);
 
-  // Reload whenever access this screen
   const { data: preferenceCurrency, loading: preferenceCurrencyLoading, refetch: refetchCurrency } = useCurrencyPreference();
-
-  // local state for the field 
   const [openCurrency, setOpenCurrency] = useState(false);
 
-  useEffect(()=>{
-    if(!preferenceCurrencyLoading) {
-      setCurrency(preferenceCurrency)
+  // Pre-fill the currency field with the user's saved preference once loaded.
+  useEffect(() => {
+    if (!preferenceCurrencyLoading) {
+      setCurrency(preferenceCurrency);
     }
-  },[preferenceCurrencyLoading, preferenceCurrency])
+  }, [preferenceCurrencyLoading, preferenceCurrency]);
 
+  // Re-fetch the currency preference each time the screen receives focus.
   useFocusEffect(
     React.useCallback(() => {
       refetchCurrency();
@@ -72,12 +69,10 @@ export default function AddExpenseModal({ visible, onClose }) {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // early return if font not loaded
-  if (!loaded && !error) {
-    return null;
-  }
+  // Prevent the modal from rendering before the font is available.
+  if (!loaded && !error) return null;
 
-  // early return if form data still loading
+  // Show a spinner while expense types or currency types are loading.
   if (load1 || load2) {
     return (
       <View style={styles.spinnerContainer}>
@@ -86,7 +81,7 @@ export default function AddExpenseModal({ visible, onClose }) {
     );
   }
 
-  // handle date selection on native
+  /** Sync the date picker selection back to the day/month/year form fields. */
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -100,14 +95,16 @@ export default function AddExpenseModal({ visible, onClose }) {
     }
   };
 
-  // pastel colors for category pills
   const pastelColors = ['#D0E8F2', '#FADADD', '#C1F0DC', '#FFFACD', '#EADCF2', '#FFEDCC'];
 
-  // for Add button to close the modal
+  /**
+   * Submit the expense, then close the modal and navigate to the full history
+   * so the user can immediately see their newly added entry.
+   */
   const onAddPress = async () => {
-    await addExpense();     // wait for submit to complete
-    onClose();              // close modal after success
-    router.replace('/(tabs)/personal_expenses/history')
+    await addExpense();
+    onClose();
+    router.replace('/(tabs)/personal_expenses/history');
   };
 
   return (
@@ -146,7 +143,6 @@ export default function AddExpenseModal({ visible, onClose }) {
                 setOpen={setOpenCurrency}
                 setValue={setCurrency}    
 
-                // fixed light palette
                 style={styles.dropdown}
                 dropDownContainerStyle={styles.dropdownContainer}
                 textStyle={styles.dropdownText}
@@ -154,7 +150,8 @@ export default function AddExpenseModal({ visible, onClose }) {
 
                 placeholder="Select"
                 searchable
-                zIndex={10}        
+                // zIndex ensures the open dropdown renders above other form fields.
+                zIndex={10}
               />
 
               {/* Amount */}

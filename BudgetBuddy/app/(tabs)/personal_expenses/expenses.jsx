@@ -19,18 +19,17 @@ export default function ExpensesScreen() {
   const router = useRouter();
   const [addVisible, setAddVisible] = useState(false);
 
-  /* Fetch user latest expenses
-  @params
-    total: float 2 decimal point,
-    currency: string 3 characters,
-    newestExpenses: list of 5 newest expenses,
-  */
+  /**
+   * Dashboard data returned by /expenses/data/dashboard:
+   *   total         {number} Today's total spending, rounded to 2 d.p.
+   *   currency      {string} ISO 4217 display currency.
+   *   newestExpenses {Array}  The 5 most recent expense objects.
+   */
   const { data: expenses, loading, refetch: refetchExpense } = useNewestExpenses();
-  
-  // Fetch username
+
   const { data: username, usernameLoading: loadUsername, refetch: refetchUsername } = useUsername();
 
-  // Reload whenever access this screen once
+  // Re-fetch on every screen focus so the dashboard reflects the latest data.
   useFocusEffect(
     React.useCallback(() => {
       refetchExpense();
@@ -48,9 +47,9 @@ export default function ExpensesScreen() {
 
   
 
-  // Render a single transaction row
+  /** Render a single expense row with a cycling pastel background. */
   const renderItem = ({ item, index }) => {
-    // Format the date to DD/MM/YYYY
+    // Format the ISO date string to DD/MM/YYYY for display.
     const itemDate = new Date(item.time);
     const day = itemDate.getDate().toString().padStart(2, '0');
     const month = (itemDate.getMonth() + 1).toString().padStart(2, '0');
@@ -97,7 +96,6 @@ export default function ExpensesScreen() {
           <Text style={styles.greeting}>Hi, {username} 👋</Text>
         </View>
 
-        {/* Clicking the profile pic navigates to /profile */}
         <TouchableOpacity onPress={() => router.push('/(tabs)/user/profile')}>
           <Image
             source={require('@/assets/images/profile_pic.png')} 
