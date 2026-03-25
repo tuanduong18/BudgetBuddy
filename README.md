@@ -16,20 +16,42 @@ This project can be tested through the internet.
 
 ## How to run it locally
 
-1. Create an .env file as the example file
+### Option 1: Using Docker (Recommended)
+This is the easiest way to run the entire stack (Database, Backend, and Frontend) in one command.
 
-2. Configure backend on your local machine, in the 1st terminal
+1. **Install Docker and Docker Compose**.
+2. **Configure Frontend**: Create `BudgetBuddy/.env` (if it doesn't exist) and set your local IP:
+   ```bash
+   EXPO_PUBLIC_API_BASE=http://YOUR_LOCAL_IP:5000
+   ```
+3. **Run the project**:
+   ```bash
+   docker-compose up -d
+   ```
+4. **Scan for Expo Go**: View the frontend logs to see the QR code:
+   ```bash
+   docker-compose logs -f frontend
+   ```
+
+### Option 2: Manual Setup
+
+1. **Backend**:
    ```bash
    cd backend
    pip install -r requirements.txt
    python init_db.py
    python run.py
    ```
-3. Change the BASE_API in BudgetBuddy/constants/api.js to your Flask 2nd ip
+   *Note: Ensure you have a PostgreSQL database running and configured in your backend `.env`.*
 
-4. Configure frontend on your local machine, in the 2nd terminal
+2. **Frontend**:
    ```bash
    cd BudgetBuddy
    npm install
+   # Create .env and set EXPO_PUBLIC_API_BASE
    npx expo start
    ```
+
+## Environment Variables
+- **Backend**: Configured via `.env` in the `backend/` folder (standard Flask setup).
+- **Frontend**: Configured via `.env` in the `BudgetBuddy/` folder. Use `EXPO_PUBLIC_API_BASE` to point to your backend.

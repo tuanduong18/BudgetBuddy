@@ -31,6 +31,7 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -43,3 +44,7 @@ app-example
 
 expo-env.d.ts
 # @end expo-cli
+
+# Docker
+Dockerfile
+.dockerignore

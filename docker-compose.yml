@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: budgetbuddy_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: budgetbuddy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: 
+      context: ./backend
+    container_name: budgetbuddy_backend
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/budgetbuddy
+      - JWT_SECRET_KEY=your_jwt_secret_key
+      - SECRET_KEY=your_secret_key
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    build: 
+      context: ./BudgetBuddy
+    container_name: budgetbuddy_frontend
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      # Replace 'localhost' with your computer's IP for mobile testing (e.g., 0.1.2.3)
+      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:

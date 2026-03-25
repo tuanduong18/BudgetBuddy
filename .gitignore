@@ -41,6 +41,12 @@ app-example
 
 *.dump
 
-backend/.venv/
-.venv/
+backend/.env
+/venv
+__pycache__/
+
+# Docker
+docker-compose.override.yml
+.docker/
+/
 venv/

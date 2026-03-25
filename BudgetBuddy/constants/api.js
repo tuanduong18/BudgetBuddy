@@ -1,8 +1,7 @@
 /**
  * Centralised API base URL.
- *
- * All fetch calls in hooks/auth.js and hooks/data.js resolve their endpoints
- * relative to this constant so that switching environments (dev ↔ prod)
- * requires a change in exactly one place.
+ * 
+ * Loaded from .env (not committed to Git). 
+ * If no env variable is found, defaults to localhost for web testing.
  */
-export const API_BASE = 'https://budgetbuddy-e54b.onrender.com';
+export const API_BASE = process.env.EXPO_PUBLIC_API_BASE || 'http://localhost:5000';
