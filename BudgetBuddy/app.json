@@ -2,7 +2,7 @@
   "expo": {
     "name": "BudgetBuddy",
     "slug": "BudgetBuddy",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "app",
@@ -51,9 +51,7 @@
         "projectId": "d61f0738-97c8-4d32-99cc-e11bf900a168"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.1.0",
     "updates": {
       "url": "https://u.expo.dev/d61f0738-97c8-4d32-99cc-e11bf900a168"
     }
