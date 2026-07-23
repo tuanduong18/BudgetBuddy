@@ -19,7 +19,7 @@ import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 import { useAddExpense } from '@/hooks/crud';
 import { useExpenseForm } from '@/hooks/expenseForm';
 import { useCurrencyPreference } from '@/hooks/data';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 
 export default function AddExpenseModal({ visible, onClose }) {
   const router = useRouter();

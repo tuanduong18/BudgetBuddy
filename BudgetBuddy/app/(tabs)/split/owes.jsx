@@ -10,7 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGroupOwes } from '@/hooks/data';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import { useSettleGroupExpense } from '@/hooks/crud';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import numeral from 'numeral';

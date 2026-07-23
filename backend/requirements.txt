@@ -1,56 +1,40 @@
+# Direct dependencies only.
+#
+# This file previously contained `pip freeze` output, which pinned transitive
+# packages (cffi, pycparser, h11, wsproto, msgspec, greenlet, urllib3, ...) to
+# versions that have no wheels for current Python releases. That made a clean
+# install fail with a compiler error on any machine without MSVC / build
+# headers, even though nothing in this project imports those packages directly.
+#
+# Pin what we actually import; let pip resolve the rest. The Docker image
+# pins the Python version (3.11), which is what keeps production builds
+# reproducible.
+
 # Core framework
 Flask==3.1.1
 flask-cors==5.0.1
 Flask-JWT-Extended==4.7.1
 Flask-SocketIO==5.5.1
 Flask-SQLAlchemy==3.1.1
+Werkzeug==3.1.3
 
 # Database
 SQLAlchemy==2.0.40
-psycopg2-binary==2.9.10
+# 2.9.12 is the first release with cp314 wheels; earlier pins force a
+# source build that needs libpq headers and a C compiler.
+psycopg2-binary==2.9.12
 
 # Async / WebSocket support
-eventlet==0.40.1
-python-engineio==4.12.2
-python-socketio==5.13.0
-simple-websocket==1.1.0
-bidict==0.23.1
-greenlet==3.2.2
+# Provides the greenlet-based worker class gunicorn runs with, and is
+# required for Flask-SocketIO's WebSocket transport. 0.41.1 is the first
+# release declaring Python 3.14 support.
+eventlet==0.41.1
 
-# Auth & security
-PyJWT==2.10.1
-cryptography==45.0.4
-cffi==1.17.1
-pycparser==2.22
-itsdangerous==2.2.0
-
-# HTTP / networking
+# HTTP client (used for the exchange-rate lookup in app/extension.py)
 requests==2.32.3
-certifi==2025.4.26
-charset-normalizer==3.4.2
-idna==3.10
-urllib3==2.4.0
 
 # Environment & config
 python-dotenv==1.1.0
 
 # WSGI server (production)
 gunicorn==23.0.0
-
-# Flask internals / utilities
-Werkzeug==3.1.3
-blinker==1.9.0
-click==8.2.0
-colorama==0.4.6
-Jinja2==3.1.6
-MarkupSafe==3.0.2
-packaging==25.0
-typing_extensions==4.13.2
-
-# WebSocket protocol
-wsproto==1.2.0
-h11==0.16.0
-msgspec==0.19.0
-
-# DNS (eventlet dependency)
-dnspython==2.7.0

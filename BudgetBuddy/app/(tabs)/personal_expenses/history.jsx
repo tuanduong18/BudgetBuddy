@@ -6,10 +6,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import DropDownPicker from "react-native-dropdown-picker";
 import { useExpenses, useCurrencyTypes, useCurrencyPreference } from '@/hooks/data';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import numeral from 'numeral'; 
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
-import * as FileSystem from 'expo-file-system';
+// Imported from the '/legacy' entry point on purpose. The main
+// 'expo-file-system' entry now exposes the File/Directory API, and its
+// re-exports of writeAsStringAsync / cacheDirectory / EncodingType are stubs
+// that throw at runtime, which silently broke the CSV export below.
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import AddExpenseModal from './add';
 

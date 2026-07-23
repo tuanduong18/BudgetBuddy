@@ -13,7 +13,7 @@ import { BarChart, PieChart } from "react-native-chart-kit";
 import { useAnalytics } from "../../../hooks/useAnalytics";
 import { addDays, format } from "date-fns";
 import { useCurrencyPreference } from "@/hooks/data";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import numeral from 'numeral';
 
 const screenW  = Dimensions.get("window").width;
