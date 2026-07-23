@@ -17,13 +17,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE": "https://budgetbuddy-api.onrender.com"
+        "EXPO_PUBLIC_API_BASE": "https://budgetbuddy-api-bc4e.onrender.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_BASE": "https://budgetbuddy-api.onrender.com"
+        "EXPO_PUBLIC_API_BASE": "https://budgetbuddy-api-bc4e.onrender.com"
       }
     }
   },

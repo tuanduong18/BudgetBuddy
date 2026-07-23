@@ -76,3 +76,19 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 2
+    ignore:
+      # Only allow patch bumps (3.11.x -> 3.11.y) for security fixes.
+      #
+      # The Python minor version is pinned to 3.11 deliberately: eventlet does
+      # its own monkey-patching of the stdlib and is only in bugfix maintenance
+      # upstream, so it is the component most likely to break on a newer
+      # interpreter. Dependabot cannot tell that 3.11 -> 3.14 is a runtime
+      # decision rather than a routine bump, and such a PR passes review
+      # looking harmless while risking a boot failure in production.
+      #
+      # Changing the Python version should be a deliberate change with a real
+      # deploy test, not an auto-merged bot PR.
+      - dependency-name: "python"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"

@@ -49,15 +49,21 @@ The stack is split deliberately:
 4. Deploy. The container runs `init_db.py` on boot, so tables and triggers are
    created automatically — there is no manual database setup step.
 
+The live deployment is at **https://budgetbuddy-api-bc4e.onrender.com**.
+
 Verify:
 
 ```bash
-curl https://<your-service>.onrender.com/health      # {"status":"ok"}
-curl https://<your-service>.onrender.com/health/db   # {"status":"ok","database":"connected"}
+curl https://budgetbuddy-api-bc4e.onrender.com/health      # {"status":"ok"}
+curl https://budgetbuddy-api-bc4e.onrender.com/health/db   # {"status":"ok","database":"connected"}
 ```
 
 If `/health` works but `/health/db` returns 503, `DATABASE_URL` is wrong — the
 response body contains the connection error.
+
+Render appends a random suffix when the service name is taken, so your
+hostname will not match the `name:` in render.yaml. Whatever it is, it must
+also be set as `EXPO_PUBLIC_API_BASE` before building the app.
 
 ### 3. Keep it awake
 
