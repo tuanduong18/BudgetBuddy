@@ -1,7 +1,7 @@
 # Use an official Python runtime as a parent image.
 # Pinned to 3.11: eventlet's monkey-patching is most reliable here, and the
 # psycopg2-binary wheels are well established for this version.
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
