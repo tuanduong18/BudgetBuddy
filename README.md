@@ -3,11 +3,39 @@
 A personal and group expense tracker: a React Native (Expo) app talking to a
 Flask API, with real-time group updates over Socket.IO.
 
+Track personal spending, set monthly limits, get reminders for recurring
+subscriptions, and split shared expenses with a group — with balances that
+update live on every member's phone.
+
+![Expo SDK](https://img.shields.io/badge/Expo_SDK-57-000020?logo=expo&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black)
+![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)
+![Postgres](https://img.shields.io/badge/PostgreSQL-Supabase-3ECF8E?logo=supabase&logoColor=white)
+
 <a href ="https://docs.google.com/document/d/1CAI5PpDt-ZQlI6et1LIvM2t7ppMq_3EUZiu3UqgLrbA/edit?usp=sharing"> Click here for more information </a>
 
 <div align="center">
    <img width="462" height="458" alt="image" src="https://github.com/user-attachments/assets/65177947-3a7e-4929-82e5-d3712407b24f" />
 </div>
+
+---
+
+## 📥 Download
+
+**[Download the latest APK from Releases →](https://github.com/tuanduong18/BudgetBuddy/releases/latest)**
+
+Android only. Enable "Install from unknown sources" when prompted — the app is
+distributed directly rather than through the Play Store.
+
+No setup required: the app talks to the hosted API, so you only need to sign up
+inside it. The backend sleeps when idle, so **the first request after a quiet
+period can take around 50 seconds** — it is waking up, not broken.
+
+| | |
+| --- | --- |
+| Current version | **1.1.0** (Expo SDK 57) |
+| API | https://budgetbuddy-api-bc4e.onrender.com |
+| API status | [/health](https://budgetbuddy-api-bc4e.onrender.com/health) · [/health/db](https://budgetbuddy-api-bc4e.onrender.com/health/db) |
 
 ---
 
@@ -102,9 +130,46 @@ npx eas-cli@latest build --platform android --profile preview
 ```
 
 The `preview` profile emits an **APK** (not an AAB), so the download link EAS
-gives you installs straight onto a phone. Set your real backend URL in
-`EXPO_PUBLIC_API_BASE` in [BudgetBuddy/eas.json](BudgetBuddy/eas.json) first —
-Expo inlines it at build time, so it cannot be changed afterwards.
+gives you installs straight onto a phone. `EXPO_PUBLIC_API_BASE` is already set
+in [BudgetBuddy/eas.json](BudgetBuddy/eas.json) for every profile; Expo inlines
+it at build time, so it cannot be changed after the build.
+
+### 5. Cutting a release
+
+1. **Decide whether a rebuild is even needed.** JS-only changes (screens,
+   styling, the API URL, business logic) ship over the air in seconds:
+
+   ```bash
+   npx eas-cli@latest update --branch preview --message "what changed"
+   ```
+
+   A native rebuild is only required when adding or removing a native package,
+   upgrading the Expo SDK, or changing `runtimeVersion`.
+
+2. **Bump the version** in [BudgetBuddy/app.json](BudgetBuddy/app.json). Note
+   that `runtimeVersion` is a literal string, not the `appVersion` policy, so
+   it must be bumped **by hand** whenever the native layer changes. Forgetting
+   means EAS serves the new JS bundle to an older incompatible binary, which
+   crashes in a way that looks like a JavaScript bug.
+
+3. **Build the APK:**
+
+   ```bash
+   cd BudgetBuddy
+   npx eas-cli@latest build --platform android --profile preview
+   ```
+
+4. **Publish it.** Download the APK from the EAS build page, then create a
+   GitHub release, tagging it to match the app version:
+
+   ```bash
+   gh release create v1.1.0 ./BudgetBuddy-1.1.0.apk \
+     --title "BudgetBuddy 1.1.0" --notes "..."
+   ```
+
+   Or upload it through **Releases → Draft a new release** on GitHub. The
+   Download link at the top of this file points at `/releases/latest`, so it
+   picks up the newest release automatically.
 
 ---
 
