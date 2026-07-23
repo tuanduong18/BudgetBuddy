@@ -6,7 +6,7 @@ import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useAddLimit } from "@/hooks/crud";
 import { useMonthlyLimitForm } from "@/hooks/monthlyLimitForm";
 import { useCurrencyPreference } from '@/hooks/data';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 
 export default function AddLimit({ visible, onClose }) {  

@@ -1,0 +1,34 @@
+# Render Blueprint for the BudgetBuddy API.
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo.
+# Render reads this file and creates the service; you only supply DATABASE_URL.
+#
+# The database is deliberately NOT defined here. Render's free Postgres is
+# deleted after 30 days, which is what took the previous deployment down.
+# Point DATABASE_URL at a Supabase project instead (see README).
+services:
+  - type: web
+    name: budgetbuddy-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # Every feature route is POST-only, so the probe needs this dedicated
+    # GET endpoint (defined in backend/app/__init__.py).
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Generated once by Render and then held stable. Rotating either of
+      # these invalidates every issued token and signs all users out.
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      # Set this by hand in the Render dashboard. Must be the Supabase
+      # SESSION-mode pooler on port 5432:
+      #   postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres
+      # Port 6543 (transaction mode) silently breaks LISTEN/NOTIFY, which
+      # disables all real-time group updates.
+      - key: DATABASE_URL
+        sync: false

@@ -29,8 +29,40 @@ EXPENSE_TYPES = [
 
 # --- Currency data (fetched once at import time) ---
 
+# Minimal offline fallback. Used only if the rates API is unreachable at boot
+# so that an outage of a third-party service cannot stop the app from starting.
+_FALLBACK_RATES = {
+    "USD": 1.0, "EUR": 0.92, "GBP": 0.79, "JPY": 157.0, "AUD": 1.52,
+    "CAD": 1.37, "CHF": 0.89, "CNY": 7.24, "SGD": 1.34, "VND": 25400.0,
+}
+
+
+def _load_finance_data() -> dict:
+    """Fetch live USD-based exchange rates, falling back to a static table.
+
+    The request is bounded by a timeout and every failure mode is caught: a
+    boot-time network call must never be able to crash the process, otherwise
+    the container fails its health check and the deploy is rolled back.
+    """
+    try:
+        response = requests.get(
+            "https://open.er-api.com/v6/latest",
+            params={"base": "USD"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        data = response.json()
+        if data.get("rates"):
+            return data
+        print("[extension] Rates API returned no 'rates' key; using fallback.")
+    except Exception as exc:  # noqa: BLE001 - startup must survive any failure
+        print(f"[extension] Could not fetch exchange rates ({exc}); using fallback.")
+
+    return {"result": "fallback", "base_code": "USD", "rates": dict(_FALLBACK_RATES)}
+
+
 # Fetch live exchange rates relative to USD as the base currency.
-FINANCE_DATA = requests.get("https://open.er-api.com/v6/latest", {"base": "USD"}).json()
+FINANCE_DATA = _load_finance_data()
 
 # Build an alphabetically sorted list of all supported currency codes.
 CURRENCIES = sorted(FINANCE_DATA['rates'].keys())

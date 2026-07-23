@@ -3,7 +3,7 @@ import { TouchableOpacity, StyleSheet, ActivityIndicator, Text, View, FlatList }
 import { useRouter } from 'expo-router';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useGroupNames } from "@/hooks/data";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroup from './add';
 
