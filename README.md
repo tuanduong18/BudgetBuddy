@@ -63,6 +63,8 @@ Run these from the `backend/` folder; they use the same `DATABASE_URL` as the ap
   alembic stamp c4b73eeee6d0
   ```
   then run `alembic upgrade head` to apply the migrations after the baseline.
+- **Row Level Security:** every table has RLS enabled with no policies, which blocks Supabase's Data API (anon key).
+  The backend is unaffected because it connects as the tables' owner, which bypasses RLS.
 
 2. **Frontend**:
    ```bash
