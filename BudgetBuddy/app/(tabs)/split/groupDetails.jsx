@@ -12,7 +12,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGroupDetails } from '@/hooks/data';
 import { useLeaveGroup } from '@/hooks/crud';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddGroupExpense from './addExpense';

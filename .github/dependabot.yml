@@ -1,0 +1,94 @@
+# Dependabot configuration.
+#
+# Deliberately tuned for LOW NOISE. This project has ~1000 transitive npm
+# packages; an unconfigured Dependabot opens dozens of PRs a week and gets
+# ignored, which is worse than not running it. Everything below exists to
+# keep the PR count small enough that you actually read them.
+version: 2
+
+updates:
+  # --- React Native / Expo frontend ---
+  - package-ecosystem: npm
+    directory: /BudgetBuddy
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    # Batch related bumps into single PRs instead of one PR per package.
+    groups:
+      dev-tooling:
+        patterns:
+          - "eslint*"
+          - "@babel/*"
+          - "@types/*"
+          - "typescript"
+        update-types: ["minor", "patch"]
+      safe-minor-and-patch:
+        patterns: ["*"]
+        exclude-patterns:
+          - "expo"
+          - "expo-*"
+          - "react"
+          - "react-dom"
+          - "react-native"
+          - "react-native-*"
+          - "@react-native*"
+          - "@expo*"
+        update-types: ["minor", "patch"]
+    ignore:
+      # The Expo SDK pins exact compatible versions of everything in this
+      # list. Bumping any one of them on its own produces a build that fails
+      # at native-link time or crashes at runtime. The supported upgrade path
+      # is `npx expo install --fix` after changing the SDK, so Dependabot must
+      # keep its hands off these entirely.
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "@expo*"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-*"
+      - dependency-name: "@react-native*"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      # Majors are breaking by definition; do those deliberately, not from a bot PR.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # --- Flask backend ---
+  # Higher value than the npm side: fewer packages, no SDK lockstep, and
+  # these are the ones exposed to the internet.
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      python-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # --- Dockerfile base image ---
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    ignore:
+      # Only allow patch bumps (3.11.x -> 3.11.y) for security fixes.
+      #
+      # The Python minor version is pinned to 3.11 deliberately: eventlet does
+      # its own monkey-patching of the stdlib and is only in bugfix maintenance
+      # upstream, so it is the component most likely to break on a newer
+      # interpreter. Dependabot cannot tell that 3.11 -> 3.14 is a runtime
+      # decision rather than a routine bump, and such a PR passes review
+      # looking harmless while risking a boot failure in production.
+      #
+      # Changing the Python version should be a deliberate change with a real
+      # deploy test, not an auto-merged bot PR.
+      - dependency-name: "python"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"

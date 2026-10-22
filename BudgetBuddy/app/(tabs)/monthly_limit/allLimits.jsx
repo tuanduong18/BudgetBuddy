@@ -3,7 +3,7 @@ import { ActivityIndicator, Text, FlatList, View, StyleSheet, Platform, Touchabl
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import { useMonthlyLimits, useCurrencyTypes, useCurrencyPreference } from "@/hooks/data";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddLimit from './add';
 import numeral from 'numeral';

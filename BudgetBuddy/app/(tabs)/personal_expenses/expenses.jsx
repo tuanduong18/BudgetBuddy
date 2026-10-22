@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'; 
 import { useRouter } from 'expo-router';
 import { useNewestExpenses, useUsername } from '@/hooks/data';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import AddExpenseModal from './add';
 import numeral from 'numeral'; 
 

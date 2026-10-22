@@ -1,5 +1,13 @@
-version: '3.8'
-
+# Local development stack: Postgres + the Flask API.
+#
+# The Expo frontend is intentionally NOT containerised. Metro has to be
+# reachable from a physical phone on your LAN, which means host networking and
+# a correct REACT_NATIVE_PACKAGER_HOSTNAME; running it in a container makes
+# that harder for no benefit. Run it on the host instead:
+#
+#   cd BudgetBuddy && npx expo start
+#
+# Usage:  docker compose up --build
 services:
   db:
     image: postgres:15-alpine
@@ -12,8 +20,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    # The backend runs migrations on start, so it must wait until Postgres
-    # actually accepts connections (not just until the container exists).
+    # The API runs init_db.py on startup, so Postgres must be accepting
+    # connections first - "depends_on" alone only waits for the container
+    # to be created, not for the server to be ready.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d budgetbuddy"]
       interval: 5s
@@ -21,34 +30,20 @@ services:
       retries: 10
 
   backend:
-    build: 
+    build:
       context: ./backend
     container_name: budgetbuddy_backend
     environment:
+      # Local Postgres is a direct connection, so LISTEN/NOTIFY works here.
       - DATABASE_URL=postgresql://user:password@db:5432/budgetbuddy
-      - JWT_SECRET_KEY=your_jwt_secret_key
-      - SECRET_KEY=your_secret_key
+      - JWT_SECRET_KEY=dev-only-jwt-secret-change-in-production
+      - SECRET_KEY=dev-only-secret-change-in-production
+      - PORT=5000
     ports:
       - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
-
-  frontend:
-    build: 
-      context: ./BudgetBuddy
-    container_name: budgetbuddy_frontend
-    environment:
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-      # Replace 'localhost' with your computer's IP for mobile testing (e.g., 0.1.2.3)
-      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
-    ports:
-      - "8081:8081"
-      - "19000:19000"
-      - "19001:19001"
-      - "19002:19002"
-    stdin_open: true
-    tty: true
 
 volumes:
   postgres_data:

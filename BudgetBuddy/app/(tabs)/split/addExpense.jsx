@@ -8,7 +8,7 @@ import { useAddGroupExpense } from "@/hooks/crud";
 import { GlobalStyles as GS } from '@/constants/GlobalStyles';
 import { useGroupExpenseForm } from '@/hooks/groupExpenseForm';
 import { useCurrencyPreference } from '@/hooks/data';
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import ModalSelector from 'react-native-modal-selector';
 
 export default function AddGroupExpense({ visible, onClose, data, group_id }) {  

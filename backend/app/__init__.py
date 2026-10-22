@@ -8,6 +8,7 @@ to Socket.IO clients in real time.
 """
 from flask import Flask
 from flask_cors import CORS
+from sqlalchemy import text
 from .extension import db, jwt, socketio
 from .config import Config
 from .models import User
@@ -54,6 +55,35 @@ def create_app() -> Flask:
     def user_lookup_callback(_jwt_header, jwt_data):
         user_id = int(jwt_data["sub"])
         return User.query.filter_by(id=user_id).one_or_none()
+
+    # Liveness probe for the hosting platform. Every feature route is POST-only,
+    # so without this the platform's GET health check sees a 404 and can mark
+    # an otherwise healthy deploy as failed.
+    #
+    # Deliberately does NOT touch the database: this is what the platform polls,
+    # and a transient database blip must not cause it to tear down a process
+    # that is otherwise serving fine.
+    @app.route('/health', methods=['GET'])
+    def health():
+        return {'status': 'ok'}, 200
+
+    # Readiness probe that issues a real query. Two jobs:
+    #   1. Tells you whether the DATABASE_URL actually works, without needing
+    #      to sign in through the app.
+    #   2. Generates database activity. Supabase pauses free projects after a
+    #      period of inactivity, and pinging /health alone would not prevent
+    #      that because it never opens a connection.
+    @app.route('/health/db', methods=['GET'])
+    def health_db():
+        try:
+            db.session.execute(text('SELECT 1'))
+            return {'status': 'ok', 'database': 'connected'}, 200
+        except Exception as exc:  # noqa: BLE001 - report any failure as degraded
+            return {'status': 'degraded', 'database': str(exc)[:200]}, 503
+
+    @app.route('/', methods=['GET'])
+    def index():
+        return {'service': 'BudgetBuddy API', 'status': 'ok'}, 200
 
     # Start the PostgreSQL NOTIFY listener in a daemon thread so it does not
     # block process shutdown.

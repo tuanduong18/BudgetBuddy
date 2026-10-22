@@ -2,12 +2,11 @@
   "expo": {
     "name": "BudgetBuddy",
     "slug": "BudgetBuddy",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "app",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -16,7 +15,6 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.trenghe18.BudgetBuddy"
     },
     "web": {
@@ -37,7 +35,11 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      "expo-sharing",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true
@@ -49,9 +51,7 @@
         "projectId": "d61f0738-97c8-4d32-99cc-e11bf900a168"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.1.0",
     "updates": {
       "url": "https://u.expo.dev/d61f0738-97c8-4d32-99cc-e11bf900a168"
     }
