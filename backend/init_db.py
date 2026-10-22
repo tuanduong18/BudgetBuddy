@@ -1,18 +1,19 @@
 """
 Database initialisation script.
 
-Run this script once before starting the server to create all SQLAlchemy
-model tables and install the required PostgreSQL NOTIFY triggers.
+Brings the database schema up to date by applying every pending Alembic
+migration (tables, enum types and the PostgreSQL NOTIFY triggers all live in
+migrations/versions/). Equivalent to running `alembic upgrade head` from this
+directory, and safe to run repeatedly.
 
 Usage:
     python init_db.py
 """
-from app import create_app, db
-from app.triggers import create_triggers
+from pathlib import Path
 
-app = create_app()
+from alembic import command
+from alembic.config import Config
 
-with app.app_context():
-    db.create_all()
-    create_triggers(db.engine)
-    print("Tables and triggers created successfully.")
+alembic_cfg = Config(str(Path(__file__).with_name("alembic.ini")))
+command.upgrade(alembic_cfg, "head")
+print("Database schema is up to date.")

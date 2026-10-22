@@ -26,5 +26,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Run the application
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "run:app"]
+# Apply pending database migrations, then run the application
+CMD ["sh", "-c", "alembic upgrade head && exec gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:5000 run:app"]

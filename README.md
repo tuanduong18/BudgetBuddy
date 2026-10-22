@@ -39,10 +39,30 @@ This is the easiest way to run the entire stack (Database, Backend, and Frontend
    ```bash
    cd backend
    pip install -r requirements.txt
-   python init_db.py
+   alembic upgrade head   # create / update the database schema
    python run.py
    ```
    *Note: Ensure you have a PostgreSQL database running and configured in your backend `.env`.*
+
+## Database migrations (Alembic)
+The schema is version-controlled with [Alembic](https://alembic.sqlalchemy.org/) in `backend/migrations/`.
+Run these from the `backend/` folder; they use the same `DATABASE_URL` as the app.
+
+- **Apply pending migrations:** `alembic upgrade head` (the Docker image does this on start; `python init_db.py` is equivalent).
+- **Change the schema:** edit `app/models.py`, then
+  ```bash
+  alembic revision --autogenerate -m "describe the change"
+  ```
+  Review the generated file in `migrations/versions/` before committing it. Autogenerate does **not** detect
+  changes to enum values, triggers or functions; write those by hand with `op.execute(...)`.
+- **Check models and database agree:** `alembic check`
+- **Roll back one step:** `alembic downgrade -1`
+- **Database created before Alembic (via the old `db.create_all()`):** it already has the baseline schema, so mark it
+  instead of creating tables again. Run this once:
+  ```bash
+  alembic stamp c4b73eeee6d0
+  ```
+  then run `alembic upgrade head` to apply the migrations after the baseline.
 
 2. **Frontend**:
    ```bash

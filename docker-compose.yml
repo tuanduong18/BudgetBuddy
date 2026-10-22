@@ -12,6 +12,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    # The backend runs migrations on start, so it must wait until Postgres
+    # actually accepts connections (not just until the container exists).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d budgetbuddy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     build: 
@@ -24,7 +31,8 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build: 
