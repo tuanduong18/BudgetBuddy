@@ -74,8 +74,8 @@ The stack is split deliberately:
 2. In Render: **New → Blueprint**, select the repo. It reads [render.yaml](render.yaml)
    and creates the service, generating `JWT_SECRET_KEY` and `SECRET_KEY` for you.
 3. Set **`DATABASE_URL`** manually to the session-pooler URI from step 1.
-4. Deploy. The container runs `init_db.py` on boot, so tables and triggers are
-   created automatically — there is no manual database setup step.
+4. Deploy. The container runs `init_db.py` on boot, which applies any pending
+   [database migrations](#database-migrations-alembic) automatically — there is no manual database setup step.
 
 The live deployment is at **https://budgetbuddy-api-bc4e.onrender.com**.
 
@@ -201,6 +201,26 @@ python run.py
 ```
 
 Requires a PostgreSQL instance you can reach. Python 3.11–3.14 are supported.
+
+## Database migrations (Alembic)
+
+The schema is version-controlled with [Alembic](https://alembic.sqlalchemy.org/) in `backend/migrations/`.
+Run these from the `backend/` folder; they use the same `DATABASE_URL` as the app.
+
+- **Apply pending migrations:** `python init_db.py` (the Docker image runs it on every boot). It is
+  `alembic upgrade head`, plus one extra step: a database created before Alembic (by the old
+  `db.create_all()`) is detected and stamped at the baseline revision first, so its existing tables are
+  kept rather than created again.
+- **Change the schema:** edit `app/models.py`, then
+  ```bash
+  alembic revision --autogenerate -m "describe the change"
+  ```
+  Review the generated file in `migrations/versions/` before committing it. Autogenerate does **not** detect
+  changes to enum values, triggers or functions; write those by hand with `op.execute(...)`.
+- **Check models and database agree:** `alembic check`
+- **Roll back one step:** `alembic downgrade -1`
+- **Row Level Security:** every table has RLS enabled with no policies, which blocks Supabase's Data API (anon key).
+  The backend is unaffected because it connects as the tables' owner, which bypasses RLS.
 
 ## Environment variables
 

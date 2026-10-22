@@ -34,9 +34,10 @@ USER appuser
 ENV PORT=5000
 EXPOSE 5000
 
-# Create tables and triggers, then start the server. init_db.py is idempotent
-# (CREATE TABLE IF NOT EXISTS / CREATE OR REPLACE), so it is safe on every
-# boot and means a fresh database does not need a manual setup step.
+# Apply pending database migrations, then start the server. init_db.py runs
+# `alembic upgrade head` (stamping a pre-Alembic database at the baseline
+# first), so it is safe on every boot and means a fresh database does not need
+# a manual setup step.
 #
 # -w 1 is mandatory, not a tuning choice: Socket.IO has no message queue
 # configured, and each worker would open its own duplicate LISTEN connection.

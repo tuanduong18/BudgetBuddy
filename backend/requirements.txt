@@ -24,6 +24,9 @@ SQLAlchemy==2.0.40
 # source build that needs libpq headers and a C compiler.
 psycopg2-binary==2.9.12
 
+# Schema migrations (backend/migrations/)
+alembic==1.20.0
+
 # Async / WebSocket support
 # Provides the greenlet-based worker class gunicorn runs with, and is
 # required for Flask-SocketIO's WebSocket transport. 0.41.1 is the first
