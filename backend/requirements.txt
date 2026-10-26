@@ -14,30 +14,30 @@
 Flask==3.1.3
 flask-cors==5.0.1
 Flask-JWT-Extended==4.7.4
-Flask-SocketIO==5.6.1
+Flask-SocketIO==5.7.0
 Flask-SQLAlchemy==3.1.1
-Werkzeug==3.1.8
+Werkzeug==3.1.9
 
 # Database
-SQLAlchemy==2.0.52
+SQLAlchemy==2.1.6
 # 2.9.12 is the first release with cp314 wheels; earlier pins force a
 # source build that needs libpq headers and a C compiler.
 psycopg2-binary==2.9.13
 
 # Schema migrations (backend/migrations/)
-alembic==1.20.0
+alembic==1.20.1
 
 # Async / WebSocket support
 # Provides the greenlet-based worker class gunicorn runs with, and is
 # required for Flask-SocketIO's WebSocket transport. 0.41.1 is the first
 # release declaring Python 3.14 support.
-eventlet==0.41.2
+eventlet==0.41.3
 
 # HTTP client (used for the exchange-rate lookup in app/extension.py)
 requests==2.34.2
 
 # Environment & config
-python-dotenv==1.2.3
+python-dotenv==1.2.4
 
 # WSGI server (production)
 gunicorn==23.0.0
