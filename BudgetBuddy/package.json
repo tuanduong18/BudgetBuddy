@@ -61,10 +61,10 @@
     "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^7.29.13",
     "@types/react": "~19.2.4",
     "eslint": "^9.25.0",
-    "eslint-config-expo": "~57.0.0",
+    "eslint-config-expo": "~57.0.2",
     "typescript": "~6.0.3"
   },
   "private": true
